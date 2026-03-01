@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard · DOJAA Vulnerability Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <header>
+    <img src="dojaa-logo.png" alt="DOJAA" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+    <span style="display:none; font-weight: 700;">DOJAA</span>
+    <div class="header-right">
+      <div class="header-alert" id="header-alert" aria-hidden="true">
+        <button type="button" class="header-alert-btn" id="alert-icon-btn" aria-label="Alerts" title="Vulnerability detected — send to email">
+          <svg class="alert-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="alert-badge" id="alert-badge">1</span>
+        </button>
+        <div class="header-alert-dropdown" id="alert-dropdown" role="dialog" aria-label="Alert options">
+          <div class="alert-dropdown-head">
+            <strong>Vulnerability detected</strong>
+            <p class="alert-dropdown-desc" id="alert-dropdown-desc">New finding requires attention. Send an alert to email.</p>
+          </div>
+          <form id="alert-form" class="alert-form-inline">
+            <div class="form-group">
+              <label for="alert-to">To</label>
+              <input type="email" id="alert-to" name="to" placeholder="email@example.com" required>
+              <span class="error-msg" id="alert-to-error"></span>
+            </div>
+            <div class="form-group">
+              <label for="alert-subject">Subject</label>
+              <input type="text" id="alert-subject" name="subject" placeholder="e.g. Critical vulnerability detected" required>
+            </div>
+            <div class="form-group">
+              <label for="alert-message">Message</label>
+              <textarea id="alert-message" name="message" rows="3" placeholder="Alert details..." required></textarea>
+            </div>
+            <div class="alert-actions">
+              <button type="submit" id="alert-submit" class="btn-send">Send to email</button>
+              <span class="alert-status" id="alert-status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+      </div>
+      <span class="user">
+        <span id="user-email"></span>
+        <a href="login.html">Sign out</a>
+      </span>
+    </div>
+  </header>
+  <main>
+    <h1>Vulnerability Management Dashboard</h1>
+    <p class="welcome">Welcome to the Digital Observatory for Joint Asset Analysis Security.</p>
+    <div class="card">
+      <h2>Overview</h2>
+      <p>Dashboard content and vulnerability metrics will appear here. This is a placeholder after successful login.</p>
+    </div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
