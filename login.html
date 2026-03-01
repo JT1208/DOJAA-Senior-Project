@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in · DOJAA Vulnerability Management</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo-wrap">
+      <img src="dojaa-logo.png" alt="DOJAA - Digital Observatory for Joint Asset Analysis Security" width="160">
+      <p class="tagline">Digital Observatory for Joint Asset Analysis Security</p>
+    </div>
+    <p class="subtitle">Vulnerability Management Dashboard</p>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@drexel.edu"
+          autocomplete="email"
+          required
+        >
+        <span class="error-msg" id="email-error">Please enter a valid email address.</span>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        >
+        <span class="error-msg" id="password-error">Please enter your password.</span>
+      </div>
+
+      <a href="#" class="forgot">Forgot password?</a>
+
+      <button type="submit">Sign in</button>
+    </form>
+
+    <p class="footer-note">Authorized Drexel accounts only.</p>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>
