@@ -195,9 +195,30 @@ function initDashboardFilters() {
   updateVisibility();
 }
 
+function initExposureScore() {
+  const circle = document.getElementById('exposure-score-circle');
+  const valueEl = document.getElementById('exposure-score-value');
+
+  if (!circle || !valueEl) return;
+
+  let score = Number(sessionStorage.getItem('dojaa_exposure_score'));
+  if (!Number.isFinite(score)) {
+    score = 72;
+  }
+
+  // Clamp between 0–100
+  score = Math.max(0, Math.min(100, score));
+  valueEl.textContent = score;
+
+  // Map 0–100 to a conic gradient sweep angle
+  const angle = (score / 100) * 360;
+  circle.style.setProperty('--exposure-angle', angle.toFixed(0) + 'deg');
+}
+
 function init() {
   initEmailJS();
   initDashboardFilters();
+  initExposureScore();
 }
 
 if (document.readyState === 'loading') {

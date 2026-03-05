@@ -48,6 +48,14 @@
           </form>
         </div>
       </div>
+      <div class="header-actions">
+        <button type="button" class="header-btn header-btn-secondary" id="header-rescan-btn">
+          Rescan
+        </button>
+        <button type="button" class="header-btn header-btn-primary" id="header-report-btn">
+          Generate report
+        </button>
+      </div>
       <span class="user">
         <span id="user-email"></span>
         <a href="login.html">Sign out</a>
@@ -73,26 +81,26 @@
         </select>
       </section>
 
-      <section class="panel panel-top panel-circle panel-exposure" aria-label="Exposure score">
-        <div class="panel-circle-inner">
-          <h2>Exposure score</h2>
+      <section class="panel panel-top panel-circle panel-exposure" aria-label="Exposure score indicator">
+        <div class="panel-circle-inner exposure-pie" id="exposure-score-circle">
+          <div class="exposure-score-main">
+            <span class="exposure-score-label">Exposure score</span>
+            <span class="exposure-score-value" id="exposure-score-value">72</span>
+          </div>
         </div>
       </section>
 
-      <section class="panel panel-top panel-circle panel-severity" aria-label="Severity distribution pie chart">
+      <section class="panel panel-top panel-circle panel-severity" aria-label="Vulnerability severity distribution">
         <div class="panel-circle-inner">
-          <h2>Severity distribution pie chart</h2>
+          <div class="severity-pie" role="img" aria-label="Distribution of vulnerabilities by severity"></div>
         </div>
+        <ul class="severity-legend" aria-label="Severity breakdown legend">
+          <li><span class="legend-dot critical"></span>Critical</li>
+          <li><span class="legend-dot high"></span>High</li>
+          <li><span class="legend-dot medium"></span>Medium</li>
+          <li><span class="legend-dot low"></span>Low</li>
+        </ul>
       </section>
-
-      <button type="button" class="panel panel-top panel-action panel-rescan">
-        <span>Click to rescan</span>
-      </button>
-
-      <button type="button" class="panel panel-top panel-action panel-report">
-        <span>Generate report</span>
-        <span class="panel-muted">(report is in XML format)</span>
-      </button>
 
       <section class="panel panel-data-details" aria-label="Data details">
         <h3>Data organizes to display results</h3>
