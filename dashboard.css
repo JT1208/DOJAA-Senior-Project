@@ -329,7 +329,65 @@ h1 {
 
 .panel-risk {
   grid-area: risk;
+  align-items: flex-start;
 }
+
+.risk-list-subtitle {
+  margin-bottom: 0.5rem;
+}
+
+.risk-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.risk-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.risk-list li:last-child {
+  border-bottom: none;
+}
+
+.risk-list .risk-severity-badge {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-top: 0.35rem;
+}
+
+.risk-list .risk-severity-badge.critical { background-color: #ef4444; }
+.risk-list .risk-severity-badge.high { background-color: #f97316; }
+.risk-list .risk-severity-badge.medium { background-color: #eab308; }
+.risk-list .risk-severity-badge.low { background-color: #22c55e; }
+
+.risk-list .risk-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.risk-list .risk-id {
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.risk-list .risk-summary {
+  opacity: 0.9;
+  font-size: 0.78rem;
+}
+
 
 .panel-remediation {
   grid-area: remediation;
@@ -355,6 +413,10 @@ h1 {
   justify-content: center;
   padding: 0.75rem;
   text-align: center;
+}
+
+.panel-exposure .panel-circle-inner {
+  max-width: 240px;
 }
 
 .panel-circle h2 {
@@ -403,6 +465,23 @@ h1 {
       #eab308 185deg 275deg,
       #22c55e 275deg 360deg
     );
+}
+
+.severity-upload {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.severity-upload label {
+  opacity: 0.9;
+}
+
+.severity-upload input[type="file"] {
+  font-size: 0.78rem;
 }
 
 .severity-circles {
@@ -460,10 +539,12 @@ h1 {
 }
 
 .legend-dot {
-  width: 9px;
-  height: 9px;
+  width: 12px;
+  height: 12px;
   border-radius: 999px;
   display: inline-block;
+  border: 2px solid rgba(15, 23, 42, 0.7);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.25);
 }
 
 .legend-dot.critical {

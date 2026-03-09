@@ -94,6 +94,10 @@
         <div class="panel-circle-inner">
           <div class="severity-pie" role="img" aria-label="Distribution of vulnerabilities by severity"></div>
         </div>
+        <div class="severity-upload">
+          <label for="cve-csv-input">Upload CVE CSV</label>
+          <input type="file" id="cve-csv-input" accept=".csv,text/csv">
+        </div>
         <ul class="severity-legend" aria-label="Severity breakdown legend">
           <li><span class="legend-dot critical"></span>Critical</li>
           <li><span class="legend-dot high"></span>High</li>
@@ -116,10 +120,9 @@
       </section>
 
       <section class="panel panel-risk" aria-label="Risk list">
-        <p>
-          Risk shows filtered risk related to data type.
-          Risk in list format based on level of severity.
-        </p>
+        <h3>Risk list</h3>
+        <p class="panel-subtitle risk-list-subtitle">Upload a CVE CSV to display risks by severity.</p>
+        <ul class="risk-list" id="risk-list"></ul>
       </section>
 
       <section class="panel panel-remediation" aria-label="Remediation guidance">
