@@ -1,0 +1,1520 @@
+[
+  {
+    "ip": "144.118.67.108",
+    "port": 443,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:45:06 GMT\r\nConnection: close\r\nContent-Length: 315\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.50",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.50/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.108",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 302 Found\r\nDate: Thu, 19 Mar 2026 05:44:14 GMT\r\nServer: Apache/2.4.52 (Ubuntu)\r\nLocation: http://drexel.edu/cci/academics/departments/computer-science/\r\nContent-Length: 326\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.203.106",
+    "port": 443,
+    "service": "nginx",
+    "banner": "HTTP/1.1 200 OK\r\nServer: nginx/1.20.1\r\nDate: Thu, 19 Mar 2026 05:43:51 GMT\r\nContent-Type: text/html;charset=utf-8\r\nContent-Length: 6899\r\nConnection: keep-alive\r\nSet-Cookie: session_id=ae978f9c11b8f70c9977c991a6547dfb67fd0fdb; expires=Thu, 19 Mar 2026 06:43:51 GMT; Path=/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.2",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.51",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.51/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.160",
+    "port": 80,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nDate: Thu, 19 Mar 2026 05:42:09 GMT\r\nServer: Apache/2.4.62 (AlmaLinux) OpenSSL/3.5.1\r\nLocation: https://129.25.203.160/\r\nContent-Length: 231\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.80",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.80/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.2",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.2/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.118",
+    "port": 443,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:39:26 GMT\r\nConnection: close\r\nContent-Length: 315\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.234.132",
+    "port": 443,
+    "service": "nginx",
+    "banner": "HTTP/1.1 400 Bad Request\r\nServer: nginx\r\nDate: Thu, 19 Mar 2026 05:39:09 GMT\r\nContent-Type: text/html\r\nContent-Length: 650\r\nConnection: close\r\nStrict-Transport-Security: max-age=63072000\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.69",
+    "port": 443,
+    "service": null,
+    "banner": "HTTP/1.1 302 \r\nLocation: http://dwapps.drexel.edu/Dashboard/\r\nTransfer-Encoding: chunked\r\nDate: Thu, 19 Mar 2026 05:37:05 GMT\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.131",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.107",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.107/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.69",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.69/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.112",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.39.132",
+    "port": 443,
+    "service": null,
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:35:19 GMT\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 4533\r\nConnection: keep-alive\r\nx-frame-options: SAMEORIGIN\r\nx-content-type-options: nosniff\r\nx-permitted-cross-domain-policies: none\r\nreferrer-policy: strict-origin-when-cross-origin\r\ncache-control: no-store\r\nexpires: Mon, 01 Jan 1990 00:00:00 GMT\r\nx-forwarded-for: undefined\r\nlink: </assets/application-cb17788845f32217c8a42706c7b1e367f1b62ff39a1fdd77d8ef8fa821bdeacc.css>; rel=preload; as=style; nopush,</i18n/en-a70abe2e55dbcaafacc2353246e628a8a9f88afee76a93fc925203b09270b4f6.js>; rel=preload; as=script; nopush,</assets/application-9464d444a200a324f2301384dcee84a9d6c8e4697684f175a689e831a7c9ca6a.js>; rel=preload; as=script; nopush\r\ncontent-security-policy: default-src 'none'; base-uri 'none'; form-action  'self'; frame-ancestors 'none'; img-src 'self'; script-src 'nonce-FFcTg7DRKiHJ8pI596uzJg==' 'self'; style-src 'self' 'nonce-FFcTg7DRKiHJ8pI596uzJg==' 'sha256-J7S43U7P4IyRwR2p1HK6h8nBUj1WYn8uQhCoaTy1GMU=' ; font-src 'self'; connect-src 'self';\r\netag: W/\"1572ef48b15616a570628d9cec3bfe1f\"\r\nset-cookie: _filetransfer_session=2jX8dlaZSpmorgBOHt2NQ5QUqXogFrO6e7LQGwjQGhnDCqX3r7WG%2FGB%2BxbDBM5oxNcg4ER%2Blt7W%2F1v0FgrGMMmseGFtDWTKMaHMiYw1dA%2FA0u6ad1wPk2KLZ55Ekb77i4Jq%2BVxtE%2Bt2WiBMHdhlBLUZGTyK6JeD0slFPhg66%2FLRPwAzzpEf4UVIs%2BnfxjlmAm16Gr%2FFe3CoIV6fJI%2FdbGQSIzn5etmbkNzugzH5FOycBtWVbpabS3XFfxEi%2B9LMesxeNJbPkdcqmLaz%2F9xYNaldELF7nktS%2BlESO7YI%3D--6ywHhKp8CVSniowO--anVydsOrRuPfsF1Ic1AN0Q%3D%3D; path=/; secure; httponly; samesite=lax\r\nx-request-id: 20e083e5-cf20-4c46-a391-c770972b3595\r\nStrict-Transport-Security: max-age=63072000\r\nX-Robots-Tag: noindex, nofollow\r\nPermissions-Policy: camera=(), fullscreen=(self), geolocation=(self), gyroscope=(), microphone=(), clipboard-read=(self), clipboard-write=(self)\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.97",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.97/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.80",
+    "port": 443,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Found\r\nCache-Control: private\r\nContent-Type: text/html; charset=utf-8\r\nLocation: http://144.118.67.80/EventList.aspx?fromdate=3/19/2026&todate=3/19/2026&display=Day&view=DateTime\r\nServer: Microsoft-IIS/8.5\r\nX-AspNet-Version: 2.0.50727\r\nSet-Cookie: ASP.NET_SessionId=5h1ml045mhhm1y3hna3qyanc; path=/; HttpOnly\r\nX-Powered-By: ASP.NET\r\nX-Frame-Options: SAMEORIGIN\r\nDate: Thu, 19 Mar 2026 05:49:08 GMT\r\nContent-Length: 226\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.98",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.98/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.59",
+    "port": 443,
+    "service": null,
+    "banner": "HTTP/1.1 403 Forbidden\r\nCache-Control: max-age=3600\r\nContent-Type: text/html\r\nX-Frame-Options: SAMEORIGIN\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:44:04 GMT\r\nContent-Length: 1233\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.59.198",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 403 Forbidden\r\nCache-Control: public\r\nContent-Type: text/html\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:31:26 GMT\r\nContent-Length: 102416\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.58.83",
+    "port": 80,
+    "service": null,
+    "banner": "HTTP/1.1 200 OK\r\nConnection: close\r\nX-Frame-Options: SAMEORIGIN\r\nContent-Type: text/html\r\nContent-Encoding: gzip\r\nCache-Control: max-age=600, must-revalidate\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.58.54",
+    "port": 443,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/mse/ncel\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:30:26 GMT\r\nContent-Length: 163\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.57.223",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/mse/soft\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:30:26 GMT\r\nContent-Length: 163\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.121",
+    "port": 443,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:30:12 GMT\r\nConnection: close\r\nContent-Length: 315\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.59.82",
+    "port": 443,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Found\r\nCache-Control: private\r\nContent-Type: text/html; charset=utf-8\r\nLocation: https://drexel.edu/engineering/about/faculty-staff/\r\nServer: Microsoft-IIS/10.0\r\nX-AspNet-Version: 4.0.30319\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=31536000\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:29:07 GMT\r\nContent-Length: 168\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.123",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.123/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.3",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:28:17 GMT\r\nServer: Apache/2.4.62 (AlmaLinux) OpenSSL/3.5.1\r\nStrict-Transport-Security: max-age=63072000; includeSubDomains\r\nLast-Modified: Tue, 25 Jun 2024 13:23:32 GMT\r\nETag: \"0-61bb6cde19357\"\r\nAccept-Ranges: bytes\r\nContent-Length: 0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.10",
+    "port": 443,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:27:29 GMT\r\nConnection: close\r\nContent-Length: 315\r\nStrict-Transport-Security: max-age=31536000\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.219.201",
+    "port": 80,
+    "service": "nginx",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nServer: nginx/1.28.2\r\nDate: Thu, 19 Mar 2026 05:27:11 GMT\r\nContent-Type: text/html\r\nContent-Length: 169\r\nConnection: keep-alive\r\nLocation: https://129.25.219.201/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.67",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.67/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.7",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:27:01 GMT\r\nServer: Apache/2.4.37 (Red Hat Enterprise Linux) OpenSSL/1.1.1k\r\nCache-Control: private, max-age=0, must-revalidate\r\nLast-Modified: Fri, 24 Jul 2020 13:53:32 GMT\r\nETag: \"81-5ab304c71cbda\"\r\nAccept-Ranges: bytes\r\nContent-Length: 129\r\nContent-Type: text/html; charset=UTF-8\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.19",
+    "port": 443,
+    "service": null,
+    "banner": "HTTP/1.1 302 Found\r\nSet-Cookie: LUMINIS_NODE_ID=kplportalweb05.irt.drexel.edu; Path=/\r\nSet-Cookie: JSESSIONID=5A6E3B132BB50788BE76785DA7D59863; Path=/; HttpOnly\r\nSet-Cookie: JSESSIONID=; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/\r\nSet-Cookie: LP_TARGET_URL=https%3A%2F%2Fone.drexel.edu%2F; Max-Age=300; Expires=Thu, 19 Mar 2026 05:31:59 GMT; Path=/\r\nLocation: https://connect.drexel.edu:443/idp/profile/cas/login?service=https%3A%2F%2F144.118.67.19%2Fc%2Fportal%2Flogin\r\nContent-Length: 0\r\nDate: Thu, 19 Mar 2026 05:26:59 GMT\r\nConnection: close\r\nSet-Cookie: DREXELONE-COOKIE=2853764618.36895.0000; path=/; Httponly; Secure\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.55",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.38.184",
+    "port": 80,
+    "service": null,
+    "banner": "HTTP/1.1 301 Moved Permanently\r\ncontent-length: 0\r\nlocation: https://144.118.38.184/\r\nx-trace-id: 848bc189-a169-4665-9dd8-fd0dbba85c25\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.126",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.126/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.33",
+    "port": 80,
+    "service": "nginx",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nServer: nginx/1.18.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 05:25:09 GMT\r\nContent-Type: text/html\r\nContent-Length: 178\r\nConnection: keep-alive\r\nLocation: https://proofbuddy.cci.drexel.edu/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.117",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.84",
+    "port": 443,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:24:58 GMT\r\nConnection: close\r\nContent-Length: 315\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.125",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.45",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.45/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.39.218",
+    "port": 80,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:24:09 GMT\r\nConnection: close\r\nContent-Length: 315\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.9.28",
+    "port": 80,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nDate: Thu, 19 Mar 2026 05:24:04 GMT\r\nServer: Apache\r\nContent-Security-Policy: default-src 'self'; img-src 'self'; media-src 'none'; object-src 'none';  form-action 'self'; frame-src 'self'; frame-ancestors 'self' ; connect-src 'none'; script-src 'none'; base-uri 'self';  font-src 'self';  style-src 'self'; worker-src 'none'; manifest-src 'none'; prefetch-src 'none'; navigate-to 'self' www.drexel.edu one.drexel.edu www.drexel.edu/physics;upgrade-insecure-requests\r\nPermissions-Policy: geolocation=(), camera=(), microphone=()\r\nCache-Control: no-store\r\nReferrer-Policy: no-referrer\r\nX-Frame-Options: sameorigin\r\nX-Content-Type-Options: nosniff\r\nLocation: https://labserver.physics.drexel.edu/\r\nContent-Length: 245\r\nConnection: close\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.128",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.128/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.178",
+    "port": 80,
+    "service": "nginx",
+    "banner": "HTTP/1.1 200 OK\r\nServer: nginx/1.18.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 05:22:38 GMT\r\nContent-Type: text/html\r\nContent-Length: 612\r\nLast-Modified: Fri, 21 Oct 2022 18:21:00 GMT\r\nConnection: keep-alive\r\nETag: \"6352e30c-264\"\r\nAccept-Ranges: bytes\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.74",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:22:34 GMT\r\nServer: Apache/2.4.62 (Red Hat Enterprise Linux) OpenSSL/3.5.1\r\nX-Frame-Options: SAMEORIGIN\r\nContent-Security-Policy: upgrade-insecure-requests ; img-src 'self' data: ; default-src 'self' 'unsafe-inline' 'unsafe-eval' fonts.googleapis.com fonts.gstatic.com\r\nTransfer-Encoding: chunked\r\nContent-Type: text/html; charset=UTF-8\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.108",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.108/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.56.130",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/ece/vlsi/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:21:52 GMT\r\nContent-Length: 164\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.106",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.19",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.19/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.117",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.117/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.1.193",
+    "port": 80,
+    "service": null,
+    "banner": "HTTP/1.0 302 Temporary moved\r\nContent-Length: 0\r\nCache-Control: no-store\r\nPragma: no-cache\r\nConnection: Close\r\nDate: Thu, 19 Mar 2026 05:21:29 GMT\r\nX-Frame-Options: SAMEORIGIN\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nX-Content-Type-Options: nosniff\r\nX-XSS-Protection: 1\r\nContent-Security-Policy: default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; frame-ancestors 'self'; base-uri 'self'; block-all-mixed-content\r\nCross-Origin-Opener-Policy: same-origin-allow-popups\r\nLocation: https://144.118.1.193/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.33",
+    "port": 443,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://drexel.edu/it/help/a-z/network-registration/campus-only/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.124",
+    "port": 443,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\nServer: Microsoft-IIS/10.0\r\nDate: Thu, 19 Mar 2026 05:21:10 GMT\r\nContent-Length: 1233\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.6",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:20:34 GMT\r\nServer: Apache/2.4.37 (Red Hat Enterprise Linux) OpenSSL/1.1.1k\r\nCache-Control: private, max-age=0, must-revalidate\r\nLast-Modified: Thu, 16 Jul 2020 18:40:10 GMT\r\nETag: \"91-5aa935ec0b29e\"\r\nAccept-Ranges: bytes\r\nContent-Length: 145\r\nContent-Type: text/html; charset=UTF-8\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.61.65",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/mse/nanomaterials/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:19:42 GMT\r\nContent-Length: 173\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.60.149",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Redirect\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://129.25.60.149/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:19:31 GMT\r\nContent-Length: 145\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.59.19",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Redirect\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://129.25.59.19/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:19:22 GMT\r\nContent-Length: 144\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.87",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.129",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.129/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.125",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.125/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.190",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 302 Found\r\nDate: Thu, 19 Mar 2026 05:18:19 GMT\r\nServer: Apache/2.4.52 (Ubuntu)\r\nLocation: http://drexel.edu/cci/\r\nContent-Length: 287\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.58.234",
+    "port": 80,
+    "service": null,
+    "banner": "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nAccess-Control-Allow-Origin: *\r\nX-Frame-Options: SAMEORIGIN\r\nDate: Thu, 19 Mar 2026 05:17:54 GMT\r\nServer: Solstice 2.0\r\nLast-Modified: Thu, 19 Mar 2026 05:17:54 GMT\r\nConnection: close\r\nContent-Length: 2143\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.58.236",
+    "port": 80,
+    "service": null,
+    "banner": "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nAccess-Control-Allow-Origin: *\r\nX-Frame-Options: SAMEORIGIN\r\nDate: Thu, 19 Mar 2026 05:17:07 GMT\r\nServer: Solstice 2.0\r\nLast-Modified: Thu, 19 Mar 2026 05:17:07 GMT\r\nConnection: close\r\nContent-Length: 2143\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.114",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.114/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.54",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.54/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.87",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.87/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.13.4",
+    "port": 80,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.86",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.107",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.203.108",
+    "port": 80,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 302 Found\r\nDate: Thu, 19 Mar 2026 05:15:43 GMT\r\nServer: Apache/2.4.52 (Ubuntu)\r\nLocation: https://www.cs.drexel.edu/\r\nContent-Length: 290\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.58.97",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.59.200",
+    "port": 443,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Redirect\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://drexel.edu/engineering/student-experience/student-organizations\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:16:38 GMT\r\nContent-Length: 194\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.75",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.75/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.57.45",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/ece/dwsl/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:13:59 GMT\r\nContent-Length: 164\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.143",
+    "port": 80,
+    "service": "nginx",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nServer: nginx/1.24.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 05:13:48 GMT\r\nContent-Type: text/html\r\nContent-Length: 178\r\nConnection: keep-alive\r\nLocation: https://129.25.203.143/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.61.94",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Redirect\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/ece/dk12/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:13:41 GMT\r\nContent-Length: 164\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.61",
+    "port": 443,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 200 OK\r\nCache-Control: private\r\nContent-Type: text/html; Charset=utf-8\r\nServer: Microsoft-IIS/10.0\r\nSet-Cookie: ASPSESSIONIDSAADTRCQ=MECDJBLBHNLBDIANAAGHLFJD; path=/\r\nX-Frame-Options: SAMEORIGIN\r\nX-Powered-By: ASP.NET\r\nX-Content-Type-Options: nosniff\r\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; img-src 'self'; media-src 'none'; connect-src 'self'; worker-src 'none'; frame-src 'none'; style-src 'self' 'unsafe-inline'; form-action 'self'\r\nDate: Thu, 19 Mar 2026 05:13:32 GMT\r\nContent-Length: 2509\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.57.128",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 403 Forbidden\r\nContent-Type: text/html\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:12:44 GMT\r\nContent-Length: 102416\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.128",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.203.118",
+    "port": 80,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:12:30 GMT\r\nServer: Apache/2.4.52 (Ubuntu)\r\nLast-Modified: Fri, 13 May 2016 21:05:27 GMT\r\nETag: \"d2b1-532bfa25253c0\"\r\nAccept-Ranges: bytes\r\nContent-Length: 53937\r\nVary: Accept-Encoding\r\nContent-Type: text/html\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.62.79",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nLast-Modified: Tue, 10 Apr 2018 20:25:12 GMT\r\nAccept-Ranges: bytes\r\nETag: \"0c4ed6ad1d31:0\"\r\nServer: Microsoft-IIS/10.0\r\nDate: Thu, 19 Mar 2026 05:12:06 GMT\r\nContent-Length: 580\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.59.156",
+    "port": 80,
+    "service": "Microsoft IIS httpd",
+    "banner": "HTTP/1.1 302 Redirect\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://drexel.edu/core-facilities/facilities/material-characterization\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 05:11:54 GMT\r\nContent-Length: 194\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.61",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.61/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.34",
+    "port": 443,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:11:16 GMT\r\nServer: Apache\r\nContent-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' *.edu *.schillingconsulting.com *.googleapis.com *.jquery.com www.ssa.gov; connect-src 'self' *.oasisscheduling.com; img-src 'self' *.oasisscheduling.com *.edu data:; style-src 'self' 'unsafe-inline';base-uri 'self';form-action 'self' *.oasisscheduling.com; frame-ancestors 'self';\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\nX-Content-Type-Options: nosniff\r\nX-Content-Type-Options: nosniff\r\nX-Frame-Options: sameorigin\r\nX-XSS-Protection: 1\r\nSet-Cookie: OASIS_SESSION_ID=bb5d35760a75434afff41043e04e9c6e; path=/; secure; HttpOnly; SameSite=Lax\r\nPragma: no-cache\r\nCache-control: no-cache\r\nExpires: Thu, 19 Mar 2026 05:11:16 GMT\r\nTransfer-Encoding: chunked\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.66.36",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.139.140",
+    "port": 80,
+    "service": null,
+    "banner": "HTTP/1.1 302 Found\r\ncontent-length: 0\r\nlocation: https://129.25.139.140/\r\ncache-control: no-cache\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.66.36",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.66.36/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.66.114",
+    "port": 443,
+    "service": null,
+    "banner": "",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "129.25.207.152",
+    "port": 80,
+    "service": "nginx",
+    "banner": "HTTP/1.1 302 Moved Temporarily\r\nServer: nginx\r\nDate: Thu, 19 Mar 2026 05:09:26 GMT\r\nContent-Type: text/html\r\nContent-Length: 138\r\nConnection: keep-alive\r\nKeep-Alive: timeout=20\r\nLocation: http://129.25.207.152:5390/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.120",
+    "port": 443,
+    "service": "nginx",
+    "banner": "HTTP/1.1 200 OK\r\nServer: nginx\r\nDate: Thu, 19 Mar 2026 05:09:19 GMT\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: 6798\r\nConnection: keep-alive\r\nContent-Language: en\r\nX-Frame-Options: SAMEORIGIN\r\nX-Download-Options: noopen\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: origin-when-cross-origin\r\nX-XSS-Protection: 1; mode=block\r\nETag: W/\"1a8e-ZFSppr/YJ/ikX5PfQBNyMNAfS90\"\r\nSet-Cookie: sharelatex.sid=s%3A6Jiw-h22g9nQhwAnPGAdURJ3aTqOFn8x.mK3mXfeGXxcmDTZbRJput0PlfoqNzSKEMXqBiNwKaQ4; Path=/; Expires=Tue, 24 Mar 2026 05:09:19 GMT; HttpOnly; SameSite=Lax\r\nStrict-Transport-Security: max-age=31536000; includeSubdomains;\r\nX-Frame-Options: SAMEORIGIN\r\nX-Content-Type-Options: nosniff\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  },
+  {
+    "ip": "144.118.67.27",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.27/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.202.106",
+    "port": 80,
+    "service": "nginx",
+    "banner": "HTTP/1.1 301 Moved Permanently\r\nServer: nginx/1.24.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 05:09:29 GMT\r\nContent-Type: text/html\r\nContent-Length: 178\r\nConnection: keep-alive\r\nLocation: https://129.25.202.106/\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.203.161",
+    "port": 80,
+    "service": "Apache httpd",
+    "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 05:09:03 GMT\r\nServer: Apache/2.4.62 (AlmaLinux) OpenSSL/3.5.1\r\nLast-Modified: Mon, 16 Mar 2026 13:01:58 GMT\r\nETag: \"5e3-64d23d2ee3c81\"\r\nAccept-Ranges: bytes\r\nContent-Length: 1507\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.91",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.91/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.115",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.115/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.67.84",
+    "port": 80,
+    "service": "BigIP",
+    "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.84/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "144.118.39.16",
+    "port": 80,
+    "service": "Microsoft HTTPAPI httpd",
+    "banner": "HTTP/1.1 404 Not Found\r\nContent-Type: text/html; charset=us-ascii\r\nServer: Microsoft-HTTPAPI/2.0\r\nDate: Thu, 19 Mar 2026 05:08:13 GMT\r\nConnection: close\r\nContent-Length: 315\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": true,
+    "https_exposed": false,
+    "known": false,
+    "risk_score": 2,
+    "recommendations": [
+      "Redirect HTTP to HTTPS"
+    ]
+  },
+  {
+    "ip": "129.25.10.42",
+    "port": 443,
+    "service": "nginx",
+    "banner": "HTTP/1.1 401 Unauthorized\r\nServer: nginx/1.18.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 05:08:05 GMT\r\nContent-Type: text/html\r\nContent-Length: 590\r\nConnection: keep-alive\r\nWWW-Authenticate: Basic realm=\"Recordings\"\r\n\r\n",
+    "asn": "AS11834",
+    "provider": "Drexel University",
+    "ssh_exposed": false,
+    "http_exposed": false,
+    "https_exposed": true,
+    "known": false,
+    "risk_score": 0,
+    "recommendations": []
+  }
+]
