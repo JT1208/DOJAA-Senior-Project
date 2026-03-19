@@ -5,11 +5,9 @@ def calculate_risk(asset):
     if asset.get("ssh_exposed"):
         risk_score += 3
         recommendations.append("Restrict SSH access")
-
     if asset.get("http_exposed"):
         risk_score += 2
         recommendations.append("Redirect HTTP to HTTPS")
-
     if asset.get("shadow_asset"):
         risk_score += 5
         recommendations.append("Investigate unauthorized asset")

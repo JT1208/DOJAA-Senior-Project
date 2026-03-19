@@ -3,6 +3,11 @@
 <h1 class="mb-4">Dashboard</h1>
 <p class="lead">Welcome, {{ user }}! Here's a quick overview of your assets.</p>
 
+<!-- Button to rescan -->
+<form method="GET" action="{{ url_for('dashboard') }}">
+  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
+</form>
+
 <div class="row mb-4">
   <div class="col-md-6">
     <div class="card shadow-sm mb-3">
@@ -80,8 +85,17 @@
 
 <script>
 $(document).ready(function(){
-  $('#shodanPreview').DataTable({ "paging": false, "searching": true });
-  $('#censysPreview').DataTable({ "paging": false, "searching": true });
+  // DataTables with footer update on search
+  function updateFooter(tableId) {
+    const table = $(`#${tableId}`).DataTable();
+    const info = table.page.info();
+    $(`#${tableId} tfoot th:last`).text(info.recordsDisplay);
+  }
+
+  $('#shodanPreview').DataTable({ "paging": false, "searching": true })
+    .on('search.dt', function(){ updateFooter('shodanPreview'); });
+  $('#censysPreview').DataTable({ "paging": false, "searching": true })
+    .on('search.dt', function(){ updateFooter('censysPreview'); });
 
   // Exposure chart
   const ctxExposure = document.getElementById('exposureChart').getContext('2d');

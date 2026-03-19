@@ -1,4 +1,3 @@
-# dojaa/pipeline.py
 import os
 import json
 import logging
@@ -14,27 +13,25 @@ logger = logging.getLogger(__name__)
 def run_pipeline(output_file="dashboard_data.json", use_api=False):
     """
     Main pipeline:
-      1. Collect data from Shodan and Censys (or load cached)
+      1. Collect ALL data from Shodan/Censys (or use cached)
       2. Normalize data
-      3. Compare with inventory to mark known assets
+      3. Compare with inventory
       4. Calculate risk scores
-      5. Save to JSON for dashboard consumption
+      5. Save to JSON for dashboard
     """
-
     dashboard = {"shodan": [], "censys": []}
 
-    # --- Step 1: Fetch or load data ---
     if use_api or not os.path.exists(output_file):
         logger.info("Fetching fresh data from APIs...")
         try:
             dashboard["shodan"] = collect_shodan()
         except Exception as e:
-            logger.error(f"Error collecting Shodan data: {e}")
+            logger.error(f"Shodan collection error: {e}")
 
         try:
             dashboard["censys"] = collect_censys()
         except Exception as e:
-            logger.error(f"Error collecting Censys data: {e}")
+            logger.error(f"Censys collection error: {e}")
 
         save_to_json(dashboard, output_file)
     else:
@@ -42,19 +39,12 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
         try:
             with open(output_file, "r") as f:
                 data = json.load(f)
-                if isinstance(data, dict):
-                    dashboard.update({k: data.get(k, []) for k in ["shodan", "censys"]})
-                elif isinstance(data, list):
-                    dashboard["shodan"] = data
-                else:
-                    logger.warning("Unexpected data format in cache, starting fresh")
+                dashboard.update({k: data.get(k, []) for k in ["shodan", "censys"]})
         except Exception as e:
             logger.error(f"Failed to load cached data: {e}")
 
-    # --- Step 2: Load inventory ---
     inventory = load_inventory()
 
-    # --- Step 3: Normalize, mark known assets, and calculate risk ---
     for key in ["shodan", "censys"]:
         normalized = normalize_data(dashboard[key])
         normalized = compare_with_inventory(normalized, inventory)
