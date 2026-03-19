@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Public Hosts</h1>
+<p class="lead">A list of your public hosts and their open services.</p>
+
+<!-- Rescan button -->
+<form method="GET" action="{{ url_for('hosts') }}">
+  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">Hosts Overview</div>
+  <div class="card-body">
+    <table id="hostsTable" class="display table table-striped table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Hostname</th>
+          <th>Services</th>
+          <th>Risk Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in shodan %}
+        <tr>
+          <td>{{ h.ip }}</td>
+          <td>{{ h.hostname or '-' }}</td>
+          <td>{{ h.service or '-' }}</td>
+          <td>{{ h.risk_score or 0 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3">Total Hosts</th>
+          <th>{{ shodan|length }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+  const table = $('#hostsTable').DataTable({
+    "paging": true,
+    "searching": true,
+    "footerCallback": function ( row, data, start, end, display ) {
+      var api = this.api();
+      $(api.column(3).footer()).html(api.rows({ search:'applied' }).count());
+    }
+  });
+  table.on('search.dt', function(){ 
+    const api = table.api ? table.api() : table;
+    $(api.column(3).footer()).html(api.rows({ search:'applied' }).count());
+  });
+});
+</script>
+{% endblock %}

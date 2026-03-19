@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">SSL/TLS Certificates</h1>
+<p class="lead">All SSL/TLS certificates for your scanned assets.</p>
+
+<div class="mb-3">
+  <a href="{{ url_for('ssl_tls') }}?scan=true" class="btn btn-success">Rescan SSL/TLS Data</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-dark text-white">Certificates</div>
+  <div class="card-body">
+    <table id="sslTable" class="display table table-striped table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Issuer</th>
+          <th>Subject</th>
+          <th>Expiry</th>
+          <th>Key Length</th>
+          <th>Self-signed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cert in ssl_tls %}
+        <tr>
+          <td>{{ cert.ip }}</td>
+          <td>{{ cert.issuer }}</td>
+          <td>{{ cert.subject }}</td>
+          <td>{{ cert.expiry }}</td>
+          <td>{{ cert.key_length }}</td>
+          <td>{{ cert.self_signed }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="5">Total Certificates</th>
+          <th>{{ ssl_tls|length }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+  $('#sslTable').DataTable({
+    "paging": true,
+    "searching": true,
+    "info": false,
+    "footerCallback": function(row,data,start,end,display){
+      this.api().columns(5,{search:'applied'}).every(function(){
+        $(this.footer()).html(this.data().count());
+      });
+    }
+  });
+});
+</script>
+{% endblock %}
