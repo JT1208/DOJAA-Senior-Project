@@ -1,3 +1,4 @@
+# app.py
 from flask import Flask, render_template, request, redirect, url_for, session
 from dojaa.pipeline import run_pipeline
 from functools import wraps
@@ -34,11 +35,22 @@ def require_login(func):
     return wrapper
 
 
+# --- HELPER TO GET DATA ---
+def get_dashboard_data(rescan=False):
+    """
+    Returns the dashboard data.
+    If rescan=True, forces fresh API scan and overwrites JSON cache.
+    Otherwise, uses cached data if available.
+    """
+    return run_pipeline(use_api=rescan)
+
+
 # --- DASHBOARD AND OTHER PAGES ---
 @app.route("/dashboard")
 @require_login
 def dashboard():
-    data = run_pipeline(use_api=False)
+    rescan = request.args.get("rescan", "false").lower() == "true"
+    data = get_dashboard_data(rescan=rescan)
     return render_template(
         "dashboard.html",
         shodan=data["shodan"],
@@ -49,7 +61,8 @@ def dashboard():
 @app.route("/hosts")
 @require_login
 def hosts():
-    data = run_pipeline(use_api=False)
+    rescan = request.args.get("rescan", "false").lower() == "true"
+    data = get_dashboard_data(rescan=rescan)
     return render_template(
         "hosts.html",
         shodan=data["shodan"],
@@ -60,7 +73,8 @@ def hosts():
 @app.route("/open_ports")
 @require_login
 def open_ports():
-    data = run_pipeline(use_api=False)
+    rescan = request.args.get("rescan", "false").lower() == "true"
+    data = get_dashboard_data(rescan=rescan)
     return render_template(
         "open_ports.html",
         shodan=data["shodan"],
@@ -71,7 +85,8 @@ def open_ports():
 @app.route("/risk_summary")
 @require_login
 def risk_summary():
-    data = run_pipeline(use_api=False)
+    rescan = request.args.get("rescan", "false").lower() == "true"
+    data = get_dashboard_data(rescan=rescan)
     return render_template(
         "risk_summary.html",
         shodan=data["shodan"],

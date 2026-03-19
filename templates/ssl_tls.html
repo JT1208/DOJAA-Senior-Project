@@ -1,45 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>SSL/TLS · DOJAA</title>
-<link rel="stylesheet" href="../static/dashboard.css">
-</head>
-<body>
-<h1>SSL/TLS Certificates</h1>
-<nav>
-  <a href="dashboard.html">Overview</a> |
-  <a href="open_ports.html">Open Ports</a> |
-  <a href="hosts.html">Public Hosts</a> |
-  <a href="risk_summary.html">Risk Summary</a>
-</nav>
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">SSL/TLS Certificates</h1>
+<p class="lead">All SSL/TLS certificates for your scanned assets.</p>
 
-<table>
-  <thead>
-    <tr>
-      <th>IP</th>
-      <th>Issuer</th>
-      <th>Subject</th>
-      <th>Expiry</th>
-      <th>Key Length</th>
-      <th>Self-signed</th>
-    </tr>
-  </thead>
-  <tbody id="sslTable"></tbody>
-</table>
+<div class="mb-3">
+  <a href="{{ url_for('ssl_tls') }}?scan=true" class="btn btn-success">Rescan SSL/TLS Data</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-dark text-white">Certificates</div>
+  <div class="card-body">
+    <table id="sslTable" class="display table table-striped table-hover" style="width:100%">
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Issuer</th>
+          <th>Subject</th>
+          <th>Expiry</th>
+          <th>Key Length</th>
+          <th>Self-signed</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for cert in ssl_tls %}
+        <tr>
+          <td>{{ cert.ip }}</td>
+          <td>{{ cert.issuer }}</td>
+          <td>{{ cert.subject }}</td>
+          <td>{{ cert.expiry }}</td>
+          <td>{{ cert.key_length }}</td>
+          <td>{{ cert.self_signed }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="5">Total Certificates</th>
+          <th>{{ ssl_tls|length }}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
 
 <script>
-fetch('../dashboard_data.json')
-  .then(res => res.json())
-  .then(data => {
-      const tbody = document.getElementById('sslTable');
-      data.ssl_tls.forEach(cert => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${cert.ip}</td><td>${cert.issuer}</td><td>${cert.subject}</td>
-                          <td>${cert.expiry}</td><td>${cert.key_length}</td><td>${cert.self_signed}</td>`;
-          tbody.appendChild(tr);
+$(document).ready(function(){
+  $('#sslTable').DataTable({
+    "paging": true,
+    "searching": true,
+    "info": false,
+    "footerCallback": function(row,data,start,end,display){
+      this.api().columns(5,{search:'applied'}).every(function(){
+        $(this.footer()).html(this.data().count());
       });
+    }
   });
+});
 </script>
-</body>
-</html>
+{% endblock %}
