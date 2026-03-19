@@ -3,17 +3,13 @@
 <h1 class="mb-4">Risk Summary</h1>
 <p class="lead">Summary of all assets categorized by risk level.</p>
 
-<!-- Rescan button -->
-<form method="GET" action="{{ url_for('risk_summary') }}">
-  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
-</form>
-
-<div class="row mb-4">
-  <div class="col-md-12">
-    <div class="card shadow-sm">
+<div class="row mb-4 justify-content-center">
+  <!-- Smaller, centered risk chart -->
+  <div class="col-md-6 col-lg-4">
+    <div class="card shadow-sm text-center">
       <div class="card-header bg-danger text-white">Risk Breakdown</div>
       <div class="card-body">
-        <canvas id="riskChart" width="400" height="150"></canvas>
+        <canvas id="riskChart" width="250" height="250"></canvas>
       </div>
     </div>
   </div>
@@ -61,20 +57,8 @@
 
 <script>
 $(document).ready(function(){
-  const table = $('#riskTable').DataTable({
-    "paging": true,
-    "searching": true,
-    "footerCallback": function ( row, data, start, end, display ) {
-      var api = this.api();
-      $(api.column(3).footer()).html(api.rows({ search:'applied' }).count());
-    }
-  });
-  table.on('search.dt', function(){ 
-    const api = table.api ? table.api() : table;
-    $(api.column(3).footer()).html(api.rows({ search:'applied' }).count());
-  });
+  $('#riskTable').DataTable({ "paging": true, "searching": true });
 
-  // Risk Chart
   const ctx = document.getElementById('riskChart').getContext('2d');
   new Chart(ctx, {
     type: 'doughnut',
@@ -86,10 +70,24 @@ $(document).ready(function(){
           {{ shodan|selectattr('risk_score','ge',3)|selectattr('risk_score','lt',6)|list|length + censys|selectattr('risk_score','ge',3)|selectattr('risk_score','lt',6)|list|length }},
           {{ shodan|selectattr('risk_score','ge',6)|list|length + censys|selectattr('risk_score','ge',6)|list|length }}
         ],
-        backgroundColor: ['#4bc0c0','#ff9f40','#ff6384']
+        backgroundColor: ['#4bc0c0','#ff9f40','#ff6384'],
+        borderWidth: 1
       }]
     },
-    options: { responsive:true }
+    options: { 
+      responsive: true,
+      maintainAspectRatio: false,  // allows custom sizing
+      plugins: { 
+        legend: { 
+          display: true,
+          position: 'bottom',
+          labels: { boxWidth: 20, padding: 15 }
+        } 
+      },
+      layout: { 
+        padding: { top: 10, bottom: 10 } 
+      }
+    }
   });
 });
 </script>
