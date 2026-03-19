@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SSL/TLS · DOJAA</title>
+<link rel="stylesheet" href="../static/dashboard.css">
+</head>
+<body>
+<h1>SSL/TLS Certificates</h1>
+<nav>
+  <a href="dashboard.html">Overview</a> |
+  <a href="open_ports.html">Open Ports</a> |
+  <a href="hosts.html">Public Hosts</a> |
+  <a href="risk_summary.html">Risk Summary</a>
+</nav>
+
+<table>
+  <thead>
+    <tr>
+      <th>IP</th>
+      <th>Issuer</th>
+      <th>Subject</th>
+      <th>Expiry</th>
+      <th>Key Length</th>
+      <th>Self-signed</th>
+    </tr>
+  </thead>
+  <tbody id="sslTable"></tbody>
+</table>
+
+<script>
+fetch('../dashboard_data.json')
+  .then(res => res.json())
+  .then(data => {
+      const tbody = document.getElementById('sslTable');
+      data.ssl_tls.forEach(cert => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${cert.ip}</td><td>${cert.issuer}</td><td>${cert.subject}</td>
+                          <td>${cert.expiry}</td><td>${cert.key_length}</td><td>${cert.self_signed}</td>`;
+          tbody.appendChild(tr);
+      });
+  });
+</script>
+</body>
+</html>
