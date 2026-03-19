@@ -1,6 +1,21 @@
 {
   "shodan": [
     {
+      "ip": "129.25.12.225",
+      "port": 22,
+      "service": "Drexel University",
+      "banner": "\\r\\n%connection refused by remote host.",
+      "provider": "Drexel University",
+      "ssh_exposed": true,
+      "http_exposed": false,
+      "https_exposed": false,
+      "known": false,
+      "risk_score": 3,
+      "recommendations": [
+        "Restrict SSH access"
+      ]
+    },
+    {
       "ip": "144.118.20.226",
       "port": 22,
       "service": "Linksys WRT45G modified dropbear sshd",
@@ -646,21 +661,6 @@
       ]
     },
     {
-      "ip": "129.25.12.225",
-      "port": 22,
-      "service": "Drexel University",
-      "banner": "\\r\\n%connection refused by remote host.",
-      "provider": "Drexel University",
-      "ssh_exposed": true,
-      "http_exposed": false,
-      "https_exposed": false,
-      "known": false,
-      "risk_score": 3,
-      "recommendations": [
-        "Restrict SSH access"
-      ]
-    },
-    {
       "ip": "129.25.11.148",
       "port": 22,
       "service": "OpenSSH",
@@ -1069,7 +1069,37 @@
       "ip": "144.118.78.21",
       "port": 80,
       "service": "Apache httpd",
-      "banner": "HTTP/1.1 302 Found\r\nDate: Thu, 19 Mar 2026 15:27:53 GMT\r\nServer: Apache/2.4.41 (Ubuntu)\r\nLocation: https://144.118.78.21/\r\nContent-Length: 206\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+      "banner": "HTTP/1.1 302 Found\r\nDate: Thu, 19 Mar 2026 16:31:10 GMT\r\nServer: Apache/2.4.41 (Ubuntu)\r\nLocation: https://144.118.78.21/\r\nContent-Length: 206\r\nContent-Type: text/html; charset=iso-8859-1\r\n\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": true,
+      "https_exposed": false,
+      "known": false,
+      "risk_score": 2,
+      "recommendations": [
+        "Redirect HTTP to HTTPS"
+      ]
+    },
+    {
+      "ip": "129.25.57.45",
+      "port": 80,
+      "service": "Microsoft IIS httpd",
+      "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/ece/dwsl/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 15:52:13 GMT\r\nContent-Length: 164\r\n\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": true,
+      "https_exposed": false,
+      "known": false,
+      "risk_score": 2,
+      "recommendations": [
+        "Redirect HTTP to HTTPS"
+      ]
+    },
+    {
+      "ip": "144.118.67.80",
+      "port": 80,
+      "service": "BigIP",
+      "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.80/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": true,
@@ -1145,21 +1175,6 @@
       "port": 80,
       "service": "nginx",
       "banner": "HTTP/1.1 200 OK\r\nServer: nginx/1.20.1\r\nDate: Thu, 19 Mar 2026 14:35:02 GMT\r\nContent-Type: text/html\r\nContent-Length: 4833\r\nLast-Modified: Fri, 16 May 2014 15:12:48 GMT\r\nConnection: keep-alive\r\nETag: \"53762af0-12e1\"\r\nAccept-Ranges: bytes\r\n\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": true,
-      "https_exposed": false,
-      "known": false,
-      "risk_score": 2,
-      "recommendations": [
-        "Redirect HTTP to HTTPS"
-      ]
-    },
-    {
-      "ip": "144.118.67.80",
-      "port": 80,
-      "service": "BigIP",
-      "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.80/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": true,
@@ -2584,7 +2599,7 @@
       "ip": "129.25.202.81",
       "port": 80,
       "service": "nginx",
-      "banner": "HTTP/1.1 301 Moved Permanently\r\nServer: nginx\r\nDate: Thu, 19 Mar 2026 05:28:17 GMT\r\nContent-Type: text/html\r\nContent-Length: 162\r\nConnection: keep-alive\r\nLocation: https://129.25.202.81/\r\n\r\n",
+      "banner": "HTTP/1.1 301 Moved Permanently\r\nServer: nginx\r\nDate: Thu, 19 Mar 2026 16:28:01 GMT\r\nContent-Type: text/html\r\nContent-Length: 162\r\nConnection: keep-alive\r\nLocation: https://129.25.202.81/\r\n\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": true,
@@ -2945,21 +2960,6 @@
       "port": 80,
       "service": "BigIP",
       "banner": "HTTP/1.0 302 Moved Temporarily\r\nLocation: https://144.118.67.75/\r\nServer: BigIP\r\nConnection: Keep-Alive\r\nContent-Length: 0\r\n\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": true,
-      "https_exposed": false,
-      "known": false,
-      "risk_score": 2,
-      "recommendations": [
-        "Redirect HTTP to HTTPS"
-      ]
-    },
-    {
-      "ip": "129.25.57.45",
-      "port": 80,
-      "service": "Microsoft IIS httpd",
-      "banner": "HTTP/1.1 301 Moved Permanently\r\nContent-Type: text/html; charset=UTF-8\r\nLocation: https://research.coe.drexel.edu/ece/dwsl/\r\nServer: Microsoft-IIS/10.0\r\nX-Frame-Options: SAMEORIGIN\r\nX-XSS-Protection: 1; mode=block\r\nStrict-Transport-Security: max-age=63072000; includeSubdomains; preload\r\nX-Content-Type-Options: nosniff\r\nDate: Thu, 19 Mar 2026 15:52:13 GMT\r\nContent-Length: 164\r\n\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": true,
@@ -6241,10 +6241,49 @@
       ]
     },
     {
+      "ip": "144.118.67.80",
+      "port": 443,
+      "service": "Microsoft IIS httpd",
+      "banner": "HTTP/1.1 302 Found\r\nCache-Control: private\r\nContent-Type: text/html; charset=utf-8\r\nLocation: http://144.118.67.80/EventList.aspx?fromdate=3/19/2026&todate=3/19/2026&display=Day&view=DateTime\r\nServer: Microsoft-IIS/8.5\r\nX-AspNet-Version: 2.0.50727\r\nSet-Cookie: ASP.NET_SessionId=mta2rtv0z0elxn45meplgk55; path=/; HttpOnly\r\nX-Powered-By: ASP.NET\r\nX-Frame-Options: SAMEORIGIN\r\nDate: Thu, 19 Mar 2026 16:16:46 GMT\r\nContent-Length: 226\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": false,
+      "https_exposed": true,
+      "known": false,
+      "risk_score": 0,
+      "recommendations": []
+    },
+    {
       "ip": "144.118.78.21",
       "port": 443,
       "service": "Apache httpd",
-      "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 15:43:39 GMT\r\nServer: Apache/2.4.41 (Ubuntu)\r\nLast-Modified: Sat, 02 Apr 2022 10:45:14 GMT\r\nETag: \"e0-5dba997160540\"\r\nAccept-Ranges: bytes\r\nContent-Length: 224\r\nVary: Accept-Encoding\r\nContent-Type: text/html\r\n\r\n",
+      "banner": "HTTP/1.1 200 OK\r\nDate: Thu, 19 Mar 2026 16:21:06 GMT\r\nServer: Apache/2.4.41 (Ubuntu)\r\nLast-Modified: Sat, 02 Apr 2022 10:45:14 GMT\r\nETag: \"e0-5dba997160540\"\r\nAccept-Ranges: bytes\r\nContent-Length: 224\r\nVary: Accept-Encoding\r\nContent-Type: text/html\r\n\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": false,
+      "https_exposed": true,
+      "known": false,
+      "risk_score": 0,
+      "recommendations": []
+    },
+    {
+      "ip": "129.25.202.106",
+      "port": 443,
+      "service": "nginx",
+      "banner": "HTTP/1.1 200 OK\r\nServer: nginx/1.24.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 16:06:18 GMT\r\nContent-Type: text/html;charset=UTF-8\r\nContent-Length: 5178\r\nConnection: keep-alive\r\nVary: Accept-Encoding\r\n\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": false,
+      "https_exposed": true,
+      "known": false,
+      "risk_score": 0,
+      "recommendations": []
+    },
+    {
+      "ip": "129.25.202.97",
+      "port": 443,
+      "service": "Drexel University",
+      "banner": "SSL Error: TLSV1_ALERT_PROTOCOL_VERSION",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": false,
@@ -6258,19 +6297,6 @@
       "port": 443,
       "service": "nginx",
       "banner": "HTTP/1.1 400 Bad Request\r\nServer: nginx/1.28.2\r\nDate: Thu, 19 Mar 2026 15:18:19 GMT\r\nContent-Type: text/html; charset=utf-8\r\nTransfer-Encoding: chunked\r\nConnection: keep-alive\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: same-origin\r\nCross-Origin-Opener-Policy: same-origin\r\nStrict-Transport-Security: max-age=63072000\r\n\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": false,
-      "https_exposed": true,
-      "known": false,
-      "risk_score": 0,
-      "recommendations": []
-    },
-    {
-      "ip": "144.118.67.80",
-      "port": 443,
-      "service": "Microsoft IIS httpd",
-      "banner": "HTTP/1.1 302 Found\r\nCache-Control: private\r\nContent-Type: text/html; charset=utf-8\r\nLocation: http://144.118.67.80/EventList.aspx?fromdate=3/19/2026&todate=3/19/2026&display=Day&view=DateTime\r\nServer: Microsoft-IIS/8.5\r\nX-AspNet-Version: 2.0.50727\r\nSet-Cookie: ASP.NET_SessionId=qnoodx55bs2kfsj3ymmr1t45; path=/; HttpOnly\r\nX-Powered-By: ASP.NET\r\nX-Frame-Options: SAMEORIGIN\r\nDate: Thu, 19 Mar 2026 15:13:27 GMT\r\nContent-Length: 226\r\nStrict-Transport-Security: max-age=31536000; includeSubDomains\r\n\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": false,
@@ -8828,19 +8854,6 @@
       "recommendations": []
     },
     {
-      "ip": "129.25.202.106",
-      "port": 443,
-      "service": "nginx",
-      "banner": "HTTP/1.1 200 OK\r\nServer: nginx/1.24.0 (Ubuntu)\r\nDate: Thu, 19 Mar 2026 00:43:28 GMT\r\nContent-Type: text/html;charset=UTF-8\r\nContent-Length: 5177\r\nConnection: keep-alive\r\nVary: Accept-Encoding\r\n\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": false,
-      "https_exposed": true,
-      "known": false,
-      "risk_score": 0,
-      "recommendations": []
-    },
-    {
       "ip": "129.25.58.69",
       "port": 443,
       "service": "Microsoft IIS httpd",
@@ -9101,19 +9114,6 @@
       "recommendations": []
     },
     {
-      "ip": "129.25.202.97",
-      "port": 443,
-      "service": "Drexel University",
-      "banner": "SSL Error: TLSV1_ALERT_PROTOCOL_VERSION",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": false,
-      "https_exposed": true,
-      "known": false,
-      "risk_score": 0,
-      "recommendations": []
-    },
-    {
       "ip": "144.118.67.93",
       "port": 443,
       "service": "Drexel University",
@@ -9156,7 +9156,7 @@
       "ip": "129.25.202.81",
       "port": 443,
       "service": "nginx",
-      "banner": "HTTP/1.1 400 Bad Request\r\nServer: nginx\r\nDate: Wed, 18 Mar 2026 23:23:59 GMT\r\nContent-Type: text/html; charset=utf-8\r\nTransfer-Encoding: chunked\r\nConnection: keep-alive\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: same-origin\r\nCross-Origin-Opener-Policy: same-origin\r\nStrict-Transport-Security: max-age=63072000; includeSubDomains\r\nContent-Security-Policy: default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'\r\n\r\n",
+      "banner": "HTTP/1.1 400 Bad Request\r\nServer: nginx\r\nDate: Thu, 19 Mar 2026 16:34:06 GMT\r\nContent-Type: text/html; charset=utf-8\r\nTransfer-Encoding: chunked\r\nConnection: keep-alive\r\nX-Content-Type-Options: nosniff\r\nReferrer-Policy: same-origin\r\nCross-Origin-Opener-Policy: same-origin\r\nStrict-Transport-Security: max-age=63072000; includeSubDomains\r\nContent-Security-Policy: default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'\r\n\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": false,
@@ -11025,6 +11025,45 @@
       "recommendations": []
     },
     {
+      "ip": "144.118.39.132",
+      "port": 21,
+      "service": "Drexel University",
+      "banner": "220 ::ffff:144.118.39.132 FTP server ready\r\n550 SSL/TLS required on the control channel\r\n214-The following commands are recognized (* =>'s unimplemented):\n CWD     XCWD    CDUP    XCUP    SMNT*   QUIT    PORT    PASV    \n EPRT    EPSV    ALLO    RNFR    RNTO    DELE    MDTM    RMD     \n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \n NOOP    FEAT    OPTS    HOST    CLNT    AUTH    CCC*    CONF*   \n ENC*    MIC*    PBSZ    PROT    TYPE    STRU    MODE    RETR    \n STOR    STOU    APPE    REST    ABOR    RANG    USER    PASS    \n ACCT*   REIN*   LIST    NLST    STAT    SITE    MLSD    MLST    \n214 Direct comments to root@127.0.0.1\r\n211-Features:\n AUTH TLS\n CCC\n CLNT\n EPRT\n EPSV\n HOST\n LANG C.UTF-8*\n MDTM\n MFF modify;UNIX.group;UNIX.mode;\n MFMT\n MLST modify*;perm*;size*;type*;unique*;UNIX.group*;UNIX.groupname*;UNIX.mode*;UNIX.owner*;UNIX.ownername*;\n PBSZ\n PROT\n RANG STREAM\n REST STREAM\n SIZE\n SSCN\n TVFS\n UTF8\n211 End\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": false,
+      "https_exposed": false,
+      "known": false,
+      "risk_score": 0,
+      "recommendations": []
+    },
+    {
+      "ip": "129.25.130.185",
+      "port": 21,
+      "service": "Drexel University",
+      "banner": "220 ZBR-79071 Version V93.21.17Z ready.\r\n230 User logged in.\r\n214-\n    The following commands are recognized.\n    (`-' = not implemented, `+' = supports options)\n    USER    REIN-   TYPE    ALLO    MKD     HELP    MIC     MLST-   MSND-\n    PASS    PORT    STRU    REST    PWD     NOOP+   CONF    MLSD-   MSOM-\n    ACCT-   LPRT    MODE    RNFR    LIST    AUTH    ENC     MAIL-   XCUP\n    CWD     EPRT    RETR    RNTO    NLST    ADAT    FEAT    MLFL-   XCWD\n    CDUP    PASV    STOR    ABOR    SITE    PROT    OPTS    MRCP-   XMKD\n    SMNT-   LPSV    STOU    DELE    SYST    PBSZ    MDTM-   MRSQ-   XPWD\n    QUIT    EPSV    APPE    RMD     STAT-   CCC     SIZE-   MSAM-   XRMD\n214 Direct comments to ftp-bugs@129.25.130.185.\r\n211-Features supported\n REST STREAM\n211 End\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": false,
+      "https_exposed": false,
+      "known": false,
+      "risk_score": 0,
+      "recommendations": []
+    },
+    {
+      "ip": "144.118.20.240",
+      "port": 21,
+      "service": "Drexel University",
+      "banner": "220 FTP server ready.\r\n530 Login incorrect.\r\n502 Command not implemented.\r\n502 Command not implemented.\r\n",
+      "provider": "Drexel University",
+      "ssh_exposed": false,
+      "http_exposed": false,
+      "https_exposed": false,
+      "known": false,
+      "risk_score": 0,
+      "recommendations": []
+    },
+    {
       "ip": "129.25.57.127",
       "port": 21,
       "service": "Drexel University",
@@ -11068,45 +11107,6 @@
       "port": 21,
       "service": "Drexel University",
       "banner": "220 FTP server ready.\r\n530 Login incorrect.\r\n502 Command not implemented.\r\n502 Command not implemented.\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": false,
-      "https_exposed": false,
-      "known": false,
-      "risk_score": 0,
-      "recommendations": []
-    },
-    {
-      "ip": "144.118.20.240",
-      "port": 21,
-      "service": "Drexel University",
-      "banner": "220 FTP server ready.\r\n530 Login incorrect.\r\n502 Command not implemented.\r\n502 Command not implemented.\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": false,
-      "https_exposed": false,
-      "known": false,
-      "risk_score": 0,
-      "recommendations": []
-    },
-    {
-      "ip": "144.118.39.132",
-      "port": 21,
-      "service": "Drexel University",
-      "banner": "220 ::ffff:144.118.39.132 FTP server ready\r\n550 SSL/TLS required on the control channel\r\n214-The following commands are recognized (* =>'s unimplemented):\n CWD     XCWD    CDUP    XCUP    SMNT*   QUIT    PORT    PASV    \n EPRT    EPSV    ALLO    RNFR    RNTO    DELE    MDTM    RMD     \n XRMD    MKD     XMKD    PWD     XPWD    SIZE    SYST    HELP    \n NOOP    FEAT    OPTS    HOST    CLNT    AUTH    CCC*    CONF*   \n ENC*    MIC*    PBSZ    PROT    TYPE    STRU    MODE    RETR    \n STOR    STOU    APPE    REST    ABOR    RANG    USER    PASS    \n ACCT*   REIN*   LIST    NLST    STAT    SITE    MLSD    MLST    \n214 Direct comments to root@127.0.0.1\r\n211-Features:\n AUTH TLS\n CCC\n CLNT\n EPRT\n EPSV\n HOST\n LANG C.UTF-8*\n MDTM\n MFF modify;UNIX.group;UNIX.mode;\n MFMT\n MLST modify*;perm*;size*;type*;unique*;UNIX.group*;UNIX.groupname*;UNIX.mode*;UNIX.owner*;UNIX.ownername*;\n PBSZ\n PROT\n RANG STREAM\n REST STREAM\n SIZE\n SSCN\n TVFS\n UTF8\n211 End\r\n",
-      "provider": "Drexel University",
-      "ssh_exposed": false,
-      "http_exposed": false,
-      "https_exposed": false,
-      "known": false,
-      "risk_score": 0,
-      "recommendations": []
-    },
-    {
-      "ip": "129.25.130.185",
-      "port": 21,
-      "service": "Drexel University",
-      "banner": "220 ZBR-79071 Version V93.21.17Z ready.\r\n230 User logged in.\r\n214-\n    The following commands are recognized.\n    (`-' = not implemented, `+' = supports options)\n    USER    REIN-   TYPE    ALLO    MKD     HELP    MIC     MLST-   MSND-\n    PASS    PORT    STRU    REST    PWD     NOOP+   CONF    MLSD-   MSOM-\n    ACCT-   LPRT    MODE    RNFR    LIST    AUTH    ENC     MAIL-   XCUP\n    CWD     EPRT    RETR    RNTO    NLST    ADAT    FEAT    MLFL-   XCWD\n    CDUP    PASV    STOR    ABOR    SITE    PROT    OPTS    MRCP-   XMKD\n    SMNT-   LPSV    STOU    DELE    SYST    PBSZ    MDTM-   MRSQ-   XPWD\n    QUIT    EPSV    APPE    RMD     STAT-   CCC     SIZE-   MSAM-   XRMD\n214 Direct comments to ftp-bugs@129.25.130.185.\r\n211-Features supported\n REST STREAM\n211 End\r\n",
       "provider": "Drexel University",
       "ssh_exposed": false,
       "http_exposed": false,
