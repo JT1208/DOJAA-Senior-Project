@@ -83,6 +83,40 @@
   </div>
 </div>
 
+<div class="row">
+  <div class="col-12">
+    <div class="card shadow-sm mb-3">
+      <div class="card-header bg-danger text-white">Top CVEs from Scan Results</div>
+      <div class="card-body">
+        <table id="cvePreview" class="display table table-striped table-hover" style="width:100%">
+          <thead>
+            <tr>
+              <th>CVE ID</th>
+              <th>Service</th>
+              <th>Severity</th>
+              <th>CVSS</th>
+              <th>Published</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for v in cves[:25] %}
+            <tr>
+              <td>{{ v.cve_id or '-' }}</td>
+              <td>{{ v.service or '-' }}</td>
+              <td>{{ v.severity or '-' }}</td>
+              <td>{{ v.cvss_score or '-' }}</td>
+              <td>{{ v.published or '-' }}</td>
+              <td>{{ v.description or '-' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 $(document).ready(function(){
   // DataTables with footer update on search
@@ -96,6 +130,8 @@ $(document).ready(function(){
     .on('search.dt', function(){ updateFooter('shodanPreview'); });
   $('#censysPreview').DataTable({ "paging": false, "searching": true })
     .on('search.dt', function(){ updateFooter('censysPreview'); });
+  $('#cvePreview').DataTable({ "paging": false, "searching": true, "order": [[3, "desc"]] })
+    .on('search.dt', function(){ updateFooter('cvePreview'); });
 
   // Exposure chart
   const ctxExposure = document.getElementById('exposureChart').getContext('2d');

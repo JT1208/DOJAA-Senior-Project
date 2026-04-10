@@ -55,6 +55,7 @@ def dashboard():
         "dashboard.html",
         shodan=data["shodan"],
         censys=data["censys"],
+        cves=data.get("cves", []),
         user=session.get("user")
     )
 
