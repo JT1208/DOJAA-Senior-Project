@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Robots</h1>
+<p class="lead">A tree of the blocked website directories</p>
+
+<!-- Rescan button -->
+<form method="GET" action="{{ url_for('robots') }}">
+  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">Robots.txt Overview</div>
+  <div class="card-body" style="font-family: 'Courier New', Courier, monospace;">
+    {{ shodan | replace('\n', '<br>') | safe }}
+  </div>
+</div>
+
+<script>
+$(document).ready(function(){
+  const table = $('#hostsTable').DataTable({
+    "paging": true,
+    "searching": true,
+    "footerCallback": function ( row, data, start, end, display ) {
+      var api = this.api();
+      $(api.column(3).footer()).html(api.rows({ search:'applied' }).count());
+    }
+  });
+  table.on('search.dt', function(){ 
+    const api = table.api ? table.api() : table;
+    $(api.column(3).footer()).html(api.rows({ search:'applied' }).count());
+  });
+});
+</script>
+{% endblock %}
