@@ -96,6 +96,19 @@ def risk_summary():
     )
 
 
+# Full CVE table, remediation copy, and NVD reference link handling (see templates/cves.html).
+@app.route("/cves")
+@require_login
+def cves():
+    rescan = request.args.get("rescan", "false").lower() == "true"
+    data = get_dashboard_data(rescan=rescan)
+    return render_template(
+        "cves.html",
+        cves=data.get("cves", []),
+        user=session.get("user"),
+    )
+
+
 # --- LOGOUT ---
 @app.route("/logout")
 def logout():

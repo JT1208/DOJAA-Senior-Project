@@ -1,6 +1,121 @@
 # dojaa/collectors.py
+import concurrent.futures
+
 import requests
 from .config import SHODAN_API_KEY, CENSYS_API_TOKEN, CVE_API_KEY, ORG_DOMAIN
+
+# --- CVE reference URLs: heuristics + HTTP probe + per-reference url_ok flag ---
+# Used when building CVE rows so cves.html can show only links that likely work.
+# See _annotate_reference_url_ok() and collect_cves() return paths.
+_REF_CHECK_UA = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+
+
+def _reference_url_unreachable_by_heuristic(url: str) -> bool:
+    """
+    True if the URL should not be offered as a clickable link (known-bad patterns
+    without needing a network check).
+    """
+    u = (url or "").strip().lower()
+    if not u.startswith(("http://", "https://")):
+        return True
+    if u.startswith("javascript:") or u.startswith("data:"):
+        return True
+    # Retired HP business-support doc hosts (often fail in browsers today).
+    if "h20000.www2.hp.com" in u or "h20000.www1.hp.com" in u or "h20000.www.hp.com" in u:
+        return True
+    gated = (
+        "login" in u
+        or "signin" in u
+        or "/sso/" in u
+        or "account." in u
+        or "access.redhat.com" in u
+        or "support.oracle.com" in u
+        or "signon." in u
+    )
+    if gated:
+        return True
+    if "localhost" in u or "127.0.0.1" in u or "0.0.0.0" in u:
+        return True
+    return False
+
+
+def _reference_url_reachable_http(url: str, timeout: float = 3.5) -> bool:
+    """
+    Best-effort HTTP probe: True if the URL likely loads in a browser (2xx/3xx).
+    Uses HEAD first, then a small GET if HEAD is inconclusive.
+    """
+    headers = {"User-Agent": _REF_CHECK_UA, "Accept": "*/*"}
+    session = requests.Session()
+
+    def _ok_status(code: int) -> bool:
+        if code in (429,):
+            return True
+        return 200 <= code < 400
+
+    for verify in (True, False):
+        try:
+            r = session.head(url, allow_redirects=True, timeout=timeout, headers=headers, verify=verify)
+            if _ok_status(r.status_code):
+                return True
+            if r.status_code in (401, 403, 405, 501):
+                g = session.get(
+                    url, allow_redirects=True, timeout=timeout, headers=headers, verify=verify, stream=True
+                )
+                try:
+                    return _ok_status(g.status_code)
+                finally:
+                    g.close()
+            if r.status_code in (404, 410) or r.status_code >= 500:
+                return False
+            return False
+        except requests.exceptions.SSLError:
+            continue
+        except requests.RequestException:
+            if verify is False:
+                return False
+            continue
+    return False
+
+
+def _reference_url_clickable(url: str) -> bool:
+    if _reference_url_unreachable_by_heuristic(url):
+        return False
+    return _reference_url_reachable_http(url)
+
+
+def _annotate_reference_url_ok(cve_results):
+    """Dedupe URLs, probe in parallel, set url_ok on each NVD reference dict."""
+    unique_urls = []
+    seen = set()
+    for row in cve_results:
+        for ref in row.get("references") or []:
+            u = (ref.get("url") or "").strip()
+            if not u or u in seen:
+                continue
+            seen.add(u)
+            unique_urls.append(u)
+
+    results = {}
+    if not unique_urls:
+        return
+
+    max_workers = min(8, max(1, len(unique_urls)))
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as pool:
+        future_map = {pool.submit(_reference_url_clickable, u): u for u in unique_urls}
+        for fut in concurrent.futures.as_completed(future_map):
+            u = future_map[fut]
+            try:
+                results[u] = bool(fut.result())
+            except Exception:
+                results[u] = False
+
+    for row in cve_results:
+        for ref in row.get("references") or []:
+            u = (ref.get("url") or "").strip()
+            ref["url_ok"] = results.get(u, False)
 
 # --- Shodan Collector ---
 def collect_shodan():
@@ -177,6 +292,59 @@ def _extract_cvss(metrics):
     return None, "UNKNOWN"
 
 
+def _cwe_sort_key(entry):
+    """Prefer numeric CWE-NNN entries for stable ordering."""
+    text = (entry or "").strip()
+    if text.upper().startswith("CWE-"):
+        rest = text[4:].split(":", 1)[0].strip()
+        if rest.isdigit():
+            return (0, int(rest), text)
+    return (1, 9999, text)
+
+
+def _extract_cwe_ids(cve):
+    """English CWE weakness labels from NVD (e.g. CWE-79 or CWE-79: XSS)."""
+    out = []
+    for w in cve.get("weaknesses") or []:
+        for d in w.get("description", []) or []:
+            if d.get("lang") != "en":
+                continue
+            val = (d.get("value") or "").strip()
+            if val and val not in out:
+                out.append(val)
+    out.sort(key=_cwe_sort_key)
+    return out[:12]
+
+
+def _ref_sort_key(ref):
+    tags = " ".join(ref.get("tags") or []).lower()
+    url = ref.get("url") or ""
+    if "patch" in tags:
+        return (0, url)
+    if "mitigation" in tags:
+        return (1, url)
+    if "vendor advisory" in tags:
+        return (2, url)
+    if "issue tracking" in tags or "third party advisory" in tags:
+        return (3, url)
+    return (5, url)
+
+
+def _extract_references(cve, limit=15):
+    """NVD reference URLs, ordered toward patches and vendor guidance."""
+    raw = []
+    for ref in cve.get("references") or []:
+        url = (ref.get("url") or "").strip()
+        if not url:
+            continue
+        tags = ref.get("tags") or []
+        if not isinstance(tags, list):
+            tags = []
+        raw.append({"url": url, "tags": tags, "source": (ref.get("source") or "").strip()})
+    raw.sort(key=_ref_sort_key)
+    return raw[:limit]
+
+
 def collect_cves(service_records, max_cves_per_service=5, max_total=25):
     """
     Queries NVD CVE API using service names found in scan records.
@@ -220,6 +388,7 @@ def collect_cves(service_records, max_cves_per_service=5, max_total=25):
             )
             score, severity = _extract_cvss(cve.get("metrics", {}))
 
+            # Full English description (dashboard + cves.html); not truncated.
             cve_results.append(
                 {
                     "cve_id": cve_id,
@@ -227,13 +396,18 @@ def collect_cves(service_records, max_cves_per_service=5, max_total=25):
                     "severity": severity,
                     "cvss_score": score if score is not None else "-",
                     "published": (cve.get("published") or "").split("T")[0],
-                    "description": description[:220] + ("..." if len(description) > 220 else ""),
+                    "description": description,
+                    "cwe_ids": _extract_cwe_ids(cve),
+                    "references": _extract_references(cve),
                 }
             )
             seen_cve_ids.add(cve_id)
             if len(cve_results) >= max_total:
                 print(f"[CVE] Collected {len(cve_results)} CVEs.")
+                # Mark which reference URLs are safe to render as <a href="...">.
+                _annotate_reference_url_ok(cve_results)
                 return cve_results
 
     print(f"[CVE] Collected {len(cve_results)} CVEs.")
+    _annotate_reference_url_ok(cve_results)
     return cve_results
