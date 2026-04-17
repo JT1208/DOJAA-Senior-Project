@@ -14,6 +14,23 @@
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+
+  <style>
+    .logout-btn {
+      border: 1px solid #dc3545;
+      color: #dc3545;
+      border-radius: 999px;
+      padding: 6px 14px;
+      transition: all 0.2s ease;
+      font-weight: 500;
+    }
+
+    .logout-btn:hover {
+      background-color: #dc3545;
+      color: white;
+      transform: translateY(-1px);
+    }
+  </style>
 </head>
 
 <body>
@@ -24,7 +41,7 @@
     <a class="navbar-brand" href="{{ url_for('dashboard') }}">DOJAA</a>
 
     <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
+      <ul class="navbar-nav ms-auto align-items-center">
 
         <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('hosts') }}">Hosts</a></li>
@@ -34,7 +51,11 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('ssl_tls') }}">SSL/TLS</a></li>
 
         {% if session.get('user') %}
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
+        <li class="nav-item ms-3">
+          <a class="nav-link logout-btn" href="{{ url_for('logout') }}">
+            ⎋ Logout
+          </a>
+        </li>
         {% endif %}
 
       </ul>

@@ -4,43 +4,82 @@
 <h2 class="mb-4">Attack Surface Intelligence Graph</h2>
 
 <div class="card shadow-sm">
-  <div class="card-body">
+  <div class="card-body" id="graphContainer" style="position:relative; overflow:hidden;">
+
+    <!-- LOADING OVERLAY -->
+    <div id="loadingOverlay"
+         style="
+           position:absolute;
+           top:0; left:0; right:0; bottom:0;
+           background:rgba(255,255,255,0.85);
+           display:flex;
+           flex-direction:column;
+           align-items:center;
+           justify-content:center;
+           z-index:10;
+         ">
+      <div class="spinner-border text-primary"></div>
+      <div style="margin-top:10px; font-weight:500;">
+        Loading attack surface graph...
+      </div>
+    </div>
+
     <div id="graph" style="height:900px; border:1px solid #ddd;"></div>
-    <pre id="debug" style="font-size:12px; color:#666;"></pre>
+
+    <div id="tooltip"></div>
+
   </div>
 </div>
 
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
+<style>
+#tooltip {
+  position: absolute;
+  display: none;
+  background: #111;
+  color: #fff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  max-width: 340px;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  white-space: normal;
+}
+#tooltip b {
+  color: #ffd166;
+}
+</style>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
-  const container = document.getElementById("graph");
-  const debug = document.getElementById("debug");
-  const log = (m) => debug.textContent += m + "\n";
+  const container = document.getElementById("graphContainer");
+  const graph = document.getElementById("graph");
+  const overlay = document.getElementById("loadingOverlay");
+  const tooltip = document.getElementById("tooltip");
 
   const raw = {{ shodan | tojson }};
 
   if (!raw || raw.length === 0) {
-    container.innerHTML = "No data";
+    overlay.style.display = "none";
+    graph.innerHTML = "No data";
     return;
   }
 
   // =========================
-  // FULL DATA PRESERVED
+  // DATA
   // =========================
   const assets = Array.from(
     new Map(raw.filter(a => a?.ip).map(a => [a.ip, a])).values()
   );
 
-  log("Total assets: " + assets.length);
-
   const nodes = [];
   const edges = [];
 
-  // =========================
-  // ROOT NODE
-  // =========================
   nodes.push({
     id: "internet",
     label: "EXTERNAL ATTACK SURFACE",
@@ -50,14 +89,23 @@ document.addEventListener("DOMContentLoaded", function () {
     margin: 15
   });
 
-  // =========================
-  // SERVICE HUBS (IMPORTANT STRUCTURE)
-  // =========================
   const hubs = {
     SSH: { color: "#c0392b" },
     WEB: { color: "#2980b9" },
     OTHER: { color: "#7f8c8d" }
   };
+
+  function classify(a) {
+    if (a.port === 22) return "SSH";
+    if (a.port === 80 || a.port === 443) return "WEB";
+    return "OTHER";
+  }
+
+  function riskColor(r) {
+    if (r >= 70) return "#e74c3c";
+    if (r >= 30) return "#f1c40f";
+    return "#2ecc71";
+  }
 
   for (const h in hubs) {
     nodes.push({
@@ -72,24 +120,6 @@ document.addEventListener("DOMContentLoaded", function () {
     edges.push({ from: "internet", to: h, width: 2 });
   }
 
-  // =========================
-  // CLASSIFICATION
-  // =========================
-  function classify(a) {
-    if (a.port === 22) return "SSH";
-    if (a.port === 80 || a.port === 443) return "WEB";
-    return "OTHER";
-  }
-
-  function riskColor(r) {
-    if (r >= 70) return "#e74c3c";
-    if (r >= 30) return "#f1c40f";
-    return "#2ecc71";
-  }
-
-  // =========================
-  // HOST NODES (NO DATA LOSS)
-  // =========================
   for (const a of assets) {
 
     const ip = a.ip;
@@ -105,20 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
         background: riskColor(risk),
         border: "#2c3e50"
       },
-      font: { size: 12 },
-
-      // 🔥 ANALYST VALUE (THIS WAS MISSING BEFORE)
-      title: `
-        <b>IP:</b> ${ip}<br>
-        <b>Port:</b> ${a.port || "-"}<br>
-        <b>Service:</b> ${a.service || "Unknown"}<br>
-        <b>Risk:</b> ${risk}<br>
-        <b>Provider:</b> ${a.provider || "-"}<br>
-        <b>SSH:</b> ${a.ssh_exposed}<br>
-        <b>HTTP:</b> ${a.http_exposed}<br>
-        <b>HTTPS:</b> ${a.https_exposed}<br>
-        <b>Banner:</b> ${(a.banner || "").slice(0, 120)}
-      `
+      font: { size: 12 }
     });
 
     edges.push({
@@ -129,22 +146,13 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // =========================
-  // GRAPH DATA
-  // =========================
   const data = {
     nodes: new vis.DataSet(nodes),
     edges: new vis.DataSet(edges)
   };
 
-  // =========================
-  // OPTIMIZED PHYSICS (BALANCED)
-  // =========================
-  const options = {
-    layout: {
-      improvedLayout: true
-    },
-
+  const network = new vis.Network(graph, data, {
+    layout: { improvedLayout: true },
     physics: {
       enabled: true,
       barnesHut: {
@@ -152,43 +160,95 @@ document.addEventListener("DOMContentLoaded", function () {
         springLength: 160,
         springConstant: 0.03
       },
-      stabilization: {
-        iterations: 250
-      }
+      stabilization: { iterations: 250 }
     },
-
-    nodes: {
-      borderWidth: 2,
-      shadow: true
-    },
-
+    nodes: { borderWidth: 2, shadow: true },
     edges: {
       arrows: "to",
-      smooth: {
-        type: "dynamic"
-      },
+      smooth: { type: "dynamic" },
       color: { color: "#aaa" }
     },
-
     interaction: {
       hover: true,
-      tooltipDelay: 100,
       zoomView: true,
       dragView: true
     }
-  };
-
-  const network = new vis.Network(container, data, options);
+  });
 
   // =========================
-  // AUTO FIT (CRITICAL UX FIX)
+  // TOOLTIP (NODE-ANCHORED — FINAL FIX)
+  // =========================
+  let activeNode = null;
+
+  network.on("hoverNode", function (params) {
+
+    activeNode = params.node;
+
+    const asset = assets.find(a => a.ip === params.node);
+    if (!asset) return;
+
+    tooltip.style.display = "block";
+
+    tooltip.innerHTML = `
+      <div><b>IP:</b> ${asset.ip}</div>
+      <div><b>Port:</b> ${asset.port || "-"}</div>
+      <div><b>Service:</b> ${asset.service || "Unknown"}</div>
+      <div><b>Risk:</b> ${asset.risk_score || 0}</div>
+      <div><b>Provider:</b> ${asset.provider || "-"}</div>
+    `;
+
+    updateTooltipPosition();
+  });
+
+  network.on("blurNode", function () {
+    activeNode = null;
+    tooltip.style.display = "none";
+  });
+
+  network.on("mousemove", function () {
+    if (activeNode) updateTooltipPosition();
+  });
+
+  function updateTooltipPosition() {
+
+    const pos = network.getPositions([activeNode])[activeNode];
+    const domPos = network.canvasToDOM(pos);
+
+    const padding = 12;
+
+    let x = domPos.x + padding;
+    let y = domPos.y + padding;
+
+    tooltip.style.left = x + "px";
+    tooltip.style.top = y + "px";
+
+    requestAnimationFrame(() => {
+
+      const rect = tooltip.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+
+      let fx = x;
+      let fy = y;
+
+      if (fx + rect.width > containerRect.width) {
+        fx = x - rect.width - padding;
+      }
+
+      if (fy + rect.height > containerRect.height) {
+        fy = y - rect.height - padding;
+      }
+
+      tooltip.style.left = fx + "px";
+      tooltip.style.top = fy + "px";
+    });
+  }
+
+  // =========================
+  // LOADING
   // =========================
   network.once("stabilizationIterationsDone", function () {
-    network.fit({
-      animation: { duration: 800 }
-    });
-
-    log("Graph stabilized and fitted");
+    overlay.style.display = "none";
+    network.fit({ animation: { duration: 800 } });
   });
 
 });
