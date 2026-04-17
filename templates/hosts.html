@@ -2,7 +2,7 @@
 {% block content %}
 
 <h1 class="mb-4">Public Hosts</h1>
-<p class="lead">Asset inventory with enriched service intelligence and risk context.</p>
+<p class="lead">Click any asset to view full intelligence details.</p>
 
 <form method="GET" action="{{ url_for('hosts') }}">
   <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">
@@ -11,26 +11,22 @@
 </form>
 
 <style>
-/* ✅ FIX TABLE OVERFLOW + TEXT WRAPPING */
 .table td {
-  vertical-align: middle;
   white-space: normal !important;
   word-break: break-word;
   max-width: 350px;
+  vertical-align: middle;
 }
 
-/* keeps service intelligence readable */
 .service-intel {
+  font-size: 0.9rem;
   line-height: 1.2;
-  font-size: 0.95rem;
 }
 
-/* prevents long banners from breaking layout */
 .banner-text {
   font-size: 0.8rem;
   color: #6c757d;
   display: block;
-  max-width: 100%;
   word-break: break-word;
 }
 </style>
@@ -58,40 +54,36 @@
           {% for h in shodan %}
           <tr>
 
-            <!-- IP -->
-            <td>{{ h.ip }}</td>
+            <!-- CLICKABLE IP -->
+            <td>
+              <a href="{{ url_for('asset_detail', ip=h.ip) }}">
+                {{ h.ip }}
+              </a>
+            </td>
 
-            <!-- SERVICE INTELLIGENCE -->
+            <!-- INTELLIGENCE -->
             <td class="service-intel">
-
-              <strong>
-                {{ h.service_intel or h.service or 'Unknown Service' }}
-              </strong>
+              <strong>{{ h.service_intel or h.service or 'Unknown' }}</strong><br>
 
               <span class="banner-text">
                 {{ h.banner_summary or h.banner or '-' }}
               </span>
 
-              <div>
-                <span class="badge 
-                  {% if h.service_risk_hint == 'High' %}bg-danger
-                  {% elif h.service_risk_hint == 'Medium' %}bg-warning text-dark
-                  {% else %}bg-success
-                  {% endif %}
-                ">
-                  {{ h.service_risk_hint or 'Unknown' }}
-                </span>
-              </div>
-
+              <span class="badge
+                {% if h.service_risk_hint == 'High' %}bg-danger
+                {% elif h.service_risk_hint == 'Medium' %}bg-warning text-dark
+                {% else %}bg-success
+                {% endif %}
+              ">
+                {{ h.service_risk_hint or 'Unknown' }}
+              </span>
             </td>
 
             <!-- PORT -->
             <td>{{ h.port or '-' }}</td>
 
             <!-- RISK -->
-            <td>
-              <span class="fw-bold">{{ h.risk_score or 0 }}</span>
-            </td>
+            <td>{{ h.risk_score or 0 }}</td>
 
           </tr>
           {% endfor %}
