@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Asset Intelligence Detail</h2>
+
+<div class="card shadow-sm">
+
+  <div class="card-header bg-dark text-white">
+    {{ asset.ip }}
+  </div>
+
+  <div class="card-body">
+
+    <p><strong>Service Intelligence</strong></p>
+    <p>{{ asset.service_intel or asset.service }}</p>
+
+    <p><strong>Banner</strong></p>
+    <pre style="white-space: pre-wrap;">{{ asset.banner or '-' }}</pre>
+
+    <p><strong>Risk Score</strong>: {{ asset.risk_score }}</p>
+
+    <p><strong>Risk Level</strong>:
+      <span class="badge
+        {% if asset.risk_score >= 70 %}bg-danger
+        {% elif asset.risk_score >= 30 %}bg-warning text-dark
+        {% else %}bg-success
+        {% endif %}
+      ">
+        {{ asset.service_risk_hint or 'Unknown' }}
+      </span>
+    </p>
+
+    <p><strong>Port</strong>: {{ asset.port or '-' }}</p>
+
+    {% if asset.shadow_asset %}
+      <p class="text-danger"><strong>⚠ Shadow Asset Detected</strong></p>
+    {% endif %}
+
+    <p><strong>Recommendations</strong></p>
+    <ul>
+      {% for r in asset.recommendations %}
+        <li>{{ r }}</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+{% endblock %}
