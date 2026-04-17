@@ -4,51 +4,111 @@
 <h1 class="mb-4">SSL/TLS Certificates</h1>
 <p class="lead">All SSL/TLS certificates for your scanned assets.</p>
 
-<div class="mb-3">
-  <a href="{{ url_for('ssl_tls') }}?rescan=true" class="btn btn-success">
-    Rescan SSL/TLS Data
-  </a>
-</div>
+<form method="GET" action="{{ url_for('ssl_tls') }}">
+  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">
+    Rescan Now
+  </button>
+</form>
+
+<style>
+/* ============================= */
+/* DataTables pagination FIX     */
+/* ============================= */
+
+.dataTables_wrapper .dataTables_paginate {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 5px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: #f1f1f1;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #0d6efd;
+  color: #fff !important;
+  border: 1px solid #0d6efd;
+}
+
+.dataTables_wrapper .dataTables_info {
+  padding-top: 8px;
+  white-space: nowrap;
+}
+
+/* SSL table readability */
+.table td {
+  white-space: normal !important;
+  word-break: break-word;
+  vertical-align: middle;
+  max-width: 300px;
+}
+</style>
 
 <div class="card shadow-sm">
   <div class="card-header bg-dark text-white">
-    Certificates
+    SSL/TLS Overview
   </div>
 
   <div class="card-body">
 
-    <table id="sslTable" class="display table table-striped table-hover" style="width:100%">
-      <thead>
-        <tr>
-          <th>IP</th>
-          <th>Issuer</th>
-          <th>Subject</th>
-          <th>Expiry</th>
-          <th>Key Length</th>
-          <th>Self-Signed</th>
-        </tr>
-      </thead>
+    <div class="table-responsive">
+      <table id="sslTable" class="display table table-striped table-hover" style="width:100%">
 
-      <tbody>
-        {% for cert in ssl_tls %}
-        <tr>
-          <td>{{ cert.ip }}</td>
-          <td>{{ cert.issuer }}</td>
-          <td>{{ cert.subject }}</td>
-          <td>{{ cert.expiry }}</td>
-          <td>{{ cert.key_length }}</td>
-          <td>{{ cert.self_signed }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
+        <thead>
+          <tr>
+            <th>IP</th>
+            <th>Issuer</th>
+            <th>Subject</th>
+            <th>Expiry</th>
+            <th>Key Length</th>
+            <th>Self Signed</th>
+            <th>Status</th>
+          </tr>
+        </thead>
 
-      <tfoot>
-        <tr>
-          <th colspan="5">Total Certificates</th>
-          <th>{{ ssl_tls|length }}</th>
-        </tr>
-      </tfoot>
-    </table>
+        <tbody>
+          {% for cert in ssl_tls %}
+          <tr>
+            <td>{{ cert.ip }}</td>
+            <td>{{ cert.issuer or '-' }}</td>
+            <td>{{ cert.subject or '-' }}</td>
+            <td>{{ cert.expiry or '-' }}</td>
+            <td>{{ cert.key_length or '-' }}</td>
+            <td>{{ cert.self_signed }}</td>
+            <td>
+              <span class="
+                {% if cert.status == 'ok' %}text-success
+                {% elif cert.status == 'timeout' %}text-warning
+                {% else %}text-danger
+                {% endif %}
+              ">
+                {{ cert.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+
+        <tfoot>
+          <tr>
+            <th colspan="6">Total Certificates</th>
+            <th>{{ ssl_tls|length }}</th>
+          </tr>
+        </tfoot>
+
+      </table>
+    </div>
 
   </div>
 </div>
@@ -58,7 +118,15 @@ $(document).ready(function () {
   $('#sslTable').DataTable({
     paging: true,
     searching: true,
-    info: true
+    ordering: true,
+
+    // MATCHES YOUR OTHER PAGES
+    dom:
+      "<'row mb-2'<'col-sm-6'l><'col-sm-6 text-end'f>>" +
+      "<'row'<'col-sm-12'tr>>" +
+      "<'row mt-2 align-items-center'<'col-sm-5'i><'col-sm-7'p>>",
+
+    pagingType: "simple_numbers"
   });
 });
 </script>
