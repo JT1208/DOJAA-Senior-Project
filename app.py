@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
-from dojaa.pipeline import run_pipeline
 from functools import wraps
+from dojaa.pipeline import run_pipeline
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -33,7 +33,7 @@ def require_login(func):
     return wrapper
 
 
-# ---------------- DATA PIPELINE ----------------
+# ---------------- PIPELINE WRAPPER ----------------
 def get_dashboard_data(rescan=False):
     return run_pipeline(use_api=rescan)
 
@@ -47,8 +47,8 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
@@ -62,8 +62,8 @@ def hosts():
 
     return render_template(
         "hosts.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
@@ -77,13 +77,13 @@ def open_ports():
 
     return render_template(
         "open_ports.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
 
-# ---------------- RISK SUMMARY ----------------
+# ---------------- RISK ----------------
 @app.route("/risk_summary")
 @require_login
 def risk_summary():
@@ -92,8 +92,8 @@ def risk_summary():
 
     return render_template(
         "risk_summary.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
@@ -102,11 +102,9 @@ def risk_summary():
 @app.route("/asset/<ip>")
 @require_login
 def asset_detail(ip):
-
     data = get_dashboard_data(rescan=False)
 
-    all_assets = data["shodan"] + data["censys"]
-
+    all_assets = data.get("shodan", []) + data.get("censys", [])
     asset = next((a for a in all_assets if a.get("ip") == ip), None)
 
     if not asset:
@@ -115,16 +113,32 @@ def asset_detail(ip):
     return render_template("asset_detail.html", asset=asset)
 
 
-# ---------------- GRAPH VIEW (NEW) ----------------
+# ---------------- GRAPH ----------------
 @app.route("/graph")
 @require_login
 def graph():
-
     data = get_dashboard_data(rescan=False)
 
     return render_template(
         "graph.html",
-        shodan=data["shodan"],
+        shodan=data.get("shodan", []),
+        user=session.get("user")
+    )
+
+
+# ---------------- SSL/TLS PAGE (FIXED) ----------------
+@app.route("/ssl_tls")
+@require_login
+def ssl_tls():
+    rescan = request.args.get("rescan", "false").lower() == "true"
+    data = get_dashboard_data(rescan=rescan)
+
+    # DEBUG (keep while testing)
+    print("SSL DATA COUNT:", len(data.get("ssl_tls", [])))
+
+    return render_template(
+        "ssl_tls.html",
+        ssl_tls=data.get("ssl_tls", []),
         user=session.get("user")
     )
 
