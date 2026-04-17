@@ -4,7 +4,9 @@
 <p class="lead">View all open ports for your assets.</p>
 
 <form method="GET" action="{{ url_for('open_ports') }}">
-  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
+  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">
+    Rescan Now
+  </button>
 </form>
 
 <div class="mb-3">
@@ -13,10 +15,52 @@
          placeholder="e.g. 22, 80, 443">
 </div>
 
+<style>
+/* ============================= */
+/* FIX DataTables pagination UI  */
+/* ============================= */
+
+.dataTables_wrapper .dataTables_paginate {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 5px 10px;
+  margin: 0 2px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: #f1f1f1;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #0d6efd;
+  color: #fff !important;
+  border: 1px solid #0d6efd;
+}
+
+.dataTables_wrapper .dataTables_info {
+  padding-top: 8px;
+  white-space: nowrap;
+}
+</style>
+
 <div class="card shadow-sm">
-  <div class="card-header bg-warning text-dark">Open Ports Overview</div>
+  <div class="card-header bg-warning text-dark">
+    Open Ports Overview
+  </div>
+
   <div class="card-body">
+
     <table id="portsTable" class="display table table-striped table-hover" style="width:100%">
+
       <thead>
         <tr>
           <th>IP</th>
@@ -47,7 +91,9 @@
           <th id="totalPortsFooter">0</th>
         </tr>
       </tfoot>
+
     </table>
+
   </div>
 </div>
 
@@ -59,11 +105,24 @@ $(document).ready(function(){
   const table = $('#portsTable').DataTable({
     paging: true,
     searching: true,
+    ordering: true,
+
+    // ✅ FIX: clean layout prevents broken pagination line
+    dom:
+      "<'row mb-2'<'col-sm-6'l><'col-sm-6 text-end'f>>" +
+      "<'row'<'col-sm-12'tr>>" +
+      "<'row mt-2 align-items-center'<'col-sm-5'i><'col-sm-7'p>>",
+
+    pagingType: "simple_numbers",
+
     footerCallback: function () {
       updateTotal(this.api());
     }
   });
 
+  // -----------------------------
+  // Custom port filter
+  // -----------------------------
   $.fn.dataTable.ext.search.push(function(settings, data) {
     if (selectedPorts.length === 0) return true;
     return selectedPorts.includes(data[1]);
@@ -78,6 +137,9 @@ $(document).ready(function(){
     table.draw();
   });
 
+  // -----------------------------
+  // Footer counter
+  // -----------------------------
   function updateTotal(api) {
     let total = 0;
 
@@ -93,6 +155,7 @@ $(document).ready(function(){
   });
 
   updateTotal(table);
+
 });
 </script>
 
