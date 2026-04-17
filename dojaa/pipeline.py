@@ -6,17 +6,17 @@ from .normalizer import normalize_data
 from .inventory import load_inventory, compare_with_inventory
 from .risk_engine import calculate_risk
 from .export_json import save_to_json
+from .enrichment.banner_grabber import grab_banner
+
+
+ENABLE_BANNER_ENRICHMENT = False  # safety switch
 
 
 def run_pipeline(output_file="dashboard_data.json", use_api=False):
-    """
-    Full DOJAA pipeline:
-    collect → normalize → inventory match → risk scoring → export
-    """
 
     dashboard = {"shodan": [], "censys": []}
 
-    # --- COLLECTION ---
+    # ---------------- COLLECTION ----------------
     if use_api or not os.path.exists(output_file):
         print("[Pipeline] Collecting fresh data...")
 
@@ -34,7 +34,29 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
         except Exception as e:
             print("[Pipeline Error]", e)
 
-    # --- PROCESSING ---
+    # ---------------- ENRICHMENT ----------------
+    if ENABLE_BANNER_ENRICHMENT:
+
+        print("[Pipeline] Running banner enrichment...")
+
+        for source in ["shodan", "censys"]:
+            for asset in dashboard[source]:
+
+                ip = asset.get("ip")
+                port = asset.get("port")
+
+                if not ip or not port:
+                    continue
+
+                enriched = grab_banner(ip, port)
+
+                if enriched:
+                    asset["banner"] = enriched.get("banner", "")
+                    asset["banner_product"] = enriched.get("banner_product")
+                    asset["banner_version"] = enriched.get("banner_version")
+                    asset["banner_source"] = "live"
+
+    # ---------------- PROCESSING ----------------
     inventory = load_inventory()
 
     for source in ["shodan", "censys"]:
