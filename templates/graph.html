@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2 class="mb-4">Attack Surface Graph</h2>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div id="graph" style="height:850px; border:1px solid #ddd;"></div>
+    <pre id="debug" style="font-size:12px; color:#666;"></pre>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+  const container = document.getElementById("graph");
+  const debug = document.getElementById("debug");
+  const log = (m) => debug.textContent += m + "\n";
+
+  const raw = {{ shodan | tojson }};
+
+  if (!raw || raw.length === 0) {
+    container.innerHTML = "No data";
+    return;
+  }
+
+  // =========================
+  // CLEAN + LIMIT
+  // =========================
+  const assets = Array.from(
+    new Map(raw.filter(a => a?.ip).map(a => [a.ip, a])).values()
+  ).slice(0, 60); // safe cap
+
+  log("Assets: " + assets.length);
+
+  const nodes = [];
+  const edges = [];
+
+  // ROOT
+  nodes.push({
+    id: "internet",
+    label: "ATTACK SURFACE",
+    shape: "box",
+    color: "#2c3e50",
+    font: { color: "white", size: 20 }
+  });
+
+  // CLUSTERS (THIS IS THE KEY FIX)
+  const clusters = {
+    SSH: { color: "#c0392b" },
+    WEB: { color: "#2980b9" },
+    OTHER: { color: "#7f8c8d" }
+  };
+
+  for (const c in clusters) {
+    nodes.push({
+      id: c,
+      label: c + " SERVICES",
+      shape: "box",
+      color: clusters[c].color,
+      font: { color: "white", size: 16 }
+    });
+
+    edges.push({
+      from: "internet",
+      to: c,
+      width: 2
+    });
+  }
+
+  function classify(a) {
+    if (a.port === 22) return "SSH";
+    if (a.port === 80 || a.port === 443) return "WEB";
+    return "OTHER";
+  }
+
+  function riskColor(r) {
+    if (r >= 70) return "#e74c3c";
+    if (r >= 30) return "#f1c40f";
+    return "#2ecc71";
+  }
+
+  // HOST NODES
+  for (const a of assets) {
+
+    const ip = a.ip;
+    const group = classify(a);
+
+    nodes.push({
+      id: ip,
+      label: ip,
+      shape: "dot",
+      size: 16,
+      color: {
+        background: riskColor(a.risk_score || 0),
+        border: "#333"
+      },
+      font: { size: 12 }
+    });
+
+    edges.push({
+      from: group,
+      to: ip,
+      width: 1,
+      color: "#bbb"
+    });
+  }
+
+  const data = {
+    nodes: new vis.DataSet(nodes),
+    edges: new vis.DataSet(edges)
+  };
+
+  // =========================
+  // PHYSICS LAYOUT (KEY FIX)
+  // =========================
+  const options = {
+    layout: {
+      improvedLayout: true
+    },
+
+    physics: {
+      enabled: true,
+      barnesHut: {
+        gravitationalConstant: -6000,
+        springLength: 180,
+        springConstant: 0.04
+      },
+      stabilization: {
+        iterations: 200
+      }
+    },
+
+    nodes: {
+      borderWidth: 2,
+      shadow: true,
+      font: { size: 12 }
+    },
+
+    edges: {
+      arrows: "to",
+      smooth: true,
+      color: { color: "#aaa" }
+    },
+
+    interaction: {
+      hover: true,
+      zoomView: true,
+      dragView: true
+    }
+  };
+
+  const network = new vis.Network(container, data, options);
+
+  network.once("stabilizationIterationsDone", function () {
+    network.fit({
+      animation: {
+        duration: 800
+      }
+    });
+
+    log("Graph stabilized + fitted");
+  });
+
+});
+</script>
+
+{% endblock %}
