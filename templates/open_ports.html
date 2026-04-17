@@ -3,21 +3,14 @@
 <h1 class="mb-4">Open Ports</h1>
 <p class="lead">View all open ports for your assets.</p>
 
-<!-- Rescan button -->
 <form method="GET" action="{{ url_for('open_ports') }}">
   <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
 </form>
 
-<!-- Port Filter UI -->
 <div class="mb-3">
-  <label for="portFilter" class="form-label"><strong>Filter by Port(s)</strong></label>
-  <input 
-    type="text" 
-    id="portFilter" 
-    class="form-control" 
-    placeholder="e.g. 21 or 21, 443, 8443"
-  >
-  <small class="text-muted">Enter one or multiple ports separated by commas</small>
+  <label class="form-label"><strong>Filter by Port(s)</strong></label>
+  <input type="text" id="portFilter" class="form-control"
+         placeholder="e.g. 22, 80, 443">
 </div>
 
 <div class="card shadow-sm">
@@ -29,22 +22,28 @@
           <th>IP</th>
           <th>Port</th>
           <th>Service</th>
+          <th>Banner</th>
           <th>Risk Score</th>
         </tr>
       </thead>
+
       <tbody>
         {% for h in shodan %}
         <tr>
           <td>{{ h.ip }}</td>
           <td>{{ h.port or '-' }}</td>
           <td>{{ h.service or '-' }}</td>
+          <td style="max-width: 500px; word-break: break-word;">
+            {{ h.banner or '-' }}
+          </td>
           <td>{{ h.risk_score or 0 }}</td>
         </tr>
         {% endfor %}
       </tbody>
+
       <tfoot>
         <tr>
-          <th colspan="3">Total Open Ports</th>
+          <th colspan="4">Total Open Ports</th>
           <th id="totalPortsFooter">0</th>
         </tr>
       </tfoot>
@@ -65,49 +64,36 @@ $(document).ready(function(){
     }
   });
 
-  //  Custom port filter
   $.fn.dataTable.ext.search.push(function(settings, data) {
     if (selectedPorts.length === 0) return true;
-
-    const port = data[1]; // Port column
-
-    return selectedPorts.includes(port);
+    return selectedPorts.includes(data[1]);
   });
 
-  // Handle input
   $('#portFilter').on('keyup change', function () {
-    const input = $(this).val();
-
-    selectedPorts = input
+    selectedPorts = $(this).val()
       .split(',')
       .map(p => p.trim())
-      .filter(p => p !== '');
+      .filter(Boolean);
 
     table.draw();
   });
 
-  // Update total count
   function updateTotal(api) {
     let total = 0;
 
     api.rows({ search: 'applied' }).data().each(function(row){
-      const port = row[1];
-      if (port && port !== '-') {
-        total++;
-      }
+      if (row[1] && row[1] !== '-') total++;
     });
 
     $('#totalPortsFooter').html(total);
   }
 
-  // Update on search/draw
   table.on('draw.dt search.dt', function () {
     updateTotal(table);
   });
 
-  // Initial count
   updateTotal(table);
-
 });
 </script>
+
 {% endblock %}

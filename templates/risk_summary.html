@@ -4,7 +4,6 @@
 <p class="lead">Summary of all assets categorized by risk level.</p>
 
 <div class="row mb-4 justify-content-center">
-  <!-- Smaller, centered risk chart -->
   <div class="col-md-6 col-lg-4">
     <div class="card shadow-sm text-center">
       <div class="card-header bg-danger text-white">Risk Breakdown</div>
@@ -24,30 +23,40 @@
           <th>IP</th>
           <th>Source</th>
           <th>Service</th>
+          <th>Banner</th>
           <th>Risk Score</th>
         </tr>
       </thead>
+
       <tbody>
         {% for h in shodan %}
         <tr>
           <td>{{ h.ip }}</td>
           <td>Shodan</td>
           <td>{{ h.service or '-' }}</td>
+          <td style="max-width: 400px; word-break: break-word;">
+            {{ h.banner or '-' }}
+          </td>
           <td>{{ h.risk_score or 0 }}</td>
         </tr>
         {% endfor %}
+
         {% for c in censys %}
         <tr>
           <td>{{ c.ip }}</td>
           <td>Censys</td>
           <td>{{ c.services[0] if c.services else '-' }}</td>
+          <td style="max-width: 400px; word-break: break-word;">
+            {{ c.banner or '-' }}
+          </td>
           <td>{{ c.risk_score or 0 }}</td>
         </tr>
         {% endfor %}
       </tbody>
+
       <tfoot>
         <tr>
-          <th colspan="3">Total Assets</th>
+          <th colspan="4">Total Assets</th>
           <th>{{ shodan|length + censys|length }}</th>
         </tr>
       </tfoot>
@@ -57,38 +66,25 @@
 
 <script>
 $(document).ready(function(){
-  $('#riskTable').DataTable({ "paging": true, "searching": true });
+  $('#riskTable').DataTable({ paging: true, searching: true });
 
   const ctx = document.getElementById('riskChart').getContext('2d');
+
   new Chart(ctx, {
     type: 'doughnut',
     data: {
       labels: ['Low','Medium','High'],
       datasets: [{
         data: [
-          {{ shodan|selectattr('risk_score','lt',3)|list|length + censys|selectattr('risk_score','lt',3)|list|length }},
-          {{ shodan|selectattr('risk_score','ge',3)|selectattr('risk_score','lt',6)|list|length + censys|selectattr('risk_score','ge',3)|selectattr('risk_score','lt',6)|list|length }},
-          {{ shodan|selectattr('risk_score','ge',6)|list|length + censys|selectattr('risk_score','ge',6)|list|length }}
+          {{ shodan|selectattr('risk_score','lt',20)|list|length + censys|selectattr('risk_score','lt',20)|list|length }},
+          {{ shodan|selectattr('risk_score','ge',20)|selectattr('risk_score','lt',50)|list|length + censys|selectattr('risk_score','ge',20)|selectattr('risk_score','lt',50)|list|length }},
+          {{ shodan|selectattr('risk_score','ge',50)|list|length + censys|selectattr('risk_score','ge',50)|list|length }}
         ],
-        backgroundColor: ['#4bc0c0','#ff9f40','#ff6384'],
-        borderWidth: 1
+        backgroundColor: ['#4bc0c0','#ff9f40','#ff6384']
       }]
-    },
-    options: { 
-      responsive: true,
-      maintainAspectRatio: false,  // allows custom sizing
-      plugins: { 
-        legend: { 
-          display: true,
-          position: 'bottom',
-          labels: { boxWidth: 20, padding: 15 }
-        } 
-      },
-      layout: { 
-        padding: { top: 10, bottom: 10 } 
-      }
     }
   });
 });
 </script>
+
 {% endblock %}
