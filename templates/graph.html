@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2 class="mb-4">Attack Surface Graph</h2>
+<h2 class="mb-4">Attack Surface Intelligence Graph</h2>
 
 <div class="card shadow-sm">
   <div class="card-body">
-    <div id="graph" style="height:850px; border:1px solid #ddd;"></div>
+    <div id="graph" style="height:900px; border:1px solid #ddd;"></div>
     <pre id="debug" style="font-size:12px; color:#666;"></pre>
   </div>
 </div>
@@ -27,49 +27,54 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // =========================
-  // CLEAN + LIMIT
+  // FULL DATA PRESERVED
   // =========================
   const assets = Array.from(
     new Map(raw.filter(a => a?.ip).map(a => [a.ip, a])).values()
-  ).slice(0, 60); // safe cap
+  );
 
-  log("Assets: " + assets.length);
+  log("Total assets: " + assets.length);
 
   const nodes = [];
   const edges = [];
 
-  // ROOT
+  // =========================
+  // ROOT NODE
+  // =========================
   nodes.push({
     id: "internet",
-    label: "ATTACK SURFACE",
+    label: "EXTERNAL ATTACK SURFACE",
     shape: "box",
-    color: "#2c3e50",
-    font: { color: "white", size: 20 }
+    color: "#1f2d3d",
+    font: { color: "white", size: 20 },
+    margin: 15
   });
 
-  // CLUSTERS (THIS IS THE KEY FIX)
-  const clusters = {
+  // =========================
+  // SERVICE HUBS (IMPORTANT STRUCTURE)
+  // =========================
+  const hubs = {
     SSH: { color: "#c0392b" },
     WEB: { color: "#2980b9" },
     OTHER: { color: "#7f8c8d" }
   };
 
-  for (const c in clusters) {
+  for (const h in hubs) {
     nodes.push({
-      id: c,
-      label: c + " SERVICES",
+      id: h,
+      label: h + " SERVICES",
       shape: "box",
-      color: clusters[c].color,
-      font: { color: "white", size: 16 }
+      color: hubs[h].color,
+      font: { color: "white", size: 16 },
+      margin: 12
     });
 
-    edges.push({
-      from: "internet",
-      to: c,
-      width: 2
-    });
+    edges.push({ from: "internet", to: h, width: 2 });
   }
 
+  // =========================
+  // CLASSIFICATION
+  // =========================
   function classify(a) {
     if (a.port === 22) return "SSH";
     if (a.port === 80 || a.port === 443) return "WEB";
@@ -82,22 +87,38 @@ document.addEventListener("DOMContentLoaded", function () {
     return "#2ecc71";
   }
 
-  // HOST NODES
+  // =========================
+  // HOST NODES (NO DATA LOSS)
+  // =========================
   for (const a of assets) {
 
     const ip = a.ip;
     const group = classify(a);
+    const risk = a.risk_score || 0;
 
     nodes.push({
       id: ip,
       label: ip,
       shape: "dot",
-      size: 16,
+      size: 14,
       color: {
-        background: riskColor(a.risk_score || 0),
-        border: "#333"
+        background: riskColor(risk),
+        border: "#2c3e50"
       },
-      font: { size: 12 }
+      font: { size: 12 },
+
+      // 🔥 ANALYST VALUE (THIS WAS MISSING BEFORE)
+      title: `
+        <b>IP:</b> ${ip}<br>
+        <b>Port:</b> ${a.port || "-"}<br>
+        <b>Service:</b> ${a.service || "Unknown"}<br>
+        <b>Risk:</b> ${risk}<br>
+        <b>Provider:</b> ${a.provider || "-"}<br>
+        <b>SSH:</b> ${a.ssh_exposed}<br>
+        <b>HTTP:</b> ${a.http_exposed}<br>
+        <b>HTTPS:</b> ${a.https_exposed}<br>
+        <b>Banner:</b> ${(a.banner || "").slice(0, 120)}
+      `
     });
 
     edges.push({
@@ -108,13 +129,16 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // =========================
+  // GRAPH DATA
+  // =========================
   const data = {
     nodes: new vis.DataSet(nodes),
     edges: new vis.DataSet(edges)
   };
 
   // =========================
-  // PHYSICS LAYOUT (KEY FIX)
+  // OPTIMIZED PHYSICS (BALANCED)
   // =========================
   const options = {
     layout: {
@@ -124,29 +148,31 @@ document.addEventListener("DOMContentLoaded", function () {
     physics: {
       enabled: true,
       barnesHut: {
-        gravitationalConstant: -6000,
-        springLength: 180,
-        springConstant: 0.04
+        gravitationalConstant: -8000,
+        springLength: 160,
+        springConstant: 0.03
       },
       stabilization: {
-        iterations: 200
+        iterations: 250
       }
     },
 
     nodes: {
       borderWidth: 2,
-      shadow: true,
-      font: { size: 12 }
+      shadow: true
     },
 
     edges: {
       arrows: "to",
-      smooth: true,
+      smooth: {
+        type: "dynamic"
+      },
       color: { color: "#aaa" }
     },
 
     interaction: {
       hover: true,
+      tooltipDelay: 100,
       zoomView: true,
       dragView: true
     }
@@ -154,14 +180,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const network = new vis.Network(container, data, options);
 
+  // =========================
+  // AUTO FIT (CRITICAL UX FIX)
+  // =========================
   network.once("stabilizationIterationsDone", function () {
     network.fit({
-      animation: {
-        duration: 800
-      }
+      animation: { duration: 800 }
     });
 
-    log("Graph stabilized + fitted");
+    log("Graph stabilized and fitted");
   });
 
 });
