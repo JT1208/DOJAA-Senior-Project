@@ -1,6 +1,7 @@
 import json
 from .config import INVENTORY_FILE
 
+
 def load_inventory():
     try:
         with open(INVENTORY_FILE, "r") as f:
@@ -9,10 +10,15 @@ def load_inventory():
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
+
 def compare_with_inventory(normalized_data, inventory=None):
     if inventory is None:
         inventory = load_inventory()
+
     inventory_ips = {item["ip"] for item in inventory}
+
     for asset in normalized_data:
         asset["known"] = asset.get("ip") in inventory_ips
+        asset["shadow_asset"] = not asset["known"]
+
     return normalized_data

@@ -1,2 +1,11 @@
 def print_asset(asset):
-    print(f"{asset['ip']} ({asset.get('service', 'Unknown')}:{asset.get('port')}) - Risk {asset.get('risk_score', 0)}")a
+    """
+    Pretty prints a DOJAA asset record.
+    """
+
+    print(
+        f"{asset.get('ip')} "
+        f"({asset.get('service', 'Unknown')}:{asset.get('port')}) "
+        f"- Risk: {asset.get('risk_score', 0)} "
+        f"- Severity: {asset.get('severity', 'N/A')}"
+    )

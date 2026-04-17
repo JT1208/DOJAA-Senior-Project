@@ -1,12 +1,12 @@
-# app.py
 from flask import Flask, render_template, request, redirect, url_for, session
-from dojaa.pipeline import run_pipeline
 from functools import wraps
+from dojaa.pipeline import run_pipeline
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Required for sessions
+app.secret_key = "supersecretkey"
 
-# --- LOGIN ---
+
+# ---------------- LOGIN ----------------
 @app.route("/", methods=["GET", "POST"])
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -14,18 +14,16 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
 
-        # Validate Drexel email and correct password
         if email and email.endswith("@drexel.edu") and password == "Drexel123!":
             session["user"] = email
             return redirect(url_for("dashboard"))
         else:
-            error = "Invalid Drexel email or password. Please try again."
-            return render_template("login.html", error=error)
+            return render_template("login.html", error="Invalid login")
 
     return render_template("login.html", error=None)
 
 
-# --- LOGIN REQUIRED DECORATOR ---
+# ---------------- AUTH ----------------
 def require_login(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -35,72 +33,129 @@ def require_login(func):
     return wrapper
 
 
-# --- HELPER TO GET DATA ---
+# ---------------- PIPELINE ----------------
 def get_dashboard_data(rescan=False):
-    """
-    Returns the dashboard data.
-    If rescan=True, forces fresh API scan and overwrites JSON cache.
-    Otherwise, uses cached data if available.
-    """
     return run_pipeline(use_api=rescan)
 
 
-# --- DASHBOARD AND OTHER PAGES ---
+# ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
 @require_login
 def dashboard():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
+
     return render_template(
         "dashboard.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
+
+# ---------------- HOSTS ----------------
 @app.route("/hosts")
 @require_login
 def hosts():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
+
     return render_template(
         "hosts.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
+
+# ---------------- OPEN PORTS ----------------
 @app.route("/open_ports")
 @require_login
 def open_ports():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
+
     return render_template(
         "open_ports.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
+
+# ---------------- RISK ----------------
 @app.route("/risk_summary")
 @require_login
 def risk_summary():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
+
     return render_template(
         "risk_summary.html",
-        shodan=data["shodan"],
-        censys=data["censys"],
+        shodan=data.get("shodan", []),
+        censys=data.get("censys", []),
         user=session.get("user")
     )
 
 
-# --- LOGOUT ---
+# ---------------- ASSET DETAIL ----------------
+@app.route("/asset/<ip>")
+@require_login
+def asset_detail(ip):
+    data = get_dashboard_data(rescan=False)
+
+    all_assets = data.get("shodan", []) + data.get("censys", [])
+    asset = next((a for a in all_assets if a.get("ip") == ip), None)
+
+    if not asset:
+        return "Asset not found", 404
+
+    return render_template("asset_detail.html", asset=asset)
+
+
+# ---------------- GRAPH ----------------
+@app.route("/graph")
+@require_login
+def graph():
+    data = get_dashboard_data(rescan=False)
+
+    return render_template(
+        "graph.html",
+        shodan=data.get("shodan", []),
+        user=session.get("user")
+    )
+
+
+# ---------------- SSL/TLS ----------------
+@app.route("/ssl_tls")
+@require_login
+def ssl_tls():
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
+
+    ssl_data = data.get("ssl_tls") or []
+
+    print("[SSL DEBUG] count =", len(ssl_data))
+
+    return render_template(
+        "ssl_tls.html",
+        ssl_tls=ssl_data,
+        user=session.get("user")
+    )
+
+
+# ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     session.pop("user", None)
     return redirect(url_for("login"))
 
 
+# ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run(debug=True)
