@@ -5,6 +5,10 @@
   <title>DOJAA · Security Dashboard</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -17,44 +21,25 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
   <div class="container-fluid">
 
-    <a class="navbar-brand" href="{{ url_for('dashboard') }}">
-      DOJAA
-    </a>
+    <a class="navbar-brand" href="{{ url_for('dashboard') }}">DOJAA</a>
 
     <div class="collapse navbar-collapse">
-
       <ul class="navbar-nav ms-auto">
 
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('hosts') }}">Hosts</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('open_ports') }}">Ports</a>
-        </li>
-
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('risk_summary') }}">Risk</a>
-        </li>
-
-        <!-- 🔥 NEW GRAPH LINK -->
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('graph') }}">Graph</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('hosts') }}">Hosts</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('open_ports') }}">Ports</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('risk_summary') }}">Risk</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('graph') }}">Graph</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('ssl_tls') }}">SSL/TLS</a></li>
 
         {% if session.get('user') %}
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-        </li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>
         {% endif %}
 
       </ul>
-
     </div>
+
   </div>
 </nav>
 
