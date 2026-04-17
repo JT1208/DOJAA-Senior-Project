@@ -1,5 +1,7 @@
 import socket
 import ssl
+from datetime import datetime, timezone
+
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 
@@ -20,52 +22,92 @@ def fetch_cert(host, port=443, timeout=1):
 
         cert = x509.load_der_x509_certificate(der_cert, default_backend())
 
+        issuer = cert.issuer.rfc4514_string()
+        subject = cert.subject.rfc4514_string()
+
+        # ---------------- FIXED TIMEZONE HANDLING ----------------
         try:
-            expiry = cert.not_valid_after_utc.strftime("%Y-%m-%d")
+            expiry_date = cert.not_valid_after_utc
         except Exception:
-            expiry = cert.not_valid_after.strftime("%Y-%m-%d")
+            expiry_date = cert.not_valid_after
+
+        now = datetime.now(timezone.utc)
+
+        if expiry_date.tzinfo is None:
+            expiry_date = expiry_date.replace(tzinfo=timezone.utc)
+
+        days_left = (expiry_date - now).days
+
+        # ---------------- SAN DOMAINS ----------------
+        try:
+            san = cert.extensions.get_extension_for_class(
+                x509.SubjectAlternativeName
+            ).value.get_values_for_type(x509.DNSName)
+        except Exception:
+            san = []
+
+        # ---------------- KEY SIZE ----------------
+        key_length = getattr(cert.public_key(), "key_size", "N/A")
+
+        # ---------------- RISK SCORING ----------------
+        if days_left < 0:
+            risk = "EXPIRED"
+        elif days_left < 30:
+            risk = "CRITICAL"
+        elif days_left < 90:
+            risk = "HIGH"
+        elif days_left < 180:
+            risk = "MEDIUM"
+        else:
+            risk = "LOW"
 
         return {
             "ip": host,
-            "issuer": cert.issuer.rfc4514_string(),
-            "subject": cert.subject.rfc4514_string(),
-            "expiry": expiry,
-            "key_length": getattr(cert.public_key(), "key_size", "N/A"),
-            "self_signed": cert.issuer == cert.subject,
+            "issuer": issuer,
+            "subject": subject,
+            "expiry": expiry_date.strftime("%Y-%m-%d"),
+            "days_left": days_left,
+            "san": san,
+            "key_length": key_length,
+            "self_signed": issuer == subject,
+            "risk_level": risk,
             "status": "ok"
         }
 
     except socket.timeout:
         return {
             "ip": host,
-            "issuer": None,
-            "subject": None,
-            "expiry": None,
-            "key_length": None,
-            "self_signed": False,
-            "status": "timeout"
+            "status": "timeout",
+            "issuer": "-",
+            "subject": "-",
+            "expiry": "-",
+            "san": [],
+            "key_length": "-",
+            "self_signed": False
         }
 
     except (ConnectionRefusedError, OSError):
         return {
             "ip": host,
-            "issuer": None,
-            "subject": None,
-            "expiry": None,
-            "key_length": None,
-            "self_signed": False,
-            "status": "unreachable"
+            "status": "unreachable",
+            "issuer": "-",
+            "subject": "-",
+            "expiry": "-",
+            "san": [],
+            "key_length": "-",
+            "self_signed": False
         }
 
     except Exception as e:
         return {
             "ip": host,
-            "issuer": None,
-            "subject": None,
-            "expiry": None,
-            "key_length": None,
-            "self_signed": False,
-            "status": f"error: {str(e)}"
+            "status": f"error:{str(e)}",
+            "issuer": "-",
+            "subject": "-",
+            "expiry": "-",
+            "san": [],
+            "key_length": "-",
+            "self_signed": False
         }
 
 
@@ -73,8 +115,7 @@ def collect_ssl_data(hosts):
     results = []
 
     for h in hosts:
-        if not h:
-            continue
-        results.append(fetch_cert(h))
+        if h:
+            results.append(fetch_cert(h))
 
     return results

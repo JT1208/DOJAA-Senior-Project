@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="mb-4">SSL/TLS Certificates</h1>
-<p class="lead">All SSL/TLS certificates for your scanned assets.</p>
+<h1 class="mb-4">SSL/TLS Intelligence</h1>
+<p class="lead">Certificate analysis per exposed service endpoint.</p>
 
 <form method="GET" action="{{ url_for('ssl_tls') }}">
   <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">
@@ -11,10 +11,40 @@
 </form>
 
 <style>
-/* ============================= */
-/* DataTables pagination FIX     */
-/* ============================= */
+.table td {
+  white-space: normal !important;
+  word-break: break-word;
+  max-width: 350px;
+  vertical-align: middle;
+}
 
+/* FORCE SINGLE LINE */
+.nowrap {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: inline-block;
+  max-width: 180px;
+}
+
+table.dataTable td .nowrap {
+  white-space: nowrap !important;
+}
+
+/* SSL text styling */
+.ssl-meta {
+  font-size: 0.85rem;
+  line-height: 1.3;
+}
+
+.ssl-sub {
+  font-size: 0.75rem;
+  color: #6c757d;
+  display: block;
+  word-break: break-word;
+}
+
+/* DataTables pagination fix */
 .dataTables_wrapper .dataTables_paginate {
   display: flex;
   justify-content: flex-end;
@@ -40,24 +70,11 @@
   color: #fff !important;
   border: 1px solid #0d6efd;
 }
-
-.dataTables_wrapper .dataTables_info {
-  padding-top: 8px;
-  white-space: nowrap;
-}
-
-/* SSL table readability */
-.table td {
-  white-space: normal !important;
-  word-break: break-word;
-  vertical-align: middle;
-  max-width: 300px;
-}
 </style>
 
 <div class="card shadow-sm">
   <div class="card-header bg-dark text-white">
-    SSL/TLS Overview
+    SSL Overview
   </div>
 
   <div class="card-body">
@@ -68,41 +85,73 @@
         <thead>
           <tr>
             <th>IP</th>
+            <th>Risk</th>
             <th>Issuer</th>
             <th>Subject</th>
+            <th>SAN</th>
             <th>Expiry</th>
-            <th>Key Length</th>
-            <th>Self Signed</th>
+            <th>Days Left</th>
             <th>Status</th>
           </tr>
         </thead>
 
         <tbody>
-          {% for cert in ssl_tls %}
+          {% for c in ssl_tls %}
           <tr>
-            <td>{{ cert.ip }}</td>
-            <td>{{ cert.issuer or '-' }}</td>
-            <td>{{ cert.subject or '-' }}</td>
-            <td>{{ cert.expiry or '-' }}</td>
-            <td>{{ cert.key_length or '-' }}</td>
-            <td>{{ cert.self_signed }}</td>
+
+            <!-- IP -->
             <td>
-              <span class="
-                {% if cert.status == 'ok' %}text-success
-                {% elif cert.status == 'timeout' %}text-warning
-                {% else %}text-danger
+              <span class="nowrap"><strong>{{ c.ip }}</strong></span>
+            </td>
+
+            <!-- Risk -->
+            <td data-order="
+              {% if c.risk_level == 'CRITICAL' %}4
+              {% elif c.risk_level == 'HIGH' %}3
+              {% elif c.risk_level == 'MEDIUM' %}2
+              {% elif c.risk_level == 'LOW' %}1
+              {% elif c.risk_level == 'EXPIRED' %}5
+              {% else %}0
+              {% endif %}
+            ">
+              <span class="badge
+                {% if c.risk_level == 'CRITICAL' %}bg-danger
+                {% elif c.risk_level == 'HIGH' %}bg-warning text-dark
+                {% elif c.risk_level == 'MEDIUM' %}bg-info text-dark
+                {% elif c.risk_level == 'EXPIRED' %}bg-dark
+                {% else %}bg-success
                 {% endif %}
               ">
-                {{ cert.status }}
+                {{ c.risk_level or 'UNKNOWN' }}
               </span>
             </td>
+
+            <td class="ssl-meta">{{ c.issuer or '-' }}</td>
+            <td class="ssl-meta">{{ c.subject or '-' }}</td>
+
+            <td class="ssl-sub">
+              {{ c.san|join(', ') if c.san else '-' }}
+            </td>
+
+            <!-- Expiry -->
+            <td>
+              <span class="nowrap">{{ c.expiry or '-' }}</span>
+            </td>
+
+            <td>{{ c.days_left or '-' }}</td>
+
+            <!-- Status (NOW ALSO NO WRAP) -->
+            <td>
+              <span class="nowrap">{{ c.status or 'ok' }}</span>
+            </td>
+
           </tr>
           {% endfor %}
         </tbody>
 
         <tfoot>
           <tr>
-            <th colspan="6">Total Certificates</th>
+            <th colspan="7">Total Certificates</th>
             <th>{{ ssl_tls|length }}</th>
           </tr>
         </tfoot>
@@ -119,13 +168,10 @@ $(document).ready(function () {
     paging: true,
     searching: true,
     ordering: true,
-
-    // MATCHES YOUR OTHER PAGES
     dom:
       "<'row mb-2'<'col-sm-6'l><'col-sm-6 text-end'f>>" +
       "<'row'<'col-sm-12'tr>>" +
       "<'row mt-2 align-items-center'<'col-sm-5'i><'col-sm-7'p>>",
-
     pagingType: "simple_numbers"
   });
 });
