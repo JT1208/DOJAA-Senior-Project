@@ -11,6 +11,11 @@
 </form>
 
 <style>
+
+/* ============================= */
+/* TABLE TEXT (MATCH HOSTS PAGE) */
+/* ============================= */
+
 .table td {
   white-space: normal !important;
   word-break: break-word;
@@ -18,33 +23,49 @@
   vertical-align: middle;
 }
 
-/* FORCE SINGLE LINE */
-.nowrap {
+/* FORCE SINGLE LINE FIELDS */
+.col-ip,
+.col-expiry {
   white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  display: inline-block;
-  max-width: 180px;
+  word-break: normal !important;
+  max-width: none !important;
 }
 
-table.dataTable td .nowrap {
-  white-space: nowrap !important;
+/* SAN styling */
+.col-san {
+  font-size: 0.9rem;
+  color: #555;
 }
 
-/* SSL text styling */
-.ssl-meta {
-  font-size: 0.85rem;
-  line-height: 1.3;
+/* ============================= */
+/* BADGES */
+/* ============================= */
+
+.badge {
+  display: inline-block !important;
+  white-space: nowrap;
+  padding: 5px 8px;
+  font-size: 12px;
 }
 
-.ssl-sub {
-  font-size: 0.75rem;
-  color: #6c757d;
-  display: block;
-  word-break: break-word;
-}
+/* Risk */
+.badge-low { background: #198754; }
+.badge-medium { background: #0dcaf0; color: black; }
+.badge-high { background: #fd7e14; }
+.badge-critical { background: #dc3545; }
 
-/* DataTables pagination fix */
+/* Trust */
+.badge-public { background: #198754; }
+.badge-cloud { background: #0d6efd; }
+.badge-enterprise { background: #6f42c1; }
+.badge-dev { background: #fd7e14; }
+.badge-broken { background: #dc3545; }
+.badge-unknown { background: #6c757d; }
+
+/* ============================= */
+/* DATA TABLES PAGINATION FIX    */
+/* ============================= */
+
 .dataTables_wrapper .dataTables_paginate {
   display: flex;
   justify-content: flex-end;
@@ -70,6 +91,12 @@ table.dataTable td .nowrap {
   color: #fff !important;
   border: 1px solid #0d6efd;
 }
+
+.dataTables_wrapper .dataTables_info {
+  padding-top: 8px;
+  white-space: nowrap;
+}
+
 </style>
 
 <div class="card shadow-sm">
@@ -91,7 +118,7 @@ table.dataTable td .nowrap {
             <th>SAN</th>
             <th>Expiry</th>
             <th>Days Left</th>
-            <th>Status</th>
+            <th>Trust</th>
           </tr>
         </thead>
 
@@ -99,50 +126,57 @@ table.dataTable td .nowrap {
           {% for c in ssl_tls %}
           <tr>
 
-            <!-- IP -->
-            <td>
-              <span class="nowrap"><strong>{{ c.ip }}</strong></span>
-            </td>
+            <td class="col-ip"><strong>{{ c.ip }}</strong></td>
 
-            <!-- Risk -->
-            <td data-order="
-              {% if c.risk_level == 'CRITICAL' %}4
-              {% elif c.risk_level == 'HIGH' %}3
-              {% elif c.risk_level == 'MEDIUM' %}2
-              {% elif c.risk_level == 'LOW' %}1
-              {% elif c.risk_level == 'EXPIRED' %}5
-              {% else %}0
-              {% endif %}
-            ">
+            <td
+              data-order="{% if c.risk_level == 'EXPIRED' %}0
+                          {% elif c.risk_level == 'LOW' %}1
+                          {% elif c.risk_level == 'MEDIUM' %}2
+                          {% elif c.risk_level == 'HIGH' %}3
+                          {% elif c.risk_level == 'CRITICAL' %}4
+                          {% else %}5{% endif %}"
+            >
               <span class="badge
-                {% if c.risk_level == 'CRITICAL' %}bg-danger
-                {% elif c.risk_level == 'HIGH' %}bg-warning text-dark
-                {% elif c.risk_level == 'MEDIUM' %}bg-info text-dark
+                {% if c.risk_level == 'CRITICAL' %}badge-critical
+                {% elif c.risk_level == 'HIGH' %}badge-high
+                {% elif c.risk_level == 'MEDIUM' %}badge-medium
                 {% elif c.risk_level == 'EXPIRED' %}bg-dark
-                {% else %}bg-success
+                {% else %}badge-low
                 {% endif %}
               ">
-                {{ c.risk_level or 'UNKNOWN' }}
+                {{ c.risk_level or 'LOW' }}
               </span>
             </td>
 
-            <td class="ssl-meta">{{ c.issuer or '-' }}</td>
-            <td class="ssl-meta">{{ c.subject or '-' }}</td>
+            <td>{{ c.issuer_name or '-' }}</td>
+            <td>{{ c.subject_name or '-' }}</td>
 
-            <td class="ssl-sub">
-              {{ c.san|join(', ') if c.san else '-' }}
+            <td class="col-san">
+              {{ c.san_clean|join(', ') if c.san_clean else '-' }}
             </td>
 
-            <!-- Expiry -->
-            <td>
-              <span class="nowrap">{{ c.expiry or '-' }}</span>
-            </td>
+            <td class="col-expiry">{{ c.expiry or '-' }}</td>
 
             <td>{{ c.days_left or '-' }}</td>
 
-            <!-- Status (NOW ALSO NO WRAP) -->
-            <td>
-              <span class="nowrap">{{ c.status or 'ok' }}</span>
+            <td
+              data-order="{% if c.trust == 'Public CA' %}3
+                          {% elif c.trust == 'Cloud CA' %}2
+                          {% elif c.trust == 'Enterprise CA' %}1
+                          {% elif c.trust == 'Dev / Default Cert' %}0
+                          {% else %}-1{% endif %}"
+            >
+              <span class="badge
+                {% if c.trust == 'Public CA' %}badge-public
+                {% elif c.trust == 'Cloud CA' %}badge-cloud
+                {% elif c.trust == 'Enterprise CA' %}badge-enterprise
+                {% elif c.trust == 'Dev / Default Cert' %}badge-dev
+                {% elif c.trust == 'Broken / Missing' %}badge-broken
+                {% else %}badge-unknown
+                {% endif %}
+              ">
+                {{ c.trust or 'Unknown' }}
+              </span>
             </td>
 
           </tr>
@@ -164,16 +198,28 @@ table.dataTable td .nowrap {
 
 <script>
 $(document).ready(function () {
+
   $('#sslTable').DataTable({
     paging: true,
     searching: true,
     ordering: true,
+    autoWidth: false,
+
     dom:
       "<'row mb-2'<'col-sm-6'l><'col-sm-6 text-end'f>>" +
       "<'row'<'col-sm-12'tr>>" +
       "<'row mt-2 align-items-center'<'col-sm-5'i><'col-sm-7'p>>",
-    pagingType: "simple_numbers"
+
+    pagingType: "simple_numbers",
+
+    language: {
+      paginate: {
+        previous: "Previous",
+        next: "Next"
+      }
+    }
   });
+
 });
 </script>
 

@@ -1,5 +1,6 @@
 import os
 import json
+import re
 
 from .collectors import collect_shodan, collect_censys
 from .normalizer import normalize_data
@@ -9,9 +10,12 @@ from .export_json import save_to_json
 
 from .enrichment.banner_parser import parse_banner
 from .enrichment.service_intel import build_service_intel
-
 from .ssl_tls_collector import collect_ssl_data
 
+
+# =========================
+# CACHE
+# =========================
 
 CACHE_FILE = "dashboard_cache.json"
 
@@ -31,8 +35,41 @@ def save_cache(data):
         with open(CACHE_FILE, "w") as f:
             json.dump(data, f)
     except Exception as e:
-        print("[CACHE SAVE ERROR]", e)
+        print("[CACHE ERROR]", e)
 
+
+# =========================
+# DN PARSER (FIXED)
+# =========================
+
+def parse_dn(dn: str):
+    if not dn:
+        return {"cn": None, "org": None, "country": None, "summary": "-"}
+
+    parts = dict(re.findall(r'(\w+)=([^,]+)', dn))
+
+    cn = parts.get("CN")
+    org = parts.get("O")
+    country = parts.get("C")
+
+    summary = cn or dn
+
+    if org:
+        summary += f" ({org})"
+    if country:
+        summary += f" [{country}]"
+
+    return {
+        "cn": cn,
+        "org": org,
+        "country": country,
+        "summary": summary
+    }
+
+
+# =========================
+# PIPELINE
+# =========================
 
 def run_pipeline(output_file="dashboard_data.json", use_api=False):
 
@@ -44,17 +81,16 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
 
     cached = load_cache()
 
-    # ---------------- LOAD OR REFRESH ----------------
+    # ---------------- LOAD ----------------
     if use_api or not cached:
         dashboard["shodan"] = collect_shodan()
         dashboard["censys"] = collect_censys()
-        cache_hit = False
     else:
         dashboard["shodan"] = cached.get("shodan", [])
         dashboard["censys"] = cached.get("censys", [])
-        cache_hit = True
+        dashboard["ssl_tls"] = cached.get("ssl_tls", [])
 
-    # ---------------- ENRICHMENT ----------------
+    # ---------------- HOST ENRICHMENT ----------------
     for source in ["shodan", "censys"]:
         for asset in dashboard.get(source, []):
 
@@ -72,20 +108,17 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
         normalized = normalize_data(dashboard.get(source, []))
         normalized = compare_with_inventory(normalized, inventory)
 
+        enriched = []
         for asset in normalized:
             asset.update(calculate_risk(asset))
             asset.update(build_service_intel(asset))
+            enriched.append(asset)
 
-        dashboard[source] = normalized
+        dashboard[source] = enriched
 
-    # ---------------- SSL LOGIC (FIXED) ----------------
+    # ---------------- SSL COLLECTION ----------------
 
-    # ALWAYS recompute SSL if:
-    # - fresh scan (use_api)
-    # - no cache
-    # - OR cache mismatch risk (safe default: when not cache hit)
-
-    if use_api or not cache_hit:
+    if use_api or not cached or "ssl_tls" not in cached:
 
         hosts = []
 
@@ -93,29 +126,61 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
             if a.get("port") == 443:
                 hosts.append(a.get("ip"))
 
-        hosts = list(set(hosts))[:15]
-
-        try:
-            dashboard["ssl_tls"] = collect_ssl_data(hosts)
-        except Exception as e:
-            print("[SSL ERROR]", e)
-            dashboard["ssl_tls"] = []
+        hosts = list(set(hosts))[:50]
+        dashboard["ssl_tls"] = collect_ssl_data(hosts)
 
     else:
-        # safe cached fallback
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
 
-    # ---------------- FINAL SAFETY ----------------
-    dashboard.setdefault("shodan", [])
-    dashboard.setdefault("censys", [])
-    dashboard.setdefault("ssl_tls", [])
+    # =========================
+    # SSL NORMALIZATION (FIXED)
+    # =========================
 
-    # ---------------- SAVE CACHE ----------------
+    for cert in dashboard.get("ssl_tls", []):
+
+        issuer_raw = cert.get("issuer", "")
+        subject_raw = cert.get("subject", "")
+
+        issuer = parse_dn(issuer_raw)
+        subject = parse_dn(subject_raw)
+
+        # CLEAN STRUCTURE (NO MIXING RAW + PARSED)
+        cert["issuer_name"] = issuer["summary"]
+        cert["subject_name"] = subject["summary"]
+
+        cert["issuer_cn"] = issuer["cn"]
+        cert["subject_cn"] = subject["cn"]
+
+        # SAN normalization
+        san = cert.get("san") or cert.get("sans") or []
+        if isinstance(san, str):
+            san = [san]
+        cert["san_clean"] = san
+
+        # TRUST MODEL (REALISTIC)
+        issuer_l = issuer_raw.lower()
+
+        if "let's encrypt" in issuer_l:
+            cert["trust"] = "Public CA"
+        elif "digicert" in issuer_l:
+            cert["trust"] = "Public CA"
+        elif "amazon" in issuer_l:
+            cert["trust"] = "Cloud CA"
+        elif "incommon" in issuer_l:
+            cert["trust"] = "Enterprise CA"
+        elif "traefik" in issuer_l or issuer_raw == "CN=TRAEFIK DEFAULT CERT":
+            cert["trust"] = "Dev / Default Cert"
+        elif issuer_raw in ["", "-", None]:
+            cert["trust"] = "Broken / Missing"
+        else:
+            cert["trust"] = "Unknown CA"
+
+    # ---------------- SAVE ----------------
     save_cache(dashboard)
 
     try:
         save_to_json(dashboard, output_file)
     except Exception as e:
-        print("[PIPELINE SAVE ERROR]", e)
+        print("[EXPORT ERROR]", e)
 
     return dashboard
