@@ -23,7 +23,7 @@ def login():
     return render_template("login.html", error=None)
 
 
-# ---------------- AUTH DECORATOR ----------------
+# ---------------- AUTH ----------------
 def require_login(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -33,7 +33,7 @@ def require_login(func):
     return wrapper
 
 
-# ---------------- PIPELINE WRAPPER ----------------
+# ---------------- PIPELINE ----------------
 def get_dashboard_data(rescan=False):
     return run_pipeline(use_api=rescan)
 
@@ -42,8 +42,9 @@ def get_dashboard_data(rescan=False):
 @app.route("/dashboard")
 @require_login
 def dashboard():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
 
     return render_template(
         "dashboard.html",
@@ -57,8 +58,9 @@ def dashboard():
 @app.route("/hosts")
 @require_login
 def hosts():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
 
     return render_template(
         "hosts.html",
@@ -72,8 +74,9 @@ def hosts():
 @app.route("/open_ports")
 @require_login
 def open_ports():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
 
     return render_template(
         "open_ports.html",
@@ -87,8 +90,9 @@ def open_ports():
 @app.route("/risk_summary")
 @require_login
 def risk_summary():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
 
     return render_template(
         "risk_summary.html",
@@ -126,19 +130,21 @@ def graph():
     )
 
 
-# ---------------- SSL/TLS PAGE (FIXED) ----------------
+# ---------------- SSL/TLS ----------------
 @app.route("/ssl_tls")
 @require_login
 def ssl_tls():
-    rescan = request.args.get("rescan", "false").lower() == "true"
-    data = get_dashboard_data(rescan=rescan)
+    data = get_dashboard_data(
+        rescan=request.args.get("rescan", "false").lower() == "true"
+    )
 
-    # DEBUG (keep while testing)
-    print("SSL DATA COUNT:", len(data.get("ssl_tls", [])))
+    ssl_data = data.get("ssl_tls") or []
+
+    print("[SSL DEBUG] count =", len(ssl_data))
 
     return render_template(
         "ssl_tls.html",
-        ssl_tls=data.get("ssl_tls", []),
+        ssl_tls=ssl_data,
         user=session.get("user")
     )
 
