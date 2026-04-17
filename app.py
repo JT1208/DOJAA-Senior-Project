@@ -130,7 +130,7 @@ def graph():
     )
 
 
-# ---------------- SSL/TLS ----------------
+# ---------------- SSL/TLS (ENHANCED SUMMARY) ----------------
 @app.route("/ssl_tls")
 @require_login
 def ssl_tls():
@@ -140,11 +140,41 @@ def ssl_tls():
 
     ssl_data = data.get("ssl_tls") or []
 
+    # =========================
+    # SSL SUMMARY ENGINE
+    # =========================
+    summary = {
+        "total": len(ssl_data),
+        "expired": 0,
+        "high": 0,
+        "critical": 0,
+        "medium": 0,
+        "low": 0,
+        "unknown": 0
+    }
+
+    for c in ssl_data:
+        risk = (c.get("risk_level") or "").upper()
+
+        if risk == "EXPIRED":
+            summary["expired"] += 1
+        elif risk == "CRITICAL":
+            summary["critical"] += 1
+        elif risk == "HIGH":
+            summary["high"] += 1
+        elif risk == "MEDIUM":
+            summary["medium"] += 1
+        elif risk == "LOW":
+            summary["low"] += 1
+        else:
+            summary["unknown"] += 1
+
     print("[SSL DEBUG] count =", len(ssl_data))
 
     return render_template(
         "ssl_tls.html",
         ssl_tls=ssl_data,
+        ssl_summary=summary,
         user=session.get("user")
     )
 
