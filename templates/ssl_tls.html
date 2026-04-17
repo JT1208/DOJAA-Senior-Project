@@ -99,6 +99,51 @@
 
 </style>
 
+
+<!-- ========================= -->
+<!-- 📊 SSL SUMMARY CARDS -->
+<!-- ========================= -->
+
+<div class="row mb-4">
+
+  <div class="col-md-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6>Total</h6>
+        <h3>{{ ssl_summary.total }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-danger">
+      <div class="card-body">
+        <h6>Expired</h6>
+        <h3 class="text-danger">{{ ssl_summary.expired }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-warning">
+      <div class="card-body">
+        <h6>High Risk</h6>
+        <h3 class="text-warning">{{ ssl_summary.high }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card shadow-sm border-danger">
+      <div class="card-body">
+        <h6>Critical</h6>
+        <h3 class="text-danger">{{ ssl_summary.critical }}</h3>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <div class="card shadow-sm">
   <div class="card-header bg-dark text-white">
     SSL Overview
