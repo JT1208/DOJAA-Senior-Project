@@ -1,5 +1,5 @@
 import requests
-from .config import SHODAN_API_KEY, CENSYS_API_TOKEN, ORG_DOMAIN
+from .config import SHODAN_API_KEY, CENSYS_API_TOKEN2, ORG_DOMAIN
 
 
 def collect_shodan():
@@ -57,46 +57,73 @@ def collect_shodan():
 
 
 def collect_censys():
-    print("[Censys] Collecting data...")
+    print("Censys] Collecting data...")
     results = []
-
-    url = "https://search.censys.io/api/v2/hosts/search"
-    payload = {"q": f"domain:{ORG_DOMAIN}", "per_page": 50}
-    headers = {"Accept": "application/json"}
-
+    
+    headers = {
+    "Accept": "application/vnd.censys.api.v3.host.v1+json",
+    "Authorization": f"Bearer {CENSYS_API_TOKEN2}"
+    }
+    
     try:
-        resp = requests.post(
-            url,
-            headers=headers,
-            auth=(CENSYS_API_TOKEN, ""),
-            json=payload
+        resp = requests.get(
+            "https://api.platform.censys.io/v3/global/asset/host/144.118.67.118",
+            headers=headers
         )
-
         if resp.status_code != 200:
+            print(f"[Censys Error], {resp.status_code}")
             return results
-
+        
         data = resp.json()
-        hits = data.get("result", {}).get("hits", [])
-
-        for hit in hits:
-            protocols = hit.get("protocols", [])
-
-            results.append({
-                "ip": hit.get("ip"),
-                "port": protocols[0].split("/")[0] if protocols else None,
-                "service": "Unknown",
-                "banner": "",
-                "provider": hit.get("autonomous_system", {}).get("name", ORG_DOMAIN),
-                "ssh_exposed": any("22/" in p for p in protocols),
-                "http_exposed": any("80/" in p for p in protocols),
-                "https_exposed": any("443/" in p for p in protocols),
-                "known": False,
-                "risk_score": 0,
-                "recommendations": []
-            })
-
+        results.append(data.get("result", {}))
+        
     except Exception as e:
         print("[Censys Error]", e)
-
+        
     print(f"[Censys] Collected {len(results)} assets")
     return results
+
+# def collect_censys():
+#     print("[Censys] Collecting data...")
+#     results = []
+
+#     url = "https://search.censys.io/api/v2/hosts/search"
+#     payload = {"q": f"domain:{ORG_DOMAIN}", "per_page": 50}
+#     headers = {"Accept": "application/json"}
+
+#     try:
+#         resp = requests.post(
+#             url,
+#             headers=headers,
+#             auth=(CENSYS_API_TOKEN, ""),
+#             json=payload
+#         )
+
+#         if resp.status_code != 200:
+#             return results
+
+#         data = resp.json()
+#         hits = data.get("result", {}).get("hits", [])
+
+#         for hit in hits:
+#             protocols = hit.get("protocols", [])
+
+#             results.append({
+#                 "ip": hit.get("ip"),
+#                 "port": protocols[0].split("/")[0] if protocols else None,
+#                 "service": "Unknown",
+#                 "banner": "",
+#                 "provider": hit.get("autonomous_system", {}).get("name", ORG_DOMAIN),
+#                 "ssh_exposed": any("22/" in p for p in protocols),
+#                 "http_exposed": any("80/" in p for p in protocols),
+#                 "https_exposed": any("443/" in p for p in protocols),
+#                 "known": False,
+#                 "risk_score": 0,
+#                 "recommendations": []
+#             })
+
+#     except Exception as e:
+#         print("[Censys Error]", e)
+
+#     print(f"[Censys] Collected {len(results)} assets")
+#     return results

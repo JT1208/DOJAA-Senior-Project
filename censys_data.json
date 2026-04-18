@@ -1,0 +1,483 @@
+[
+    {
+        "resource": {
+            "ip": "144.118.67.118",
+            "location": {
+                "continent": "North America",
+                "country": "United States",
+                "country_code": "US",
+                "city": "Philadelphia",
+                "postal_code": "19099",
+                "timezone": "America/New_York",
+                "province": "Pennsylvania",
+                "coordinates": {
+                    "latitude": 39.95238,
+                    "longitude": -75.16362
+                }
+            },
+            "autonomous_system": {
+                "asn": 11834,
+                "description": "DREXEL-ASN - Drexel University",
+                "bgp_prefix": "144.118.0.0/16",
+                "name": "DREXEL-ASN - Drexel University",
+                "country_code": "US"
+            },
+            "whois": {
+                "network": {
+                    "handle": "DREXELSUBNET",
+                    "name": "Drexel University",
+                    "cidrs": [
+                        "144.118.0.0/16"
+                    ],
+                    "created": "1990-12-03T00:00:00Z",
+                    "updated": "2024-01-12T00:00:00Z",
+                    "allocation_type": "ALLOCATION"
+                },
+                "organization": {
+                    "handle": "DREXEL-3-Z",
+                    "name": "Drexel University",
+                    "street": "32nd and Chestnut Streets",
+                    "city": "Phila",
+                    "state": "PA",
+                    "postal_code": "19104",
+                    "country": "US",
+                    "abuse_contacts": [
+                        {
+                            "handle": "DREXEL-U-ARIN",
+                            "name": "Drexel University Information Resources and Techn",
+                            "email": "dunet-admin@drexel.edu"
+                        }
+                    ],
+                    "admin_contacts": [
+                        {
+                            "handle": "DREXEL-U-ARIN",
+                            "name": "Drexel University Information Resources and Techn",
+                            "email": "dunet-admin@drexel.edu"
+                        }
+                    ],
+                    "tech_contacts": [
+                        {
+                            "handle": "DREXEL-U-ARIN",
+                            "name": "Drexel University Information Resources and Techn",
+                            "email": "dunet-admin@drexel.edu"
+                        }
+                    ]
+                }
+            },
+            "services": [
+                {
+                    "port": 80,
+                    "protocol": "HTTP",
+                    "transport_protocol": "tcp",
+                    "software": [
+                        {
+                            "vendor": "f5",
+                            "product": "big-ip_ltm"
+                        }
+                    ],
+                    "operating_systems": [
+                        {
+                            "vendor": "linux",
+                            "product": "linux"
+                        }
+                    ],
+                    "ip": "144.118.67.118",
+                    "scan_time": "2026-04-18T05:25:37Z",
+                    "endpoints": [
+                        {
+                            "hostname": "144.118.67.118",
+                            "port": 80,
+                            "path": "/",
+                            "endpoint_type": "HTTP",
+                            "transport_protocol": "tcp",
+                            "scan_time": "2026-04-18T05:25:37Z",
+                            "http": {
+                                "uri": "http://144.118.67.118/",
+                                "protocol": "HTTP/1.0",
+                                "status_code": 302,
+                                "status_reason": "Moved Temporarily",
+                                "headers": {
+                                    "Connection": {
+                                        "headers": [
+                                            "Keep-Alive"
+                                        ]
+                                    },
+                                    "Content-Length": {
+                                        "headers": [
+                                            "0"
+                                        ]
+                                    },
+                                    "Location": {
+                                        "headers": [
+                                            "https://144.118.67.118/"
+                                        ]
+                                    },
+                                    "Server": {
+                                        "headers": [
+                                            "BigIP"
+                                        ]
+                                    }
+                                },
+                                "supported_versions": [
+                                    "HTTP/1.0",
+                                    "HTTP/2"
+                                ]
+                            },
+                            "ip": "144.118.67.118"
+                        }
+                    ]
+                },
+                {
+                    "port": 443,
+                    "protocol": "HTTP",
+                    "transport_protocol": "tcp",
+                    "cert": {
+                        "fingerprint_sha256": "f762f6aecea54a3001c985f07c06d5b4f5c585e8346de20f214c5b89dd8ea280",
+                        "fingerprint_sha1": "799dc4d44d9b4996c9fe21a0424c51d5a7cadb8f",
+                        "fingerprint_md5": "0fb539687282bfa21933ba34c7955818",
+                        "tbs_fingerprint_sha256": "7560dd6e062db0c1683e479b4c8d1e20b9edb06aff82739e5ab63c98b66512a7",
+                        "tbs_no_ct_fingerprint_sha256": "eb60a49f6de57cda52b9470a1b921e74d38c5dc14c4847d1a8049a2311db10c3",
+                        "spki_fingerprint_sha256": "381a6b62e7917d4d6d81a56142ab680954cdcdd7a53dd4368c5d6d64ad4e4e8b",
+                        "parent_spki_fingerprint_sha256": "82889cf64bdb4522bc4145a8652667c63f4458c268bb0a9a8e930b6ed638ab00",
+                        "parsed": {
+                            "version": 3,
+                            "serial_number": "320758977528204432210577376737894205078",
+                            "issuer_dn": "C=US, O=Internet2, CN=InCommon RSA Server CA 2",
+                            "issuer": {
+                                "common_name": [
+                                    "InCommon RSA Server CA 2"
+                                ],
+                                "country": [
+                                    "US"
+                                ],
+                                "organization": [
+                                    "Internet2"
+                                ]
+                            },
+                            "subject_dn": "C=US, ST=Pennsylvania, O=Drexel University, CN=invalid-sni.irt.drexel.edu",
+                            "subject": {
+                                "common_name": [
+                                    "invalid-sni.irt.drexel.edu"
+                                ],
+                                "country": [
+                                    "US"
+                                ],
+                                "province": [
+                                    "Pennsylvania"
+                                ],
+                                "organization": [
+                                    "Drexel University"
+                                ]
+                            },
+                            "subject_key_info": {
+                                "key_algorithm": {
+                                    "name": "RSA",
+                                    "oid": "1.2.840.113549.1.1.1"
+                                },
+                                "rsa": {
+                                    "exponent": 65537,
+                                    "modulus": "c442f565c2f18f44e1313bec9043e709e05708b5966e90cf55d6a566becc6ce4ec88d7851a26bfa3638c7f82ccce9226d9d3e44d48651407f157ce1fc4d721525a1c6676b28ed40728b1b6376e0dd0ba01ba2ce93b10414540c85519f323503d102804d412e36fa2fdb1c656da4bf769ca742c63294412956b4e99cb79ee1314877af8994888db0063200f22d9a33396bd7c2c0cf7193e61b0cf0487e918d16d3ea032a1326e1d64045bc31a0aa5acfb6984e0d65f79ccf31f8f1cd1b9b6c92ecc871bee4b5bf10dcde367728ae2b1067d4b855048054dfac4bb45d13c036656970bf51c720680f0d4622dee01df5a259b5e0ae997ec1efcbfbedff4e06f0d27",
+                                    "length": 2048
+                                },
+                                "fingerprint_sha256": "4d3d50b8b6600e6e4607b0411f5322b75e1956e0e1bac57d7303e61998bd8f55"
+                            },
+                            "validity_period": {
+                                "not_before": "2025-12-02T00:00:00Z",
+                                "not_after": "2027-01-02T23:59:59Z",
+                                "length_seconds": 34300800
+                            },
+                            "signature": {
+                                "signature_algorithm": {
+                                    "name": "SHA256-RSA",
+                                    "oid": "1.2.840.113549.1.1.11"
+                                },
+                                "value": "83472d8d446910e06835a0ac0a6f66f7409e7b6faebfe8972f62d4f6a09531d1a58b59a3194d6971ef26f0be2139f7b9e7638c61259f2aaa63f956146657a1326d0632aa3587b3ef3f606ed385f64636653dbb633671cb2933eb425b81acaf2840369c09ee3eac0425358be82bbc9f31f8bdcd7b965e8b829e7f8ba5df6ca379a60f46ca54b2fe9db5f760f5c62a0332d21d8dc4c93cddfe82d17190ad5bb69664b9488a6aa060be79cf38bdf8ea97fa37c83c13e7c255ab047cb8b5c438d7e246cccaf59e149bbc6bd945bbb69043f75960dc33c33fa6c600fde9d2539e0812174bce165e9115f6810463db6e3f28e71cb4e6afaf8093029deaae4db8e3013aaad4d65853af3ecfe2a93ed63a99daa9f1bcb237b4787b66331ebebc510b3c3d1a95cca47091fba7fed243625d744e54f6e2faee1fdfe0d74882b12a70c2cbd4c3d8c57ac9a8e4a901ab764d569654403a4fb59ba19530053434f6a343747169b62d74c558ed1a3f8b2447e9f14013c1ef36e6a6d57e5cfd9eb2a11e46f01f7a",
+                                "valid": true
+                            },
+                            "serial_number_hex": "f14fee95ee3efb2504cc87f18dca0696"
+                        },
+                        "names": [
+                            "invalid-sni.irt.drexel.edu"
+                        ],
+                        "validation_level": "ov",
+                        "validation": {
+                            "nss": {
+                                "is_valid": true,
+                                "ever_valid": true,
+                                "has_trusted_path": true,
+                                "had_trusted_path": true,
+                                "chains": [
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "e793c9b02fd8aa13e21c31228accb08119643b749c898964b1746d46c3d4cbd2"
+                                        ]
+                                    },
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "68b9c761219a5b1f0131784474665db61bbdb109e00f05ca9f74244ee5f5f52b",
+                                            "d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4"
+                                        ]
+                                    }
+                                ],
+                                "parents": [
+                                    "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029"
+                                ],
+                                "type": "leaf"
+                            },
+                            "microsoft": {
+                                "is_valid": true,
+                                "ever_valid": true,
+                                "has_trusted_path": true,
+                                "had_trusted_path": true,
+                                "chains": [
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "e793c9b02fd8aa13e21c31228accb08119643b749c898964b1746d46c3d4cbd2"
+                                        ]
+                                    },
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "68b9c761219a5b1f0131784474665db61bbdb109e00f05ca9f74244ee5f5f52b",
+                                            "d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4"
+                                        ]
+                                    }
+                                ],
+                                "parents": [
+                                    "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029"
+                                ],
+                                "type": "leaf"
+                            },
+                            "apple": {
+                                "is_valid": true,
+                                "ever_valid": true,
+                                "has_trusted_path": true,
+                                "had_trusted_path": true,
+                                "chains": [
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "e793c9b02fd8aa13e21c31228accb08119643b749c898964b1746d46c3d4cbd2"
+                                        ]
+                                    },
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "68b9c761219a5b1f0131784474665db61bbdb109e00f05ca9f74244ee5f5f52b",
+                                            "d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4"
+                                        ]
+                                    }
+                                ],
+                                "parents": [
+                                    "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029"
+                                ],
+                                "type": "leaf"
+                            },
+                            "chrome": {
+                                "is_valid": true,
+                                "ever_valid": true,
+                                "has_trusted_path": true,
+                                "had_trusted_path": true,
+                                "chains": [
+                                    {
+                                        "sha256fp": [
+                                            "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                            "e793c9b02fd8aa13e21c31228accb08119643b749c898964b1746d46c3d4cbd2"
+                                        ]
+                                    }
+                                ],
+                                "parents": [
+                                    "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029"
+                                ],
+                                "type": "leaf"
+                            }
+                        },
+                        "revocation": {
+                            "ocsp": {
+                                "reason": "unspecified"
+                            },
+                            "crl": {
+                                "reason": "unspecified"
+                            }
+                        },
+                        "ct": {
+                            "entries": {
+                                "letsencrypt_ct_sycamore_2027_h1": {
+                                    "index": 4509293,
+                                    "added_to_ct_at": "2025-12-02T15:55:01Z",
+                                    "ct_to_censys_at": "2025-12-12T15:29:24Z"
+                                },
+                                "letsencrypt_ct_willow_2027_h1": {
+                                    "index": 46320318,
+                                    "added_to_ct_at": "2026-04-08T19:31:11Z",
+                                    "ct_to_censys_at": "2026-04-08T19:37:37Z"
+                                },
+                                "sectigo_elephant_2027_h1": {
+                                    "index": 46125,
+                                    "added_to_ct_at": "2025-12-02T15:55:00Z",
+                                    "ct_to_censys_at": "2025-12-02T16:04:21Z"
+                                },
+                                "sectigo_tiger_2027_h1": {
+                                    "index": 36309572,
+                                    "added_to_ct_at": "2026-02-02T15:09:05Z",
+                                    "ct_to_censys_at": "2026-02-02T15:20:31Z"
+                                },
+                                "trustasia_log_2026_a": {
+                                    "index": 662764247,
+                                    "added_to_ct_at": "2026-02-02T15:09:07Z",
+                                    "ct_to_censys_at": "2026-02-02T15:22:32Z"
+                                },
+                                "trustasia_log_2026_b": {
+                                    "index": 683966637,
+                                    "added_to_ct_at": "2026-02-02T15:09:13Z",
+                                    "ct_to_censys_at": "2026-02-02T15:21:52Z"
+                                }
+                            }
+                        },
+                        "ever_seen_in_scan": true,
+                        "added_at": "2025-12-02T15:57:35Z",
+                        "modified_at": "2026-04-08T19:37:37Z",
+                        "validated_at": "2026-04-18T02:16:53Z",
+                        "parse_status": "success",
+                        "spki_subject_fingerprint_sha256": "381a6b62e7917d4d6d81a56142ab680954cdcdd7a53dd4368c5d6d64ad4e4e8b",
+                        "parent_spki_subject_fingerprint_sha256": "82889cf64bdb4522bc4145a8652667c63f4458c268bb0a9a8e930b6ed638ab00"
+                    },
+                    "software": [
+                        {
+                            "vendor": "microsoft",
+                            "product": "http_api"
+                        }
+                    ],
+                    "operating_systems": [
+                        {
+                            "vendor": "microsoft",
+                            "product": "windows"
+                        }
+                    ],
+                    "ip": "144.118.67.118",
+                    "scan_time": "2026-04-18T11:19:12Z",
+                    "tls": {
+                        "fingerprint_sha256": "f762f6aecea54a3001c985f07c06d5b4f5c585e8346de20f214c5b89dd8ea280",
+                        "presented_chain": [
+                            {
+                                "fingerprint_sha256": "87e01cc4dd0c9d92a3dbd49092ff13f9cd387445cdc57e5b984e1b7721b5b029",
+                                "subject_dn": "C=US, O=Internet2, CN=InCommon RSA Server CA 2",
+                                "issuer_dn": "C=US, ST=New Jersey, L=Jersey City, O=The USERTRUST Network, CN=USERTrust RSA Certification Authority"
+                            },
+                            {
+                                "fingerprint_sha256": "68b9c761219a5b1f0131784474665db61bbdb109e00f05ca9f74244ee5f5f52b",
+                                "subject_dn": "C=US, ST=New Jersey, L=Jersey City, O=The USERTRUST Network, CN=USERTrust RSA Certification Authority",
+                                "issuer_dn": "C=GB, ST=Greater Manchester, L=Salford, O=Comodo CA Limited, CN=AAA Certificate Services"
+                            },
+                            {
+                                "fingerprint_sha256": "d7a7a0fb5d7e2731d771e9484ebcdef71d5f0c3e0a2948782bc83ee0ea699ef4",
+                                "subject_dn": "C=GB, ST=Greater Manchester, L=Salford, O=Comodo CA Limited, CN=AAA Certificate Services",
+                                "issuer_dn": "C=GB, ST=Greater Manchester, L=Salford, O=Comodo CA Limited, CN=AAA Certificate Services"
+                            }
+                        ]
+                    },
+                    "endpoints": [
+                        {
+                            "hostname": "144.118.67.118",
+                            "port": 443,
+                            "path": "/",
+                            "endpoint_type": "HTTP",
+                            "transport_protocol": "tcp",
+                            "scan_time": "2026-04-18T11:19:12Z",
+                            "http": {
+                                "uri": "https://144.118.67.118/",
+                                "protocol": "HTTP/1.1",
+                                "status_code": 404,
+                                "status_reason": "Not Found",
+                                "headers": {
+                                    "Connection": {
+                                        "headers": [
+                                            "close"
+                                        ]
+                                    },
+                                    "Content-Length": {
+                                        "headers": [
+                                            "315"
+                                        ]
+                                    },
+                                    "Content-Type": {
+                                        "headers": [
+                                            "text/html; charset=us-ascii"
+                                        ]
+                                    },
+                                    "Date": {
+                                        "headers": [
+                                            "<REDACTED>"
+                                        ]
+                                    },
+                                    "Server": {
+                                        "headers": [
+                                            "Microsoft-HTTPAPI/2.0"
+                                        ]
+                                    },
+                                    "Strict-Transport-Security": {
+                                        "headers": [
+                                            "max-age=31536000; includeSubDomains"
+                                        ]
+                                    }
+                                },
+                                "html_tags": [
+                                    "<TITLE>Not Found</TITLE>",
+                                    "<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\">"
+                                ],
+                                "body_size": 315,
+                                "body": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\r\n<HTML><HEAD><TITLE>Not Found</TITLE>\r\n<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\"></HEAD>\r\n<BODY><h2>Not Found</h2>\r\n<hr><p>HTTP Error 404. The requested resource is not found.</p>\r\n</BODY></HTML>\r\n",
+                                "html_title": "Not Found",
+                                "body_hash_sha256": "ce7127c38e30e92a021ed2bd09287713c6a923db9ffdb43f126e8965d777fbf0",
+                                "body_hash_sha1": "a66898b36c94c53766e66c1a7aaeb149447ec083",
+                                "supported_versions": [
+                                    "HTTP/1.1"
+                                ]
+                            },
+                            "ip": "144.118.67.118"
+                        }
+                    ]
+                }
+            ],
+            "service_count": 2,
+            "dns": {
+                "reverse_dns": {
+                    "resolve_time": "2026-04-10T08:57:32Z",
+                    "names": [
+                        "deptapp.drexel.edu"
+                    ]
+                },
+                "names": [
+                    "candidquestion.drexel.edu",
+                    "deptapp.drexel.edu",
+                    "candidcampus.drexel.edu"
+                ],
+                "forward_dns": {
+                    "candidcampus.drexel.edu": {
+                        "resolve_time": "2026-03-08T14:25:12Z",
+                        "name": "candidcampus.drexel.edu",
+                        "record_type": "a"
+                    },
+                    "candidquestion.drexel.edu": {
+                        "resolve_time": "2026-04-11T14:33:18Z",
+                        "name": "candidquestion.drexel.edu",
+                        "record_type": "a"
+                    },
+                    "deptapp.drexel.edu": {
+                        "resolve_time": "2026-04-08T17:10:44Z",
+                        "name": "deptapp.drexel.edu",
+                        "record_type": "a"
+                    }
+                }
+            },
+            "operating_system": {
+                "vendor": "linux",
+                "product": "linux"
+            }
+        },
+        "extensions": {}
+    }
+]
