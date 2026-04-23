@@ -148,6 +148,48 @@ def ssl_tls():
         user=session.get("user")
     )
 
+# ---------------- BROWSER TOOLS ----------------
+@app.route("/browser_tools")
+@require_login
+def browser_tools_page():
+    return render_template("browser_tools.html", user=session.get("user"))
+
+@app.route("/api/browser_tools")
+def api_browser_tools():
+    from flask import jsonify
+    import requests as req
+
+    url = request.args.get("url", "").strip()
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    if not url.startswith("http"):
+        url = "https://" + url
+
+    try:
+        response = req.get(url, timeout=5, allow_redirects=True)
+        headers = response.headers
+
+        checks = {
+            "Content-Security-Policy": headers.get("Content-Security-Policy"),
+            "Strict-Transport-Security": headers.get("Strict-Transport-Security"),
+            "X-Frame-Options": headers.get("X-Frame-Options"),
+            "X-Content-Type-Options": headers.get("X-Content-Type-Options"),
+            "Referrer-Policy": headers.get("Referrer-Policy"),
+            "Permissions-Policy": headers.get("Permissions-Policy"),
+        }
+
+        results = {}
+        for header, value in checks.items():
+            results[header] = {
+                "present": value is not None,
+                "value": value if value else "Missing"
+            }
+
+        return jsonify({"url": url, "results": results})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
