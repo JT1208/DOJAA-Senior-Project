@@ -32,6 +32,7 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('risk_summary') }}">Risk</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('graph') }}">Graph</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('ssl_tls') }}">SSL/TLS</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('whois_page') }}">WHOIS</a></li>
 
         {% if session.get('user') %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('logout') }}">Logout</a></li>

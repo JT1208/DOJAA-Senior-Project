@@ -148,7 +148,76 @@ def ssl_tls():
         user=session.get("user")
     )
 
+# ---------------- WHOIS ----------------
+@app.route("/whois")
+@require_login
+def whois_page():
+    return render_template("whois.html", user=session.get("user"))
 
+@app.route("/api/whois")
+def api_whois():
+    from flask import jsonify
+    import requests as req
+
+    domain = request.args.get("domain", "").strip()
+    if not domain:
+        return jsonify({"error": "Missing domain"}), 400
+
+    try:
+        urls_to_try = [
+            f"https://rdap.verisign.com/edu/v1/domain/{domain}",
+            f"https://rdap.verisign.com/com/v1/domain/{domain}",
+            f"https://rdap.org/domain/{domain}",
+        ]
+
+        result = None
+        for url in urls_to_try:
+            try:
+                r = req.get(url, timeout=5)
+                if r.status_code == 200:
+                    result = r.json()
+                    break
+            except:
+                continue
+
+        if not result:
+            return jsonify({"error": "Could not retrieve WHOIS data"}), 500
+
+        registrar = "N/A"
+        creation_date = "N/A"
+        expiration_date = "N/A"
+        name_servers = "N/A"
+
+        for entity in result.get("entities", []):
+            for role in entity.get("roles", []):
+                if role == "registrar":
+                    vcard = entity.get("vcardArray", [None, []])[1]
+                    for field in vcard:
+                        if field[0] == "fn":
+                            registrar = field[3]
+                            break
+
+        for event in result.get("events", []):
+            if event.get("eventAction") == "registration":
+                creation_date = event.get("eventDate", "N/A")[:10]
+            if event.get("eventAction") == "expiration":
+                expiration_date = event.get("eventDate", "N/A")[:10]
+
+        ns_list = [ns.get("ldhName", "") for ns in result.get("nameservers", [])]
+        if ns_list:
+            name_servers = ", ".join(ns_list)
+
+        return jsonify({
+            "domain": domain,
+            "registrar": registrar,
+            "creation_date": creation_date,
+            "expiration_date": expiration_date,
+            "name_servers": name_servers
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
