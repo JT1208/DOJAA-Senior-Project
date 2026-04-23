@@ -218,6 +218,36 @@ def api_whois():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+    # ---------------- DNS ENUMERATION ----------------
+@app.route("/dns")
+@require_login
+def dns_page():
+    return render_template("dns.html", user=session.get("user"))
+
+@app.route("/api/dns_enum")
+def api_dns_enum():
+    from flask import jsonify
+    import requests as req
+
+    domain = request.args.get("domain", "").strip()
+    if not domain:
+        return jsonify({"error": "No domain provided"}), 400
+
+    record_types = ["A", "MX", "NS", "TXT", "CNAME"]
+    results = {}
+
+    for rtype in record_types:
+        try:
+            url = f"https://dns.google/resolve?name={domain}&type={rtype}"
+            response = req.get(url, timeout=5)
+            data = response.json()
+            answers = data.get("Answer", [])
+            results[rtype] = [a["data"] for a in answers]
+        except Exception:
+            results[rtype] = []
+
+    return jsonify({"domain": domain, "records": results})
+
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
