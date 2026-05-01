@@ -2,7 +2,7 @@ import os
 import json
 import re
 
-from .collectors import collect_shodan, collect_censys
+from .collectors import collect_shodan, collect_censys, collect_cves
 from .normalizer import normalize_data
 from .inventory import load_inventory, compare_with_inventory
 from .risk_engine import calculate_risk
@@ -11,6 +11,7 @@ from .export_json import save_to_json
 from .enrichment.banner_parser import parse_banner
 from .enrichment.service_intel import build_service_intel
 from .ssl_tls_collector import collect_ssl_data
+from .writeTo_censys_data import save_results
 
 
 # =========================
@@ -67,6 +68,37 @@ def parse_dn(dn: str):
     }
 
 
+def _is_tls_probe_port(port) -> bool:
+    """True for 443 whether stored as int (from API) or str (from JSON cache)."""
+    if port is None:
+        return False
+    try:
+        return int(port) == 443
+    except (TypeError, ValueError):
+        return str(port).strip() == "443"
+
+
+def _ssl_probe_candidate_ips(assets: list) -> list[str]:
+    """
+    IPs to run collect_ssl_data on (TLS on 443 in fetch_cert).
+    Includes rows with port 443 and rows marked https_exposed (Censys/Shodan flags).
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    for a in assets:
+        if not a:
+            continue
+        ip = a.get("ip")
+        if not ip:
+            continue
+        if _is_tls_probe_port(a.get("port")) or a.get("https_exposed"):
+            s = str(ip)
+            if s not in seen:
+                seen.add(s)
+                out.append(s)
+    return out[:50]
+
+
 # =========================
 # PIPELINE
 # =========================
@@ -80,15 +112,36 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
     }
 
     cached = load_cache()
+    pipeline_notices: list[str] = []
 
     # ---------------- LOAD ----------------
     if use_api or not cached:
-        dashboard["shodan"] = collect_shodan()
-        dashboard["censys"] = collect_censys()
+        new_shodan = collect_shodan()
+        new_censys = collect_censys()
+        # Rescan with exhausted Shodan/Censys quota often returns []; keep last good cache
+        if use_api and cached:
+            if not new_shodan and cached.get("shodan"):
+                new_shodan = list(cached["shodan"])
+                pipeline_notices.append(
+                    "Shodan returned no data (check API key or credits). Using cached Shodan results."
+                )
+            if not new_censys and cached.get("censys"):
+                new_censys = list(cached["censys"])
+                pipeline_notices.append(
+                    "Censys returned no data. Using cached Censys results."
+                )
+        dashboard["shodan"] = new_shodan
+        dashboard["censys"] = new_censys
+        try:
+            save_results(dashboard["censys"])
+        except Exception as e:
+            print("[Censys Export] Could not write censys_data.json:", e)
     else:
         dashboard["shodan"] = cached.get("shodan", [])
         dashboard["censys"] = cached.get("censys", [])
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
+
+    dashboard["_pipeline_notices"] = pipeline_notices
 
     # ---------------- HOST ENRICHMENT ----------------
     for source in ["shodan", "censys"]:
@@ -116,18 +169,31 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
 
         dashboard[source] = enriched
 
+    # ---------------- CVE (NVD) ----------------
+    need_cve_fetch = use_api or (not cached) or (cached is not None and "cves" not in cached)
+    if need_cve_fetch:
+        try:
+            dashboard["cves"] = collect_cves(dashboard["shodan"] + dashboard["censys"])
+        except Exception as e:
+            print("[CVE] collection error:", e)
+            dashboard["cves"] = []
+    else:
+        dashboard["cves"] = cached.get("cves", [])
+
     # ---------------- SSL COLLECTION ----------------
 
     if use_api or not cached or "ssl_tls" not in cached:
 
-        hosts = []
-
-        for a in dashboard.get("shodan", []) + dashboard.get("censys", []):
-            if a.get("port") == 443:
-                hosts.append(a.get("ip"))
-
-        hosts = list(set(hosts))[:50]
-        dashboard["ssl_tls"] = collect_ssl_data(hosts)
+        combined_assets = dashboard.get("shodan", []) + dashboard.get("censys", [])
+        hosts = _ssl_probe_candidate_ips(combined_assets)
+        fresh_ssl = collect_ssl_data(hosts) if hosts else []
+        if use_api and cached and not fresh_ssl and cached.get("ssl_tls"):
+            dashboard["ssl_tls"] = list(cached["ssl_tls"])
+            pipeline_notices.append(
+                "SSL/TLS probe returned no rows (no reachable HTTPS hosts). Using cached SSL/TLS results."
+            )
+        else:
+            dashboard["ssl_tls"] = fresh_ssl
 
     else:
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
@@ -176,6 +242,8 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
             cert["trust"] = "Unknown CA"
 
     # ---------------- SAVE ----------------
+    _notices = dashboard.pop("_pipeline_notices", [])
+
     save_cache(dashboard)
 
     try:
@@ -183,4 +251,5 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
     except Exception as e:
         print("[EXPORT ERROR]", e)
 
+    dashboard["_pipeline_notices"] = _notices
     return dashboard

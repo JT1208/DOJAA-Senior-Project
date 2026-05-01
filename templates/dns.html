@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>DNS Enumeration</h2>
+  <p class="text-muted">Look up common DNS record types for any domain.</p>
+
+  <div class="input-group mb-3" style="max-width: 560px;">
+    <input type="text" id="domainInput" class="form-control" placeholder="example.com">
+    <button class="btn btn-primary" id="lookupBtn">Lookup</button>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("lookupBtn").addEventListener("click", function () {
+    const domain = document.getElementById("domainInput").value.trim();
+    if (!domain) return;
+
+    document.getElementById("results").innerHTML = "<p>Loading...</p>";
+
+    fetch(`/api/dns_enum?domain=${encodeURIComponent(domain)}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          document.getElementById("results").innerHTML =
+            `<p class="text-danger">${data.error}</p>`;
+          return;
+        }
+
+        let html = `<h5>Results for <strong>${data.domain}</strong></h5>
+          <table class="table table-bordered table-striped">
+          <thead class="table-dark"><tr><th>Record Type</th><th>Values</th></tr></thead><tbody>`;
+
+        for (const [type, values] of Object.entries(data.records)) {
+          const display = values.length > 0
+            ? values.join("<br>")
+            : "<em class='text-muted'>None found</em>";
+          html += `<tr><td><strong>${type}</strong></td><td>${display}</td></tr>`;
+        }
+
+        html += "</tbody></table>";
+        document.getElementById("results").innerHTML = html;
+      })
+      .catch(() => {
+        document.getElementById("results").innerHTML =
+          "<p class='text-danger'>Request failed.</p>";
+      });
+  });
+});
+</script>
+{% endblock %}

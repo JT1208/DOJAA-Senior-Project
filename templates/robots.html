@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Robots.txt</h1>
+<p class="lead">
+  Disallow paths for <code>User-agent: *</code> are shown as a directory tree (how crawlers are asked to stay out).
+</p>
+
+<form method="GET" action="{{ url_for('robots') }}" class="row g-2 align-items-end mb-3">
+  <div class="col-md-6">
+    <label for="site" class="form-label">Host or domain</label>
+    <input type="text" class="form-control" id="site" name="site" value="{{ site }}"
+           placeholder="example.com" autocomplete="off">
+  </div>
+  <div class="col-md-6">
+    <button type="submit" class="btn btn-primary">Load robots.txt</button>
+  </div>
+</form>
+
+<div class="card shadow-sm">
+  <div class="card-header bg-primary text-white">Tree preview</div>
+  <div class="card-body" style="font-family: 'Courier New', Courier, monospace; white-space: pre-wrap;">
+    {% if tree_text %}
+    {{ tree_text }}
+    {% else %}
+    <span class="text-muted">No tree to show. Enter a host above or check the alert messages.</span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
