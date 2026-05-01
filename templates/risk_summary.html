@@ -8,7 +8,9 @@
     <div class="card shadow-sm text-center">
       <div class="card-header bg-danger text-white">Risk Breakdown</div>
       <div class="card-body">
-        <canvas id="riskChart" width="250" height="250"></canvas>
+        {% set rsum = (risk_low|default(0)) + (risk_mid|default(0)) + (risk_high|default(0)) %}
+        <canvas id="riskChart" width="250" height="250" class="{{ 'd-none' if rsum == 0 else '' }}"></canvas>
+        <p class="text-muted small mb-0 {{ 'd-none' if rsum > 0 else '' }}">No risk-tier counts to chart (all zero). Rescan to populate risk scores.</p>
       </div>
     </div>
   </div>
@@ -126,25 +128,24 @@ $(document).ready(function(){
     pagingType: "simple_numbers"
   });
 
-  // -----------------------------
-  // Chart (unchanged logic)
-  // -----------------------------
-  const ctx = document.getElementById('riskChart').getContext('2d');
-
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Low','Medium','High'],
-      datasets: [{
-        data: [
-          {{ shodan|selectattr('risk_score','lt',20)|list|length + censys|selectattr('risk_score','lt',20)|list|length }},
-          {{ shodan|selectattr('risk_score','ge',20)|selectattr('risk_score','lt',50)|list|length + censys|selectattr('risk_score','ge',20)|selectattr('risk_score','lt',50)|list|length }},
-          {{ shodan|selectattr('risk_score','ge',50)|list|length + censys|selectattr('risk_score','ge',50)|list|length }}
-        ],
-        backgroundColor: ['#4bc0c0','#ff9f40','#ff6384']
-      }]
+  // Risk tiers (server counts — same 0–100 bands as PDF)
+  const riskD = [{{ risk_low|default(0) }}, {{ risk_mid|default(0) }}, {{ risk_high|default(0) }}];
+  if (riskD[0] + riskD[1] + riskD[2] > 0) {
+    const c = document.getElementById('riskChart');
+    if (c) {
+      new Chart(c.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Low','Medium','High'],
+          datasets: [{
+            data: riskD,
+            backgroundColor: ['#4bc0c0','#ff9f40','#ff6384']
+          }]
+        },
+        options: { responsive: true }
+      });
     }
-  });
+  }
 
 });
 </script>
