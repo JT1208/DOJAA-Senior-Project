@@ -1,5 +1,7 @@
 import requests
-from .config import SHODAN_API_KEY, CENSYS_API_TOKEN2, ORG_DOMAIN
+import json
+import time
+from .config import SHODAN_API_KEY, CENSYS_API_TOKEN4, ORG_DOMAIN
 
 
 def collect_shodan():
@@ -57,73 +59,44 @@ def collect_shodan():
 
 
 def collect_censys():
-    print("Censys] Collecting data...")
+    print("[Censys] Collecting data...")
     results = []
-    
-    headers = {
-    "Accept": "application/vnd.censys.api.v3.host.v1+json",
-    "Authorization": f"Bearer {CENSYS_API_TOKEN2}"
+
+    host_headers = {
+        "Accept": "application/vnd.censys.api.v3.host.v1+json",
+        "Authorization": f"Bearer {CENSYS_API_TOKEN4}"
     }
+
+    tmp_ip = []
     
-    try:
-        resp = requests.get(
-            "https://api.platform.censys.io/v3/global/asset/host/144.118.67.118",
-            headers=headers
-        )
-        if resp.status_code != 200:
-            print(f"[Censys Error], {resp.status_code}")
-            return results
-        
-        data = resp.json()
-        results.append(data.get("result", {}))
-        
-    except Exception as e:
-        print("[Censys Error]", e)
-        
+    with open("ip_list.json", "r") as f:
+        known_ips = json.load(f)
+
+    for ip in tmp_ip:
+        try:
+            host_resp = requests.get(
+                f"https://api.platform.censys.io/v3/global/asset/host/{ip}",
+                headers=host_headers
+            )
+            if host_resp.status_code == 429:
+                print(f"[Censys] Rate limited on {ip}, waiting 10 seconds...")
+                time.sleep(10)
+                # Retry once after waiting
+                host_resp = requests.get(
+                    f"https://api.platform.censys.io/v3/global/asset/host/{ip}",
+                    headers=host_headers
+                )
+            if host_resp.status_code == 403:
+                print("[Censys] Credit limit or auth failure")
+                return results
+            if host_resp.status_code != 200:
+                print(f"[Censys Error] Host {ip} - {host_resp.status_code}")
+                continue
+
+            results.append(host_resp.json().get("result", {}))
+
+        except Exception as e:
+            print(f"[Censys Error] Host fetch {ip} -", e)
+
     print(f"[Censys] Collected {len(results)} assets")
     return results
-
-# def collect_censys():
-#     print("[Censys] Collecting data...")
-#     results = []
-
-#     url = "https://search.censys.io/api/v2/hosts/search"
-#     payload = {"q": f"domain:{ORG_DOMAIN}", "per_page": 50}
-#     headers = {"Accept": "application/json"}
-
-#     try:
-#         resp = requests.post(
-#             url,
-#             headers=headers,
-#             auth=(CENSYS_API_TOKEN, ""),
-#             json=payload
-#         )
-
-#         if resp.status_code != 200:
-#             return results
-
-#         data = resp.json()
-#         hits = data.get("result", {}).get("hits", [])
-
-#         for hit in hits:
-#             protocols = hit.get("protocols", [])
-
-#             results.append({
-#                 "ip": hit.get("ip"),
-#                 "port": protocols[0].split("/")[0] if protocols else None,
-#                 "service": "Unknown",
-#                 "banner": "",
-#                 "provider": hit.get("autonomous_system", {}).get("name", ORG_DOMAIN),
-#                 "ssh_exposed": any("22/" in p for p in protocols),
-#                 "http_exposed": any("80/" in p for p in protocols),
-#                 "https_exposed": any("443/" in p for p in protocols),
-#                 "known": False,
-#                 "risk_score": 0,
-#                 "recommendations": []
-#             })
-
-#     except Exception as e:
-#         print("[Censys Error]", e)
-
-#     print(f"[Censys] Collected {len(results)} assets")
-#     return results

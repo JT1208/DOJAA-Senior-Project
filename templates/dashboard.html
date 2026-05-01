@@ -64,16 +64,18 @@
           <thead>
             <tr>
               <th>IP</th>
-              <th>Services</th>
-              <th>Risk</th>
+              <th>Key Algorithm</th>
+              <th>OS</th>
+              <th>Protocol</th>
             </tr>
           </thead>
           <tbody>
             {% for c in censys[:5] %}
             <tr>
               <td>{{ c.ip }}</td>
-              <td>{{ c.services[0] if c.services else '-' }}</td>
-              <td>{{ c.risk_score or 0 }}</td>
+              <td>{{ c.key_algorithm or '-' }}</td>
+              <td>{{ c.os or '-'}}</td>
+              <td>{{ c.transport_protocol or '-'}}
             </tr>
             {% endfor %}
           </tbody>

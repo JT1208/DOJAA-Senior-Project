@@ -20,6 +20,7 @@ from .writeTo_censys_data import save_results
 # =========================
 
 CACHE_FILE = "dashboard_cache.json"
+CENSYS_DATA_FILE = "censys_data.json"
 
 
 def load_cache():
@@ -86,11 +87,21 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
     # ---------------- LOAD ----------------
     if use_api or not cached:
         dashboard["shodan"] = collect_shodan()
-       # dashboard["censys"] = collect_censys() UNCOMMENT WHEN CENSYS IS LOADED
+        dashboard["censys"] = collect_censys()
     else:
         dashboard["shodan"] = cached.get("shodan", [])
-        dashboard["censys"] = collect_censys()
-        save_results(dashboard.get("censys", []))
+        
+        # Temporary: read Censys data from local file
+        if os.path.exists(CENSYS_DATA_FILE):
+            try:
+                with open(CENSYS_DATA_FILE, "r") as f:
+                    dashboard["censys"] = json.load(f)
+            except Exception as e:
+                print("[CENSYS FILE ERROR]", e)
+                dashboard["censys"] = []
+        else:
+            print(f"[CENSYS] File not found: {CENSYS_DATA_FILE}")
+            dashboard["censys"] = []
        # dashboard["censys"] = cached.get("censys", []) UNCOMMENT WHEN CENSYS IS LOADED
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
 
