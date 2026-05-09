@@ -19,6 +19,7 @@ from .writeTo_censys_data import save_results
 # =========================
 
 CACHE_FILE = "dashboard_cache.json"
+CENSYS_FILE = "censys_data.json"
 
 
 def load_cache():
@@ -26,6 +27,15 @@ def load_cache():
         return None
     try:
         with open(CACHE_FILE, "r") as f:
+            return json.load(f)
+    except Exception:
+        return None
+
+def load_censys():
+    if not os.path.exists(CENSYS_FILE):
+        return None
+    try:
+        with open(CENSYS_FILE, "r") as f:
             return json.load(f)
     except Exception:
         return None
@@ -112,6 +122,7 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
     }
 
     cached = load_cache()
+    censysData = load_censys()
     pipeline_notices: list[str] = []
 
     # ---------------- LOAD ----------------
@@ -125,11 +136,14 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
                 pipeline_notices.append(
                     "Shodan returned no data (check API key or credits). Using cached Shodan results."
                 )
-            if not new_censys and cached.get("censys"):
-                new_censys = list(cached["censys"])
-                pipeline_notices.append(
-                    "Censys returned no data. Using cached Censys results."
-                )
+            if not new_censys and censysData.get("censys"):
+                new_censys = list(censysData["censys"])
+                pipeline_notices.append("Censys returned no data. Using cached Censys results.")
+            # if not new_censys and cached.get("censys"):
+            #     new_censys = list(cached["censys"])
+            #     pipeline_notices.append(
+            #         "Censys returned no data. Using cached Censys results."
+            #     )
         dashboard["shodan"] = new_shodan
         dashboard["censys"] = new_censys
         try:
@@ -138,7 +152,8 @@ def run_pipeline(output_file="dashboard_data.json", use_api=False):
             print("[Censys Export] Could not write censys_data.json:", e)
     else:
         dashboard["shodan"] = cached.get("shodan", [])
-        dashboard["censys"] = cached.get("censys", [])
+        dashboard["censys"] = censysData if isinstance(censysData, list) else []
+        # dashboard["censys"] = cached.get("censys", [])
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
 
     dashboard["_pipeline_notices"] = pipeline_notices
