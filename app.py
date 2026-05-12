@@ -35,12 +35,13 @@ class Robots():
                     agentFlag = True
                 elif "Disallow" in line:
                     for agent in agents:
-                        rules.setdefault(agent, []).append([False, line.split(' ')[1]])
+                        # rules.setdefault(agent, []).append([False, line.split(' ')[1]])
+                        rules.setdefault(agent, []).append(line.split(' ')[1])
                     agentFlag = False
-                elif "Allow" in line:
-                    for agent in agents:
-                        rules.setdefault(agent, []).append([True, line.split(' ')[1]])
-                    agentFlag = False
+                # elif "Allow" in line:
+                #     for agent in agents:
+                #         rules.setdefault(agent, []).append([True, line.split(' ')[1]])
+                    # agentFlag = False
             self.rules = rules
 
 app = Flask(__name__)
@@ -134,22 +135,54 @@ def risk_summary():
         user=session.get("user")
     )
 
+def get_directory_list(dirs_dict, parent_path=""):
+    path_list = []
+    try:
+        for (folder_name, contents) in dirs_dict.items():
+            print("folder", contents)
+            print("\n\n\n\n\n")
+            current_full_path = f"{parent_path}\{folder_name}" if parent_path else f"{folder_name}"
+            path_list.append(current_full_path)
+            
+            if isinstance(contents, dict) and contents:
+                # for content in contents:
+                    path_list.extend(get_directory_list(contents, current_full_path))
+    except:
+        pass
+    return path_list
+path_list = []
+def recursive_walk(data):
+
+    for key, value in data.items():
+        print("value", value)
+        if isinstance(value, dict):
+            recursive_walk(value)
+        elif isinstance(value, list):
+            for v in value:
+                current_full_path = f"{key}/{v}"
+                path_list.append(current_full_path)
+        else:
+            current_full_path = f"{key}/{value}" if value else f"{key}"
+            path_list.append(current_full_path)
+    
+    return path_list
+
 @app.route("/robots")
 @require_login
 def robots():
     rescan = request.args.get("rescan", "false").lower() == "true"
     data = get_dashboard_data(rescan=rescan)
-    robotstxt = Robots("www.google.com") # Change later
-    directories = []
-
-    for i in range(len(robotstxt.rules["*"])):
-        directories.append(robotstxt.rules["*"][i][1])
+    robotstxt = Robots("drexel.edu")
+    directories = recursive_walk(robotstxt.rules)
     try:
         shutil.rmtree("./robotslist")
     except:
         pass
+    print("path_list", path_list)
     for dir in directories:
-        os.makedirs("./robotslist"+dir, exist_ok=True)
+        print("directories", dir)
+        print("\n\n\n\n\n")
+        os.makedirs("./robotslist/"+dir, exist_ok=True)
     command = ["tree", "./robotslist"]
     result = subprocess.run(
     command,
@@ -157,10 +190,20 @@ def robots():
     text=True,
     check=True
     )
+    badDirs = ['admin', 'backup', 'temp', 'tmp', 'config', 'db', 'includes', '.git', '.svn', 'user', 'private', 'logs', 'scripts', 'setup', 'sql', 'export', 'dev', 'staging']
     string = result.stdout[13:]
+    badLines = "Here are the following directories you may want to consider not listing in robots.txt:\n\n"
+    for line in string.splitlines():
+        for dir in badDirs:
+            if re.search(rf"\b{dir}\b", line):
+                badLines += line.replace(rf'\015','').split(" ")[-1] + "\n"
+                break
+            elif re.search(rf"\b{dir}", line):
+                badLines += line.replace(rf'\015','').split(" ")[-1] + "\n"
+                break
     return render_template(
         "robots.html",
-        shodan=string,
+        shodan=badLines,
         censys=data["censys"],
         user=session.get("user"),
     )

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="mb-4">Robots</h1>
-<p class="lead">A tree of the blocked website directories</p>
+<h1 class="mb-4">Robots.txt</h1>
+<p class="lead">Website directories that should not be blocked by webcrawlers in robots.txt</p>
 
 <!-- Rescan button -->
 <form method="GET" action="{{ url_for('robots') }}">
