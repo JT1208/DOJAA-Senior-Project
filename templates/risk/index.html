@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Risk{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>Risk</h1>
+    <p class="lead">
+      How risk is distributed across the surface, and which drivers fire most often.
+      Per-host detail lives on the <a href="{{ url_for('hosts.index') }}">Hosts</a> tab.
+    </p>
+  </div>
+</header>
+
+{% if total == 0 %}
+  {% with title='No risk-tier data yet', sub='Run the pipeline to score discovered assets.' %}
+    {% include "partials/_empty.html" %}
+  {% endwith %}
+{% else %}
+
+<section class="grid grid--kpi" aria-label="Risk summary">
+  <div class="stat stat--low">
+    <span class="stat__label">Low (&lt; 20)</span>
+    <span class="stat__value">{{ risk_low }}</span>
+  </div>
+  <div class="stat stat--mid">
+    <span class="stat__label">Medium (20–49)</span>
+    <span class="stat__value">{{ risk_mid }}</span>
+  </div>
+  <div class="stat stat--high">
+    <span class="stat__label">High (≥ 50)</span>
+    <span class="stat__value">{{ risk_high }}</span>
+  </div>
+  <div class="stat">
+    <span class="stat__label">Total scored</span>
+    <span class="stat__value">{{ total }}</span>
+    <span class="stat__sub">
+      Shodan: {{ tier_counts_by_source.shodan.high }}/{{ tier_counts_by_source.shodan.medium }}/{{ tier_counts_by_source.shodan.low }}
+      · Censys: {{ tier_counts_by_source.censys.high }}/{{ tier_counts_by_source.censys.medium }}/{{ tier_counts_by_source.censys.low }}
+    </span>
+  </div>
+</section>
+
+<div class="grid grid--2" style="margin-top: var(--space-5);">
+  <div class="card">
+    <div class="card__head">Tier distribution</div>
+    <div class="card__body"><div class="chart-wrap"><canvas id="riskChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card__head">Top risk drivers</div>
+    <div class="card__body card__body--tight">
+      {% if driver_rows %}
+        <table class="dt" style="width:100%">
+          <thead><tr><th>Driver</th><th>Times fired</th></tr></thead>
+          <tbody>
+            {% for issue, count in driver_rows %}
+              <tr><td>{{ issue }}</td><td data-order="{{ count }}">{{ count }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-muted" style="margin: 0;">No issue counters available.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top: var(--space-4);">
+  <div class="card__head">Top 10 risky assets</div>
+  <div class="card__body card__body--tight">
+    <table class="dt" style="width:100%">
+      <thead>
+        <tr><th>IP</th><th>Source</th><th>Service</th><th>Risk</th><th>Severity</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for a in top_assets %}
+        <tr>
+          <td class="text-mono">{{ a.ip }}</td>
+          <td>{{ (a.source or 'unknown')|capitalize }}</td>
+          <td>{{ a.banner_service or a.service or 'Unknown' }}</td>
+          <td data-order="{{ a.risk_score or 0 }}">{{ a.risk_score or 0 }}</td>
+          <td>
+            {% set sev = (a.severity or 'Low')|lower %}
+            <span class="badge badge--{{ sev }}">{{ a.severity or 'Low' }}</span>
+          </td>
+          <td><a class="btn btn--sm" href="{{ url_for('hosts.detail', ip=a.ip) }}">Open</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script id="risk-data" type="application/json">
+{"counts": [{{ risk_low }}, {{ risk_mid }}, {{ risk_high }}]}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/risk.js') }}"></script>
+{% endblock %}

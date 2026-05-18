@@ -1,24 +1,21 @@
-# dojaa/config.py
+"""Legacy module-level constants kept for backward compatibility.
 
-#om's API key
-#SHODAN_API_KEY = "2AvEeVmSRvSMYCNI2iBLfDA5NNWAlidY"
-# jon's API key
-SHODAN_API_KEY = "qBA6erhzKJWy2L51g0FjgbYo4PI2vYwD"
-SHODAN_QUERY = "hostname:drexel.edu"  # replace with your organization filter
-CENSYS_API_TOKEN = "censys_9HAR5SGh_4YAvggoFqmQqf2czxRffiDm4"
-CENSYS_API_TOKEN2 = "censys_Gt4daoEs_mkLyfvJ6jmDJEJ3VaZvpm8N3"
-CENSYS_QUERY = "services.service_name: HTTP"
-ORG_DOMAIN = "drexel.edu" 
-INVENTORY_FILE = "inventory.json"  # <-- adjust path as needed
+New code should import :class:`dojaa.settings.Settings` instead.
 
-# Optional NVD 2.0 API key — https://nvd.nist.gov/developers/request-an-api-key
-CVE_API_KEY = ""
+No credentials are checked in. Provide them via environment variables (see
+``.env.example``). When a key is empty the relevant collector returns an empty
+result set and the UI surfaces an explicit "missing key" notice — it does not
+fall back to a hidden default.
+"""
 
-# Optional PostgreSQL config for DB loader scripts (dojaa/writeToDb.py)
-DB_CONFIG = {
-    "host": "localhost",
-    "port": "5433",
-    "database": "DOJAA",
-    "user": "postgres",
-    "password": "postgres",
-}
+from __future__ import annotations
+
+from .settings import load_settings
+
+_settings = load_settings()
+
+SHODAN_API_KEY = _settings.shodan_api_key
+CENSYS_API_TOKEN = _settings.censys_api_token
+CVE_API_KEY = _settings.nvd_api_key
+ORG_DOMAIN = _settings.org_domain
+INVENTORY_FILE = str(_settings.inventory_file)

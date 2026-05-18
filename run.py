@@ -1,15 +1,25 @@
+"""CLI entrypoint to run the pipeline once and print a summary."""
+
+from __future__ import annotations
+
+import logging
+
 from dojaa.pipeline import run_pipeline
 
-def main():
+
+def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     data = run_pipeline(use_api=True)
 
     print("\n--- DOJAA Pipeline Complete ---")
-    print(f"Shodan assets: {len(data['shodan'])}")
-    print(f"Censys assets: {len(data['censys'])}")
+    print(f"Shodan assets : {len(data.get('shodan') or [])}")
+    print(f"Censys assets : {len(data.get('censys') or [])}")
+    print(f"CVE findings  : {len(data.get('cves') or [])}")
+    print(f"SSL/TLS rows  : {len(data.get('ssl_tls') or [])}")
 
-    print("\nSample High Risk Assets:")
-    for asset in data["shodan"][:5]:
-        print(asset["ip"], asset["risk_score"], asset.get("severity"))
+    for notice in data.get("_pipeline_notices") or []:
+        print(f"[notice] {notice}")
+
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,26 @@
-def calculate_risk(asset):
+"""Heuristic risk scoring (0–100) for a normalized asset row."""
+
+from __future__ import annotations
+
+import re
+
+_VERSION_RE = re.compile(r"(\d+)(?:\.(\d+))?")
+_SENSITIVE_PORTS = {21, 25, 3306, 3389}
+
+
+def _port_to_int(value) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def calculate_risk(asset: dict) -> dict:
     risk_score = 0
-    issues = []
-    recommendations = []
+    issues: list[str] = []
+    recommendations: list[str] = []
 
-    # ---------------- BASE EXPOSURE RISKS ----------------
-
+    # ---------------- BASE EXPOSURE ----------------
     if asset.get("ssh_exposed"):
         risk_score += 15
         issues.append("SSH exposed")
@@ -13,9 +29,10 @@ def calculate_risk(asset):
     if asset.get("http_exposed") and not asset.get("https_exposed"):
         risk_score += 10
         issues.append("HTTP without HTTPS")
-        recommendations.append("Enable HTTPS with valid TLS certificate")
+        recommendations.append("Enable HTTPS with a valid TLS certificate")
 
-    if asset.get("port") in [21, 25, 3306, 3389]:
+    port = _port_to_int(asset.get("port"))
+    if port in _SENSITIVE_PORTS:
         risk_score += 12
         issues.append("Sensitive service port exposed")
         recommendations.append("Restrict access to administrative or legacy services")
@@ -30,41 +47,31 @@ def calculate_risk(asset):
         issues.append("No HTTPS protection")
         recommendations.append("Enforce TLS for all web services")
 
-    # ---------------- BANNER / FINGERPRINT RISKS ----------------
-
+    # ---------------- BANNER / FINGERPRINT ----------------
     banner = asset.get("banner") or ""
-
     if banner:
-        # version disclosure risk
         if asset.get("banner_version"):
             risk_score += 5
             issues.append("Service version exposed in banner")
             recommendations.append("Disable or minimize service version disclosure")
 
-        # generic insecure indicators
-        banner_lower = banner.lower()
-
-        if "openssl" in banner_lower and "1.0" in banner_lower:
+        lower = banner.lower()
+        if "openssl" in lower and re.search(r"\b1\.0\.", lower):
             risk_score += 20
-            issues.append("Outdated OpenSSL version detected")
-            recommendations.append("Upgrade OpenSSL to a supported version")
-
-        if "ssh" in banner_lower and "7." in banner_lower:
+            issues.append("Outdated OpenSSL 1.0.x detected")
+            recommendations.append("Upgrade OpenSSL to a supported (1.1+ / 3.x) version")
+        if "openssh" in lower and re.search(r"openssh[_/-]?7\.", lower):
             risk_score += 10
-            issues.append("Potentially outdated SSH version")
+            issues.append("Potentially outdated OpenSSH 7.x")
             recommendations.append("Upgrade OpenSSH to a modern release")
-
-        if "apache" in banner_lower and "2.2" in banner_lower:
+        if "apache" in lower and "2.2" in lower:
             risk_score += 15
-            issues.append("Legacy Apache version detected")
+            issues.append("Legacy Apache 2.2 detected")
             recommendations.append("Upgrade Apache HTTP Server")
-
     else:
         risk_score += 5
         issues.append("No banner information available")
         recommendations.append("Enable monitoring or controlled service inspection")
-
-    # ---------------- FINAL SCORING ----------------
 
     risk_score = min(risk_score, 100)
 
@@ -75,11 +82,8 @@ def calculate_risk(asset):
     else:
         severity = "High"
 
-    # ---------------- OUTPUT STRUCTURE ----------------
-
     asset["risk_score"] = risk_score
     asset["severity"] = severity
     asset["issues"] = issues
-    asset["recommendations"] = list(set(recommendations))
-
+    asset["recommendations"] = sorted(set(recommendations))
     return asset
