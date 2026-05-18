@@ -88,7 +88,10 @@ def load_settings() -> Settings:
         debug=_bool(os.environ.get("FLASK_DEBUG"), default=False),
         auth_disabled=_bool(os.environ.get("DOJAA_AUTH_DISABLED"), default=False),
         demo_email_domain=(os.environ.get("DOJAA_DEMO_EMAIL_DOMAIN") or "drexel.edu").strip(),
-        demo_password=os.environ.get("DOJAA_DEMO_PASSWORD", ""),
+        # Demo password default — overrideable via DOJAA_DEMO_PASSWORD env var.
+        # This branch ships with a non-empty default so the login screen is
+        # usable out of the box. Replace before any non-demo deployment.
+        demo_password=os.environ.get("DOJAA_DEMO_PASSWORD", "dojaa-demo"),
         org_domain=(os.environ.get("DOJAA_ORG_DOMAIN") or "drexel.edu").strip(),
         shodan_api_key=os.environ.get("SHODAN_API_KEY", "").strip(),
         censys_api_token=os.environ.get("CENSYS_API_TOKEN", "").strip(),

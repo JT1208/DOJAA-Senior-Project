@@ -21,8 +21,9 @@ flask --app app run
 # → http://127.0.0.1:5000/
 ```
 
-Sign in at `/login` with any `@drexel.edu` (or `DOJAA_DEMO_EMAIL_DOMAIN`)
-address and the password from `DOJAA_DEMO_PASSWORD`.
+Sign in at `/login` with:
+- **Email**: anything ending in `@drexel.edu` (e.g. `demo@drexel.edu`)
+- **Password**: `dojaa-demo` (this is the default; override by setting `DOJAA_DEMO_PASSWORD` in your `.env`)
 
 To bypass auth in local development:
 ```bash
