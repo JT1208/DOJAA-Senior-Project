@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Ports{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>Open ports</h1>
+    <p class="lead">
+      Distribution of exposed ports and services across the attack surface.
+      For per-host detail, open the <a href="{{ url_for('hosts.index') }}">Hosts</a> tab.
+    </p>
+  </div>
+</header>
+
+{% if not port_rows %}
+  {% with title='No port data yet', sub='Run the pipeline from the Hosts tab to populate this view.' %}
+    {% include "partials/_empty.html" %}
+  {% endwith %}
+{% else %}
+
+<section class="grid grid--kpi" aria-label="Port summary">
+  <div class="stat">
+    <span class="stat__label">Exposed services</span>
+    <span class="stat__value">{{ total_exposed }}</span>
+    <span class="stat__sub">across {{ unique_ports }} unique ports</span>
+  </div>
+  <div class="stat">
+    <span class="stat__label">Most common port</span>
+    <span class="stat__value text-mono">{{ port_rows[0].port }}</span>
+    <span class="stat__sub">{{ port_rows[0].service_hint }} · {{ port_rows[0].count }} hits</span>
+  </div>
+  <div class="stat {% if port_rows|selectattr('risky_count', '>', 0)|list %}stat--high{% endif %}">
+    <span class="stat__label">Ports with risky assets</span>
+    <span class="stat__value">{{ port_rows|selectattr('risky_count', '>', 0)|list|length }}</span>
+    <span class="stat__sub">at least one host scoring ≥50</span>
+  </div>
+</section>
+
+<div class="grid grid--2" style="margin-top: var(--space-5);">
+  <div class="card">
+    <div class="card__head">Ports — most exposed first</div>
+    <div class="card__body card__body--tight">
+      <table id="portsTable" class="dt" style="width:100%">
+        <thead>
+          <tr>
+            <th>Port</th><th>Service hint</th><th>Hosts</th><th>Risky hosts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in port_rows %}
+          <tr>
+            <td class="text-mono">{{ row.port }}</td>
+            <td>{{ row.service_hint }}</td>
+            <td data-order="{{ row.count }}">{{ row.count }}</td>
+            <td data-order="{{ row.risky_count }}">
+              {% if row.risky_count > 0 %}
+                <span class="badge badge--high">{{ row.risky_count }}</span>
+              {% else %}
+                0
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__head">Services — top 15</div>
+    <div class="card__body"><div class="chart-wrap chart-wrap--lg"><canvas id="serviceChart"></canvas></div></div>
+  </div>
+</div>
+
+<script id="ports-data" type="application/json">
+{
+  "labels": [{% for s in service_rows %}{{ s.service|tojson }}{% if not loop.last %},{% endif %}{% endfor %}],
+  "values": [{% for s in service_rows %}{{ s.count }}{% if not loop.last %},{% endif %}{% endfor %}]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/ports.js') }}"></script>
+{% endblock %}

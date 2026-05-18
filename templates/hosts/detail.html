@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Host {{ asset.ip }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('hosts.index') }}">Hosts</a>
+  <span> / </span>
+  <span aria-current="page">{{ asset.ip }}</span>
+</nav>
+
+<header class="page-header">
+  <div class="page-header__title">
+    <h1 class="text-mono">{{ asset.ip }}</h1>
+    <p class="lead">
+      {{ asset.service_intel or asset.service or 'Service intelligence unavailable.' }}
+    </p>
+    <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+      {% set sev = (asset.severity or 'Low')|lower %}
+      <span class="badge badge--{{ sev }}">Risk {{ asset.risk_score or 0 }} — {{ asset.severity or 'Low' }}</span>
+      {% if asset.shadow_asset %}<span class="badge badge--shadow">Shadow asset</span>{% endif %}
+      {% if asset.source %}<span class="badge badge--info">{{ asset.source|capitalize }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="page-header__actions">
+    <a class="btn" href="{{ url_for('hosts.index') }}">Back to hosts</a>
+  </div>
+</header>
+
+<div class="grid grid--2">
+  <div class="card">
+    <div class="card__head">Service metadata</div>
+    <div class="card__body">
+      <dl class="detail-grid">
+        <dt>Port</dt>           <dd class="text-mono">{{ asset.port if asset.port is not none else '—' }}</dd>
+        <dt>Service</dt>        <dd>{{ asset.service or 'Unknown' }}</dd>
+        <dt>Product</dt>        <dd>{{ asset.banner_product or '—' }}</dd>
+        <dt>Version</dt>        <dd>{{ asset.banner_version or '—' }}</dd>
+        <dt>Provider</dt>       <dd>{{ asset.provider or '—' }}</dd>
+        <dt>SSH exposed</dt>    <dd>{{ 'Yes' if asset.ssh_exposed else 'No' }}</dd>
+        <dt>HTTP exposed</dt>   <dd>{{ 'Yes' if asset.http_exposed else 'No' }}</dd>
+        <dt>HTTPS exposed</dt>  <dd>{{ 'Yes' if asset.https_exposed else 'No' }}</dd>
+        {% if asset.os %}<dt>Operating system</dt><dd>{{ asset.os }}</dd>{% endif %}
+        {% if asset.key_algorithm %}<dt>Key algorithm</dt><dd>{{ asset.key_algorithm }}</dd>{% endif %}
+      </dl>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card__head">Risk drivers</div>
+    <div class="card__body">
+      {% if asset.issues %}
+        <ul style="margin: 0; padding-left: var(--space-5);">
+          {% for issue in asset.issues %}<li>{{ issue }}</li>{% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-muted">No risk drivers fired for this asset.</p>
+      {% endif %}
+
+      {% if asset.recommendations %}
+        <h3 style="margin-top: var(--space-4)">Recommendations</h3>
+        <ul style="margin: 0; padding-left: var(--space-5);">
+          {% for r in asset.recommendations %}<li>{{ r }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top: var(--space-4);">
+  <div class="card__head">Raw banner</div>
+  <div class="card__body">
+    {% if asset.banner %}
+      <pre class="text-mono" style="white-space: pre-wrap; margin: 0; max-height: 320px; overflow: auto;">{{ asset.banner }}</pre>
+    {% else %}
+      <p class="text-muted">No banner captured.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% if related_cert %}
+<div class="card" style="margin-top: var(--space-4);">
+  <div class="card__head">
+    Certificate
+    <a class="btn btn--sm btn--ghost" href="{{ url_for('ssl_tls.index') }}">All certs →</a>
+  </div>
+  <div class="card__body">
+    <dl class="detail-grid">
+      <dt>Issuer</dt>       <dd>{{ related_cert.issuer_name or '—' }}</dd>
+      <dt>Subject</dt>      <dd>{{ related_cert.subject_name or '—' }}</dd>
+      <dt>SANs</dt>         <dd>{{ related_cert.san_clean|join(', ') if related_cert.san_clean else '—' }}</dd>
+      <dt>Expiry</dt>       <dd>{{ related_cert.expiry or '—' }} ({{ related_cert.days_left if related_cert.days_left is not none else '—' }} days left)</dd>
+      <dt>Trust</dt>        <dd>{{ related_cert.trust or '—' }}</dd>
+      <dt>Status</dt>
+      <dd>
+        {% set rl = (related_cert.risk_level or 'LOW') %}
+        <span class="badge badge--{{ rl|lower if rl in ['LOW','MEDIUM','HIGH','CRITICAL','EXPIRED'] else 'unknown' }}">
+          {{ rl }}
+        </span>
+      </dd>
+    </dl>
+  </div>
+</div>
+{% endif %}
+
+{% if related_cves %}
+<div class="card" style="margin-top: var(--space-4);">
+  <div class="card__head">
+    Related CVEs (keyword match on service / product)
+    <a class="btn btn--sm btn--ghost" href="{{ url_for('cves.index') }}">All CVEs →</a>
+  </div>
+  <div class="card__body card__body--tight">
+    <table class="dt" style="width:100%">
+      <thead>
+        <tr><th>CVE</th><th>Service</th><th>Severity</th><th>CVSS</th><th>Published</th></tr>
+      </thead>
+      <tbody>
+        {% for v in related_cves %}
+        <tr>
+          <td><a href="https://nvd.nist.gov/vuln/detail/{{ v.cve_id }}" target="_blank" rel="noopener">{{ v.cve_id }}</a></td>
+          <td>{{ v.service }}</td>
+          <td>
+            {% set s = (v.severity or 'UNKNOWN')|upper %}
+            <span class="badge badge--{% if s == 'CRITICAL' %}critical{% elif s == 'HIGH' %}high{% elif s == 'MEDIUM' %}medium{% elif s == 'LOW' %}low{% else %}unknown{% endif %}">{{ v.severity or '—' }}</span>
+          </td>
+          <td>{{ v.cvss_score if v.cvss_score not in ('', None, '-') else '—' }}</td>
+          <td>{{ v.published or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

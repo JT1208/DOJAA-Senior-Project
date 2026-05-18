@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Graph{% endblock %}
+
+{% block head_extra %}
+<style>
+  #graph { height: min(70vh, 720px); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  .legend { display: flex; flex-wrap: wrap; gap: var(--space-3); font-size: var(--text-sm); color: var(--ink-2); margin-top: var(--space-3); }
+  .legend__dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; vertical-align: middle; }
+</style>
+{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>Attack surface graph</h1>
+    <p class="lead">
+      The external attack surface fans out through service hubs (SSH / WEB / OTHER) into
+      individual assets. Node colour is the risk score.
+    </p>
+  </div>
+</header>
+
+{% if not hosts %}
+  {% with title='No assets to graph', sub='Run the pipeline to populate the surface.' %}
+    {% include "partials/_empty.html" %}
+  {% endwith %}
+{% else %}
+<div class="card">
+  <div class="card__head">
+    Surface
+    <span class="text-muted">{{ hosts|length }} rows</span>
+  </div>
+  <div class="card__body">
+    <div id="graph" role="img" aria-label="Attack surface graph"></div>
+    <div class="legend" aria-hidden="true">
+      <span><span class="legend__dot" style="background: var(--risk-low)"></span>Risk &lt; 30</span>
+      <span><span class="legend__dot" style="background: var(--risk-mid)"></span>Risk 30–69</span>
+      <span><span class="legend__dot" style="background: var(--risk-high)"></span>Risk ≥ 70</span>
+    </div>
+  </div>
+</div>
+
+<script id="graph-data" type="application/json">{{ hosts|tojson }}</script>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if hosts %}
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script src="{{ url_for('static', filename='js/pages/graph.js') }}"></script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,65 @@
+/* Design tokens — colour, spacing, type. Anything reused twice goes here. */
+
+:root {
+  /* --- Surfaces & ink --- */
+  --bg:            #f6f7fb;
+  --surface:       #ffffff;
+  --surface-2:     #f1f3f8;
+  --border:        #e3e6ee;
+  --border-strong: #c8cdda;
+
+  --ink:           #1f2536;
+  --ink-2:         #4a5168;
+  --ink-muted:     #6c7488;
+
+  /* --- Brand --- */
+  --brand:         #1f3a93;
+  --brand-strong:  #15296a;
+  --brand-tint:    #e9eef9;
+  --accent:        #00a6a6;
+
+  /* --- Risk palette (also used by SSL & CVE pages) --- */
+  --risk-low:        #1f8a4c;
+  --risk-low-tint:   #e6f5ec;
+  --risk-mid:        #c47a00;
+  --risk-mid-tint:   #fdf2dd;
+  --risk-high:       #b3261e;
+  --risk-high-tint:  #fbe3e1;
+  --risk-unknown:    #6c7488;
+  --risk-unknown-tint:#eef0f4;
+
+  /* Status helpers */
+  --info:          #0b7285;
+  --info-tint:     #e3f3f7;
+
+  /* --- Shape --- */
+  --radius-sm: 4px;
+  --radius:    8px;
+  --radius-lg: 14px;
+
+  /* --- Spacing scale (4-pt) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* --- Typography --- */
+  --font-sans: "Inter", "DM Sans", system-ui, -apple-system, "Segoe UI",
+               Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-md: 14px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+
+  /* --- Effects --- */
+  --shadow-sm: 0 1px 2px rgba(20, 30, 60, 0.06);
+  --shadow:    0 2px 8px rgba(20, 30, 60, 0.08);
+  --focus:     0 0 0 3px rgba(31, 58, 147, 0.25);
+}

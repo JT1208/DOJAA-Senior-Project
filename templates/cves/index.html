@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}CVEs{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>CVE findings</h1>
+    <p class="lead">
+      Vulnerabilities keyword-matched from the National Vulnerability Database against
+      discovered services. Treat each match as a hypothesis until confirmed on the host.
+    </p>
+  </div>
+</header>
+
+<details class="card" style="margin-bottom: var(--space-4);">
+  <summary class="card__head" style="cursor: pointer; user-select: none;">Remediation workflow</summary>
+  <div class="card__body">
+    <div class="grid grid--2">
+      <div>
+        <h3>Prioritise and validate</h3>
+        <ul>
+          <li><strong><a href="https://nvd.nist.gov/" target="_blank" rel="noopener">NVD</a></strong> — authoritative CVSS, references, CWE mappings.</li>
+          <li><strong><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener">CISA KEV</a></strong> — confirms active exploitation and federal deadlines.</li>
+          <li><strong><a href="https://cwe.mitre.org/" target="_blank" rel="noopener">MITRE CWE</a></strong> — weakness types per CVE.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Patch and verify</h3>
+        <ul>
+          <li>Apply vendor / OS updates (apt, dnf, Windows Update, vendor portals).</li>
+          <li>Rescan with authenticated tools (Nessus, OpenVAS, Qualys) to map CVEs to installed versions.</li>
+          <li>Use compensating controls (WAF, segmentation, least privilege) when patching is delayed.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</details>
+
+{% if not cves %}
+  {% with title='No CVEs collected', sub='Run the pipeline to query the NVD for CVEs matching your discovered service keywords.' %}
+    {% include "partials/_empty.html" %}
+  {% endwith %}
+{% else %}
+<div class="card">
+  <div class="card__head">All CVE findings ({{ cves|length }})</div>
+  <div class="card__body card__body--tight">
+    <table id="cvesTable" class="dt" style="width:100%">
+      <thead>
+        <tr>
+          <th>CVE</th>
+          <th>Service</th>
+          <th>Severity</th>
+          <th>CVSS</th>
+          <th>Published</th>
+          <th>CWE</th>
+          <th>References</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in cves %}
+        <tr>
+          <td data-order="{{ v.cve_id or '' }}">
+            {% if v.cve_id %}
+              <a href="https://nvd.nist.gov/vuln/detail/{{ v.cve_id }}" target="_blank" rel="noopener">{{ v.cve_id }}</a>
+            {% else %}—{% endif %}
+          </td>
+          <td>{{ v.service or '—' }}</td>
+          <td>
+            {% set s = (v.severity or 'UNKNOWN')|upper %}
+            <span class="badge badge--{% if s == 'CRITICAL' %}critical{% elif s == 'HIGH' %}high{% elif s == 'MEDIUM' %}medium{% elif s == 'LOW' %}low{% else %}unknown{% endif %}">
+              {{ v.severity or '—' }}
+            </span>
+          </td>
+          {% set cv = v.cvss_score %}
+          <td data-order="{% if cv is none or cv in ('', '-') %}-1{% else %}{{ cv }}{% endif %}">
+            {{ cv if cv not in (None, '', '-') else '—' }}
+          </td>
+          <td data-order="{{ v.published or '' }}">{{ v.published or '—' }}</td>
+          <td class="dt-cell-wrap">
+            {% for c in v.cwe_ids or [] %}
+              {% set head = (c.split(':', 1)[0])|trim %}
+              {% if head.upper().startswith('CWE-') and head[4:].isdigit() %}
+                <a href="https://cwe.mitre.org/data/definitions/{{ head[4:] }}.html" target="_blank" rel="noopener">{{ head }}</a>{% if not loop.last %}, {% endif %}
+              {% else %}
+                {{ head }}{% if not loop.last %}, {% endif %}
+              {% endif %}
+            {% else %}—{% endfor %}
+          </td>
+          <td class="dt-cell-wrap" style="font-size: var(--text-xs)">
+            {% for r in v.references or [] %}
+              <div>
+                {% set tag_text = (r.tags | join(', ')) if r.tags else 'Reference' %}
+                {{ tag_text }}:
+                {% if r.url_ok is defined and not r.url_ok %}
+                  <span class="text-muted">{{ r.url }}</span>
+                {% else %}
+                  <a href="{{ r.url }}" target="_blank" rel="noopener">{{ r.url }}</a>
+                {% endif %}
+              </div>
+            {% else %}
+              <span class="text-muted">No stored references.</span>
+            {% endfor %}
+          </td>
+          <td class="dt-cell-wrap" style="font-size: var(--text-xs)">{{ v.description or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/cves.js') }}"></script>
+{% endblock %}

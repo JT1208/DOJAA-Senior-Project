@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Security headers{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>HTTP security headers</h1>
+    <p class="lead">
+      Check whether a website returns the OWASP-recommended security response headers.
+    </p>
+  </div>
+</header>
+
+<div class="card">
+  <div class="card__body">
+    <form id="hdrForm" class="form-row" novalidate>
+      <input id="hdrInput" type="text" placeholder="https://example.com" required autocomplete="off" />
+      <button class="btn btn--primary" type="submit">Check</button>
+    </form>
+  </div>
+</div>
+
+<div id="hdrResults" style="margin-top: var(--space-4);"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/headers.js') }}"></script>
+{% endblock %}

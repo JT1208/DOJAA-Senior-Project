@@ -1,0 +1,29 @@
+<nav class="app-nav" aria-label="Primary">
+  <a class="app-nav__brand" href="{{ url_for('dashboard.index') }}">DOJAA</a>
+  <ul class="app-nav__links">
+    <li><a data-path="/dashboard" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+    <li><a data-path="/hosts"     href="{{ url_for('hosts.index') }}">Hosts</a></li>
+    <li><a data-path="/ports"     href="{{ url_for('ports.index') }}">Ports</a></li>
+    <li><a data-path="/risk"      href="{{ url_for('risk.index') }}">Risk</a></li>
+    <li><a data-path="/cves"      href="{{ url_for('cves.index') }}">CVEs</a></li>
+    <li><a data-path="/ssl-tls"   href="{{ url_for('ssl_tls.index') }}">SSL/TLS</a></li>
+    <li><a data-path="/graph"     href="{{ url_for('graph.index') }}">Graph</a></li>
+
+    <li class="app-nav__dropdown" data-dropdown>
+      <button type="button" class="app-nav__dropdown-btn" aria-haspopup="true" aria-expanded="false">
+        Tools <span class="app-nav__dropdown-caret">▾</span>
+      </button>
+      <div class="app-nav__dropdown-menu" role="menu">
+        <a role="menuitem" href="{{ url_for('tools.dns') }}">DNS lookup</a>
+        <a role="menuitem" href="{{ url_for('tools.headers') }}">Security headers</a>
+        <a role="menuitem" href="{{ url_for('tools.robots') }}">Robots.txt</a>
+      </div>
+    </li>
+  </ul>
+  <div class="app-nav__right">
+    {% if user %}
+      <span class="app-nav__user" title="Signed in">{{ user }}</span>
+      <a class="btn btn--sm btn--ghost" href="{{ url_for('auth.logout') }}">Log out</a>
+    {% endif %}
+  </div>
+</nav>

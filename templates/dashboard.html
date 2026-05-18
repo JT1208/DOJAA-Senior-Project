@@ -1,191 +1,90 @@
 {% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
 {% block content %}
-<div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-2">
-  <div>
-    <h1 class="mb-2">Dashboard</h1>
-    <p class="lead mb-0">Welcome, {{ user }}! Here's a quick overview of your assets.</p>
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>Overview</h1>
+    <p class="lead">
+      {% if user %}Welcome back, {{ user }}. {% endif %}
+      Snapshot of your external attack surface — tap any tile for the detail tab.
+    </p>
+    {% include "partials/_freshness.html" %}
   </div>
-  <div class="ms-auto">
-    <a class="btn btn-outline-dark" href="{{ url_for('dashboard_report_pdf') }}" title="Download the generated DOJAA report (PDF)">
-      Generate Report
-    </a>
+  <div class="page-header__actions">
+    {% with action=url_for('dashboard.index'), label='Run pipeline' %}
+      {% include "partials/_rescan.html" %}
+    {% endwith %}
+    <a class="btn" href="{{ url_for('reports.dashboard_pdf') }}">Download PDF report</a>
   </div>
-</div>
+</header>
 
-<!-- Button to rescan -->
-<form method="GET" action="{{ url_for('dashboard') }}">
-  <button type="submit" name="rescan" value="true" class="btn btn-primary mb-3">Rescan Now</button>
-</form>
-
-<div class="row mb-4">
-  <div class="col-md-6">
-    <div class="card shadow-sm mb-3">
-      <div class="card-header bg-primary text-white">Exposure Overview</div>
-      <div class="card-body">
-        <canvas id="exposureChart" width="400" height="200"></canvas>
-      </div>
-    </div>
+<section class="grid grid--kpi" aria-label="Key metrics">
+  <div class="stat">
+    <span class="stat__label">Hosts discovered</span>
+    <span class="stat__value">{{ host_count }}</span>
+    <span class="stat__sub">{{ shodan_count }} via Shodan · {{ censys_count }} via Censys</span>
+    <a class="stat__link" href="{{ url_for('hosts.index') }}">Open Hosts</a>
   </div>
-  <div class="col-md-6">
-    <div class="card shadow-sm mb-3">
-      <div class="card-header bg-warning text-dark">Risk Severity Summary</div>
-      <div class="card-body">
-        {% set rsum = (risk_low|default(0)) + (risk_mid|default(0)) + (risk_high|default(0)) %}
-        <canvas id="severityChart" width="400" height="200" class="{{ 'd-none' if rsum == 0 else '' }}"></canvas>
-        <p id="severityChartEmpty" class="text-muted small mb-0 text-center {{ 'd-none' if rsum > 0 else '' }}">
-          No assets fall into the low, medium, or high bands (each count is 0). A doughnut chart has nothing to display when all slices are zero; run a scan with risk-scored assets to see the breakdown.
-        </p>
-      </div>
-    </div>
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-md-6">
-    <div class="card shadow-sm mb-3">
-      <div class="card-header bg-success text-white">Top 5 Shodan Assets</div>
-      <div class="card-body">
-        <table id="shodanPreview" class="display table table-striped table-hover" style="width:100%">
-          <thead>
-            <tr>
-              <th>IP</th>
-              <th>Port</th>
-              <th>Service</th>
-              <th>Risk</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for h in shodan[:5] %}
-            <tr>
-              <td>{{ h.ip }}</td>
-              <td>{{ h.port or '-' }}</td>
-              <td>{{ h.service or '-' }}</td>
-              <td>{{ h.risk_score or 0 }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  <div class="stat {% if risk_high > 0 %}stat--high{% endif %}">
+    <span class="stat__label">High-risk assets</span>
+    <span class="stat__value">{{ risk_high }}</span>
+    <span class="stat__sub">{{ risk_mid }} medium · {{ risk_low }} low</span>
+    <a class="stat__link" href="{{ url_for('risk.index') }}">Open Risk</a>
+  </div>
+
+  <div class="stat {% if cves_critical > 0 %}stat--high{% endif %}">
+    <span class="stat__label">CVE findings</span>
+    <span class="stat__value">{{ cves_total }}</span>
+    <span class="stat__sub">{{ cves_critical }} critical / high severity</span>
+    <a class="stat__link" href="{{ url_for('cves.index') }}">Open CVEs</a>
+  </div>
+
+  <div class="stat {% if certs_expiring_30d > 0 %}stat--mid{% endif %}">
+    <span class="stat__label">Certificates</span>
+    <span class="stat__value">{{ cert_count }}</span>
+    <span class="stat__sub">{{ certs_expiring_30d }} expiring within 30 days</span>
+    <a class="stat__link" href="{{ url_for('ssl_tls.index') }}">Open SSL/TLS</a>
+  </div>
+</section>
+
+<section class="grid grid--2" style="margin-top: var(--space-5);">
+  <div class="card">
+    <div class="card__head">Exposure by protocol</div>
+    <div class="card__body">
+      {% if (ssh_exposed + http_exposed + https_exposed) > 0 %}
+        <div class="chart-wrap"><canvas id="exposureChart" aria-label="Exposure by protocol"></canvas></div>
+      {% else %}
+        {% with title='No exposure data yet', sub='Run the pipeline to discover services on your domain.' %}
+          {% include "partials/_empty.html" %}
+        {% endwith %}
+      {% endif %}
     </div>
   </div>
 
-  <div class="col-md-6">
-    <div class="card shadow-sm mb-3">
-      <div class="card-header bg-info text-white">Top 5 Censys Assets</div>
-      <div class="card-body">
-        <table id="censysPreview" class="display table table-striped table-hover" style="width:100%">
-          <thead>
-            <tr>
-              <th>IP</th>
-              <th>Key Algorithm</th>
-              <th>OS</th>
-              <th>Protocol</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for c in censys[:5] %}
-            <tr>
-               <td>{{ c.ip }}</td>
-              <td>{{ c.key_algorithm or '-' }}</td>
-              <td>{{ c.os or '-'}}</td>
-              <td>{{ c.transport_protocol or '-'}}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+  <div class="card">
+    <div class="card__head">Risk distribution</div>
+    <div class="card__body">
+      {% if (risk_low + risk_mid + risk_high) > 0 %}
+        <div class="chart-wrap"><canvas id="riskChart" aria-label="Risk distribution"></canvas></div>
+      {% else %}
+        {% with title='No risk-tier data yet', sub='Scored assets will appear here once the pipeline runs.' %}
+          {% include "partials/_empty.html" %}
+        {% endwith %}
+      {% endif %}
     </div>
   </div>
-</div>
+</section>
 
-<div class="row">
-  <div class="col-12">
-    <div class="card shadow-sm mb-3">
-      <div class="card-header bg-danger text-white">Top CVEs from Scan Results</div>
-      <div class="card-body">
-        <table id="cvePreview" class="display table table-striped table-hover" style="width:100%">
-          <thead>
-            <tr>
-              <th>CVE ID</th>
-              <th>Service</th>
-              <th>Severity</th>
-              <th>CVSS</th>
-              <th>Published</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for v in cves[:25] %}
-            <tr>
-              <td>{{ v.cve_id or '-' }}</td>
-              <td>{{ v.service or '-' }}</td>
-              <td>{{ v.severity or '-' }}</td>
-              <td>{{ v.cvss_score or '-' }}</td>
-              <td>{{ v.published or '-' }}</td>
-              <td>{{ v.description or '-' }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-$(document).ready(function(){
-  // DataTables with footer update on search
-  function updateFooter(tableId) {
-    const table = $(`#${tableId}`).DataTable();
-    const info = table.page.info();
-    $(`#${tableId} tfoot th:last`).text(info.recordsDisplay);
-  }
-
-  $('#shodanPreview').DataTable({ "paging": false, "searching": true })
-    .on('search.dt', function(){ updateFooter('shodanPreview'); });
-  $('#censysPreview').DataTable({ "paging": false, "searching": true })
-    .on('search.dt', function(){ updateFooter('censysPreview'); });
-  $('#cvePreview').DataTable({ "paging": false, "searching": true, "order": [[3, "desc"]] })
-    .on('search.dt', function(){ updateFooter('cvePreview'); });
-
-  // Exposure chart
-  const ctxExposure = document.getElementById('exposureChart').getContext('2d');
-  new Chart(ctxExposure, {
-    type: 'bar',
-    data: {
-      labels: ['SSH', 'HTTP', 'HTTPS'],
-      datasets: [{
-        label: 'Exposed Assets',
-        data: [
-          {{ shodan|selectattr('ssh_exposed')|list|length + censys|selectattr('ssh_exposed')|list|length }},
-          {{ shodan|selectattr('http_exposed')|list|length + censys|selectattr('http_exposed')|list|length }},
-          {{ shodan|selectattr('https_exposed')|list|length + censys|selectattr('https_exposed')|list|length }}
-        ],
-        backgroundColor: ['#ff6384', '#36a2eb', '#ffce56']
-      }]
-    },
-    options: { responsive:true, plugins: { legend: { display:false } } }
-  });
-
-  // Risk severity chart (values from server: same rules as PDF / 0–100 bands)
-  const riskD = [{{ risk_low|default(0) }}, {{ risk_mid|default(0) }}, {{ risk_high|default(0) }}];
-  if (riskD[0] + riskD[1] + riskD[2] > 0) {
-    const el = document.getElementById('severityChart');
-    if (el) {
-      const ctxSeverity = el.getContext('2d');
-      new Chart(ctxSeverity, {
-        type: 'doughnut',
-        data: {
-          labels: ['Low','Medium','High'],
-          datasets: [{
-            data: riskD,
-            backgroundColor: ['#4bc0c0','#ff9f40','#ff6384']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: true }
-      });
-    }
-  }
-});
+<script id="dashboard-data" type="application/json">
+{
+  "exposure": [{{ ssh_exposed }}, {{ http_exposed }}, {{ https_exposed }}],
+  "risk":     [{{ risk_low }}, {{ risk_mid }}, {{ risk_high }}]
+}
 </script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/dashboard.js') }}"></script>
 {% endblock %}

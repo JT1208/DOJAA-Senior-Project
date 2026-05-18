@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}Hosts{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>Hosts</h1>
+    <p class="lead">
+      Combined inventory from Shodan and Censys. {{ host_count }} unique IPs.
+      Click any row for the full asset detail.
+    </p>
+  </div>
+  <div class="page-header__actions">
+    {% with action=url_for('hosts.index') %}{% include "partials/_rescan.html" %}{% endwith %}
+    <a class="btn" href="{{ url_for('hosts.export_csv') }}">Export CSV</a>
+  </div>
+</header>
+
+{% if not hosts %}
+  {% with title='No hosts yet', sub='Run the pipeline to query Shodan and Censys for assets on your domain. Configure SHODAN_API_KEY and CENSYS_API_TOKEN in your environment first.', cta_label='Run pipeline', cta_href=url_for('hosts.index', rescan='true') %}
+    {% include "partials/_empty.html" %}
+  {% endwith %}
+{% else %}
+<div class="filter-bar" role="search">
+  <label for="source-filter">Source</label>
+  <select id="source-filter">
+    <option value="">All ({{ hosts|length }})</option>
+    <option value="shodan">Shodan ({{ source_counts.shodan or 0 }})</option>
+    <option value="censys">Censys ({{ source_counts.censys or 0 }})</option>
+  </select>
+  <label for="risk-filter">Risk</label>
+  <select id="risk-filter">
+    <option value="">Any</option>
+    <option value="high">High (≥50)</option>
+    <option value="medium">Medium (20–49)</option>
+    <option value="low">Low (&lt;20)</option>
+  </select>
+  <label for="port-filter">Ports</label>
+  <input id="port-filter" type="text" placeholder="e.g. 22, 80, 443" inputmode="numeric" />
+</div>
+
+<div class="card">
+  <div class="card__head">
+    <span>Inventory</span>
+    {% include "partials/_freshness.html" %}
+  </div>
+  <div class="card__body card__body--tight">
+    <table id="hostsTable" class="dt" style="width:100%">
+      <thead>
+        <tr>
+          <th>IP</th>
+          <th>Source</th>
+          <th>Service</th>
+          <th>Port</th>
+          <th>Banner</th>
+          <th>Risk</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in hosts %}
+        <tr data-source="{{ h.source or 'unknown' }}"
+            data-port="{{ h.port if h.port is not none else '' }}"
+            data-bucket="{% if (h.risk_score or 0) >= 50 %}high{% elif (h.risk_score or 0) >= 20 %}medium{% else %}low{% endif %}">
+          <td class="dt-cell-mono">
+            <a href="{{ url_for('hosts.detail', ip=h.ip) }}">{{ h.ip }}</a>
+            {% if h.shadow_asset %}
+              <span class="badge badge--shadow" title="Not in internal inventory">Shadow</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge badge--info">{{ (h.source or 'unknown')|capitalize }}</span>
+          </td>
+          <td>
+            <strong>{{ h.banner_service or h.service or 'Unknown' }}</strong>
+            {% if h.banner_product %}
+              <div class="text-muted" style="font-size: var(--text-xs)">
+                {{ h.banner_product }}{% if h.banner_version %} {{ h.banner_version }}{% endif %}
+              </div>
+            {% endif %}
+          </td>
+          <td class="dt-cell-mono">{{ h.port if h.port is not none else '—' }}</td>
+          <td class="dt-cell-wrap text-muted" style="font-size: var(--text-xs)">
+            {{ (h.banner_summary or h.banner or '—')[:200] }}{% if (h.banner or '')|length > 200 %}…{% endif %}
+          </td>
+          <td data-order="{{ h.risk_score or 0 }}">{{ h.risk_score or 0 }}</td>
+          <td>
+            {% set sev = (h.severity or 'Low')|lower %}
+            <span class="badge badge--{{ sev }}">{{ h.severity or 'Low' }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/hosts.js') }}"></script>
+{% endblock %}

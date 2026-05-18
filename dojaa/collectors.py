@@ -1,134 +1,169 @@
+"""External recon API collectors: Shodan, Censys v2, NVD.
+
+Every collector:
+- reads credentials from :class:`dojaa.settings.Settings` (env-backed),
+- returns an empty list when its key is missing (so the UI shows a notice
+  rather than a stack trace),
+- logs failures via the standard library logger.
+"""
+
+from __future__ import annotations
+
+import logging
+from typing import Iterable
+
 import requests
-from .config import SHODAN_API_KEY, CENSYS_API_TOKEN, CVE_API_KEY, ORG_DOMAIN
+
+from .settings import load_settings
+
+log = logging.getLogger(__name__)
 
 
-def collect_shodan():
-    print("[Shodan] Collecting data...")
-    results = []
+# ---------------- SHODAN ----------------
 
-    ports = [22, 80, 443, 21, 25, 3306, 3389]
-    subdomains = ["", "www", "mail", "vpn", "api"]
+_SHODAN_PORTS = (22, 80, 443, 21, 25, 3306, 3389)
+_SHODAN_SUBDOMAINS = ("", "www", "mail", "vpn", "api")
+_SHODAN_URL = "https://api.shodan.io/shodan/host/search"
 
-    for sd in subdomains:
-        domain = f"{sd}.{ORG_DOMAIN}" if sd else ORG_DOMAIN
 
-        for port in ports:
+def collect_shodan() -> list[dict]:
+    settings = load_settings()
+    if not settings.has_shodan:
+        log.info("shodan: SHODAN_API_KEY not set, skipping")
+        return []
+
+    results: list[dict] = []
+    log.info("shodan: collecting for %s", settings.org_domain)
+
+    for sd in _SHODAN_SUBDOMAINS:
+        domain = f"{sd}.{settings.org_domain}" if sd else settings.org_domain
+        for port in _SHODAN_PORTS:
             query = f"hostname:{domain} port:{port}"
-            page = 1
-
-            while page <= 5:
+            for page in range(1, 6):
                 try:
-                    url = "https://api.shodan.io/shodan/host/search"
-                    params = {"key": SHODAN_API_KEY, "query": query, "page": page}
-
-                    resp = requests.get(url, params=params, timeout=25)
-                    if resp.status_code != 200:
-                        try:
-                            err = resp.json()
-                        except Exception:
-                            err = resp.text[:300]
-                        print(
-                            f"[Shodan] HTTP {resp.status_code} (page {page}): {err!r} — "
-                            "no credits, invalid key, or rate limit; stopping this query."
-                        )
-                        break
-
-                    data = resp.json()
-                    matches = data.get("matches", [])
-
-                    if not matches:
-                        break
-
-                    for match in matches:
-                        results.append({
-                            "ip": match.get("ip_str"),
-                            "port": match.get("port"),
-                            "service": match.get("product") or "Unknown",
-                            "banner": match.get("data", ""),
-                            "provider": match.get("org", ORG_DOMAIN),
-                            "ssh_exposed": match.get("port") == 22,
-                            "http_exposed": match.get("port") == 80,
-                            "https_exposed": match.get("port") == 443,
-                            "known": False,
-                            "risk_score": 0,
-                            "recommendations": []
-                        })
-
-                    page += 1
-
-                except Exception as e:
-                    print("[Shodan Error]", e)
+                    resp = requests.get(
+                        _SHODAN_URL,
+                        params={"key": settings.shodan_api_key, "query": query, "page": page},
+                        timeout=25,
+                    )
+                except requests.RequestException as exc:
+                    log.warning("shodan: request failed for %s page %d: %s", query, page, exc)
                     break
 
-    print(f"[Shodan] Collected {len(results)} assets")
+                if resp.status_code != 200:
+                    log.warning(
+                        "shodan: HTTP %d for %s page %d — likely missing credits or rate limit",
+                        resp.status_code, query, page,
+                    )
+                    break
+
+                try:
+                    data = resp.json()
+                except ValueError:
+                    log.warning("shodan: non-JSON response for %s page %d", query, page)
+                    break
+
+                matches = data.get("matches") or []
+                if not matches:
+                    break
+
+                for m in matches:
+                    p = m.get("port")
+                    results.append(
+                        {
+                            "ip": m.get("ip_str"),
+                            "port": p,
+                            "service": m.get("product") or "Unknown",
+                            "banner": m.get("data", ""),
+                            "provider": m.get("org", settings.org_domain),
+                            "ssh_exposed": p == 22,
+                            "http_exposed": p == 80,
+                            "https_exposed": p == 443,
+                            "known": False,
+                            "risk_score": 0,
+                            "recommendations": [],
+                            "source": "shodan",
+                        }
+                    )
+
+    log.info("shodan: collected %d assets", len(results))
     return results
 
 
-def collect_censys():
-    print("[Censys] Collecting data...")
-    results = []
+# ---------------- CENSYS v2 ----------------
 
-    url = "https://search.censys.io/api/v2/hosts/search"
-    payload = {"q": f"domain:{ORG_DOMAIN}", "per_page": 50}
-    headers = {"Accept": "application/json"}
+_CENSYS_URL = "https://search.censys.io/api/v2/hosts/search"
 
+
+def collect_censys() -> list[dict]:
+    settings = load_settings()
+    if not settings.has_censys:
+        log.info("censys: CENSYS_API_TOKEN not set, skipping")
+        return []
+
+    log.info("censys: collecting for %s", settings.org_domain)
     try:
         resp = requests.post(
-            url,
-            headers=headers,
-            auth=(CENSYS_API_TOKEN, ""),
-            json=payload,
+            _CENSYS_URL,
+            auth=(settings.censys_api_token, ""),
+            headers={"Accept": "application/json"},
+            json={"q": f"domain:{settings.org_domain}", "per_page": 50},
             timeout=30,
         )
+    except requests.RequestException as exc:
+        log.warning("censys: request failed: %s", exc)
+        return []
 
-        if resp.status_code != 200:
-            try:
-                err = resp.json()
-            except Exception:
-                err = resp.text[:300]
-            print(f"[Censys] HTTP {resp.status_code}: {err!r}")
-            return results
+    if resp.status_code != 200:
+        log.warning("censys: HTTP %d", resp.status_code)
+        return []
 
+    try:
         data = resp.json()
-        hits = data.get("result", {}).get("hits", [])
+    except ValueError:
+        log.warning("censys: non-JSON response")
+        return []
 
-        for hit in hits:
-            protocols = hit.get("protocols", [])
-
-            results.append({
+    hits = data.get("result", {}).get("hits", []) or []
+    out: list[dict] = []
+    for hit in hits:
+        protocols = hit.get("protocols") or []
+        out.append(
+            {
                 "ip": hit.get("ip"),
                 "port": protocols[0].split("/")[0] if protocols else None,
                 "service": "Unknown",
                 "banner": "",
-                "provider": hit.get("autonomous_system", {}).get("name", ORG_DOMAIN),
+                "provider": hit.get("autonomous_system", {}).get("name", settings.org_domain),
                 "ssh_exposed": any("22/" in p for p in protocols),
                 "http_exposed": any("80/" in p for p in protocols),
                 "https_exposed": any("443/" in p for p in protocols),
                 "known": False,
                 "risk_score": 0,
-                "recommendations": []
-            })
+                "recommendations": [],
+                "source": "censys",
+            }
+        )
 
-    except Exception as e:
-        print("[Censys Error]", e)
-
-    print(f"[Censys] Collected {len(results)} assets")
-    return results
-
-
-# --- NVD CVE lookup (keyword per service from scan rows) ---
+    log.info("censys: collected %d assets", len(out))
+    return out
 
 
-def _extract_cvss(metrics: dict) -> tuple:
-    for metric_key in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
-        metric_list = metrics.get(metric_key, [])
-        if not metric_list:
+# ---------------- NVD CVE ----------------
+
+_NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+
+
+def _extract_cvss(metrics: dict) -> tuple[float | None, str]:
+    for key in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
+        lst = metrics.get(key) or []
+        if not lst:
             continue
-        metric_data = metric_list[0].get("cvssData", {})
-        base_score = metric_data.get("baseScore")
-        severity = metric_data.get("baseSeverity")
-        if base_score is not None:
-            return base_score, severity or "UNKNOWN"
+        cvss = lst[0].get("cvssData") or {}
+        score = cvss.get("baseScore")
+        severity = cvss.get("baseSeverity") or "UNKNOWN"
+        if score is not None:
+            return score, severity
     return None, "UNKNOWN"
 
 
@@ -141,8 +176,8 @@ def _cwe_sort_key(entry: str) -> tuple:
     return (1, 9999, text)
 
 
-def _extract_cwe_ids(cve: dict) -> list:
-    out: list = []
+def _extract_cwe_ids(cve: dict) -> list[str]:
+    out: list[str] = []
     for w in cve.get("weaknesses") or []:
         for d in w.get("description", []) or []:
             if d.get("lang") != "en":
@@ -168,8 +203,8 @@ def _ref_sort_key(ref: dict) -> tuple:
     return (5, url)
 
 
-def _extract_references(cve: dict, limit: int = 15) -> list:
-    raw = []
+def _extract_references(cve: dict, limit: int = 15) -> list[dict]:
+    raw: list[dict] = []
     for ref in cve.get("references") or []:
         url = (ref.get("url") or "").strip()
         if not url:
@@ -182,76 +217,76 @@ def _extract_references(cve: dict, limit: int = 15) -> list:
     return raw[:limit]
 
 
-def _reference_url_unreachable_by_heuristic(url: str) -> bool:
+def _is_unreachable_url(url: str) -> bool:
     u = (url or "").strip().lower()
     if not u.startswith(("http://", "https://")):
         return True
-    if u.startswith("javascript:") or u.startswith("data:"):
+    gated_substrings = (
+        "/login", "/signin", "/sso/", "account.", "access.redhat.com",
+        "support.oracle.com", "signon.", "h20000.www2.hp.com",
+        "h20000.www1.hp.com", "h20000.www.hp.com",
+    )
+    if any(s in u for s in gated_substrings):
         return True
-    if "h20000.www2.hp.com" in u or "h20000.www1.hp.com" in u or "h20000.www.hp.com" in u:
-        return True
-    if (
-        "login" in u
-        or "signin" in u
-        or "/sso/" in u
-        or "account." in u
-        or "access.redhat.com" in u
-        or "support.oracle.com" in u
-        or "signon." in u
-    ):
-        return True
-    if "localhost" in u or "127.0.0.1" in u or "0.0.0.0" in u:
+    if any(host in u for host in ("localhost", "127.0.0.1", "0.0.0.0")):
         return True
     return False
 
 
-def _annotate_reference_url_ok(cve_results: list) -> None:
-    for row in cve_results:
+def _annotate_url_reachability(rows: Iterable[dict]) -> None:
+    for row in rows:
         for ref in row.get("references") or []:
-            u = (ref.get("url") or "").strip()
-            ref["url_ok"] = not _reference_url_unreachable_by_heuristic(u)
+            ref["url_ok"] = not _is_unreachable_url(ref.get("url", ""))
 
 
-def collect_cves(service_records, max_cves_per_service=5, max_total=25):
-    print("[CVE] Starting NVD CVE lookup...")
-    api_url = "https://services.nvd.nist.gov/rest/json/cves/2.0"
+def collect_cves(service_records: list[dict]) -> list[dict]:
+    settings = load_settings()
+    api_key = settings.nvd_api_key
+    per_service = settings.cve_max_per_service
+    max_total = settings.cve_max_total
+
     headers = {"Accept": "application/json"}
-    if CVE_API_KEY:
-        headers["apiKey"] = CVE_API_KEY
+    if api_key:
+        headers["apiKey"] = api_key
 
-    service_names: set = set()
+    service_names: set[str] = set()
     for record in service_records:
         service = (record.get("service") or "").strip()
         if service and service.lower() != "unknown":
             service_names.add(service)
 
-    cve_results: list = []
-    seen_cve_ids: set = set()
+    log.info("nvd: querying for %d unique services", len(service_names))
+    out: list[dict] = []
+    seen: set[str] = set()
 
     for service in sorted(service_names):
-        params = {"keywordSearch": service, "resultsPerPage": max_cves_per_service}
         try:
-            response = requests.get(api_url, headers=headers, params=params, timeout=20)
-            response.raise_for_status()
-            vulnerabilities = response.json().get("vulnerabilities", [])
-        except Exception as e:
-            print(f"[CVE] Error fetching data for service '{service}': {e}")
+            resp = requests.get(
+                _NVD_URL,
+                headers=headers,
+                params={"keywordSearch": service, "resultsPerPage": per_service},
+                timeout=20,
+            )
+            resp.raise_for_status()
+            vulnerabilities = resp.json().get("vulnerabilities", []) or []
+        except (requests.RequestException, ValueError) as exc:
+            log.warning("nvd: lookup failed for %s: %s", service, exc)
             continue
 
         for item in vulnerabilities:
-            cve = item.get("cve", {})
+            cve = item.get("cve") or {}
             cve_id = cve.get("id")
-            if not cve_id or cve_id in seen_cve_ids:
+            if not cve_id or cve_id in seen:
                 continue
+            seen.add(cve_id)
 
-            descriptions = cve.get("descriptions", [])
+            descriptions = cve.get("descriptions", []) or []
             description = next(
                 (d.get("value", "") for d in descriptions if d.get("lang") == "en"),
                 descriptions[0].get("value", "") if descriptions else "",
             )
-            score, severity = _extract_cvss(cve.get("metrics", {}))
-
-            cve_results.append(
+            score, severity = _extract_cvss(cve.get("metrics") or {})
+            out.append(
                 {
                     "cve_id": cve_id,
                     "service": service,
@@ -263,12 +298,11 @@ def collect_cves(service_records, max_cves_per_service=5, max_total=25):
                     "references": _extract_references(cve),
                 }
             )
-            seen_cve_ids.add(cve_id)
-            if len(cve_results) >= max_total:
-                print(f"[CVE] Collected {len(cve_results)} CVEs.")
-                _annotate_reference_url_ok(cve_results)
-                return cve_results
+            if len(out) >= max_total:
+                _annotate_url_reachability(out)
+                log.info("nvd: collected %d CVEs (cap reached)", len(out))
+                return out
 
-    print(f"[CVE] Collected {len(cve_results)} CVEs.")
-    _annotate_reference_url_ok(cve_results)
-    return cve_results
+    _annotate_url_reachability(out)
+    log.info("nvd: collected %d CVEs", len(out))
+    return out

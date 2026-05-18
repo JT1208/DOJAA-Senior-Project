@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Robots.txt{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>Robots.txt explorer</h1>
+    <p class="lead">
+      Disallow paths for <code>User-agent: *</code> rendered as a directory tree.
+    </p>
+  </div>
+</header>
+
+<div class="card">
+  <div class="card__body">
+    <form method="GET" action="{{ url_for('tools.robots') }}" class="form-row">
+      <input type="text" id="site" name="site" value="{{ site }}" placeholder="example.com" autocomplete="off" required />
+      <button type="submit" class="btn btn--primary">Load robots.txt</button>
+    </form>
+  </div>
+</div>
+
+<div class="card" style="margin-top: var(--space-4);">
+  <div class="card__head">{{ site }}</div>
+  <div class="card__body">
+    {% if tree_text %}
+      <pre class="text-mono" style="white-space: pre; margin: 0; overflow-x: auto;">{{ tree_text }}</pre>
+    {% else %}
+      <p class="text-muted" style="margin: 0;">No tree to show. Enter a host above or check the alert messages.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

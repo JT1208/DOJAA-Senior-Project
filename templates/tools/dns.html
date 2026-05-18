@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}DNS lookup{% endblock %}
+
+{% block content %}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>DNS lookup</h1>
+    <p class="lead">Query A/AAAA/MX/NS/TXT/CNAME/SOA records via Google's DNS-over-HTTPS resolver.</p>
+  </div>
+</header>
+
+<div class="card">
+  <div class="card__body">
+    <form id="dnsForm" class="form-row" novalidate>
+      <label for="dnsInput" class="visually-hidden" style="position:absolute; left:-9999px;">Domain</label>
+      <input id="dnsInput" type="text" placeholder="example.com" required autocomplete="off" />
+      <button class="btn btn--primary" type="submit">Look up</button>
+    </form>
+  </div>
+</div>
+
+<div id="dnsResults" style="margin-top: var(--space-4);"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/pages/dns.js') }}"></script>
+{% endblock %}

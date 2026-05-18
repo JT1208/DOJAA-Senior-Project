@@ -20,16 +20,15 @@ import os
 import psycopg2
 from psycopg2.extras import execute_values
 
-from dojaa import config
-
 
 def get_connection():
+    """Open a Postgres connection from PG* / DOJAA_DB_* env vars."""
     return psycopg2.connect(
-        host=config.DB_CONFIG["host"],
-        port=config.DB_CONFIG["port"],
-        dbname=config.DB_CONFIG["database"],
-        user=config.DB_CONFIG["user"],
-        password=config.DB_CONFIG["password"],
+        host=os.environ.get("DOJAA_DB_HOST", "localhost"),
+        port=os.environ.get("DOJAA_DB_PORT", "5432"),
+        dbname=os.environ.get("DOJAA_DB_NAME", "dojaa"),
+        user=os.environ.get("DOJAA_DB_USER", "postgres"),
+        password=os.environ.get("DOJAA_DB_PASSWORD", ""),
     )
 
 

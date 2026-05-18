@@ -1,39 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login · DOJAA Vulnerability Management</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in · DOJAA</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}" />
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-card { width: 100%; max-width: 420px; padding: var(--space-6); }
+    .login-card__logo { display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-4); }
+    .login-card__logo img { max-height: 56px; }
+    .login-card__title { text-align: center; font-size: var(--text-lg); margin-bottom: var(--space-5); }
+    .login-card .form-stack input { width: 100%; }
+    .login-card .btn { width: 100%; justify-content: center; }
+    .login-footnote { color: var(--ink-muted); font-size: var(--text-xs); text-align: center; margin-top: var(--space-4); }
+  </style>
 </head>
-<body class="bg-light">
-
-<div class="container d-flex justify-content-center align-items-center vh-100">
-  <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
-    <div class="text-center mb-4">
-      <img src="{{ url_for('static', filename='dojaa-logo.png') }}" alt="DOJAA Logo" height="60">
-      <h5 class="mt-2">Digital Observatory for Joint Asset Analysis Security</h5>
+<body>
+  <div class="card login-card">
+    <div class="login-card__logo">
+      <img src="{{ url_for('static', filename='dojaa-logo.png') }}" alt="DOJAA" />
     </div>
+    <div class="login-card__title">Digital Observatory for Joint Asset Analysis</div>
 
     {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
+      <div class="alert alert--danger" role="alert" style="margin-bottom: var(--space-4);">
+        <span>{{ error }}</span>
+      </div>
     {% endif %}
 
-    <form method="POST" action="{{ url_for('login') }}">
-      <div class="mb-3">
-        <label for="email" class="form-label">Drexel Email</label>
-        <input type="email" class="form-control" id="email" name="email" placeholder="you@drexel.edu" required>
+    <form method="POST" action="{{ url_for('auth.login') }}" class="form-stack" novalidate>
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="username"
+               placeholder="you@{{ email_domain }}" />
       </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" />
       </div>
-      <button type="submit" class="btn btn-primary w-100">Sign In</button>
+      <button type="submit" class="btn btn--primary">Sign in</button>
     </form>
-    <p class="text-center mt-3 text-muted">Authorized Drexel accounts only</p>
-  </div>
-</div>
 
+    <p class="login-footnote">Authorised {{ email_domain }} accounts only.</p>
+  </div>
 </body>
 </html>
