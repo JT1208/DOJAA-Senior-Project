@@ -4,6 +4,13 @@ from __future__ import annotations
 
 import logging
 
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
+
 from dojaa.pipeline import run_pipeline
 
 
