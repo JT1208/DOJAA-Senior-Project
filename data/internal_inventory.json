@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "cidr": "129.25.0.0/16",
+    "owner": "Drexel University — primary IPv4 allocation",
+    "notes": "ASN 11834 (DREXEL-ASN) — assigned to Drexel; treat hosts in this range as known."
+  },
+  {
+    "cidr": "144.118.0.0/16",
+    "owner": "Drexel University — secondary IPv4 allocation",
+    "notes": "Drexel-controlled block hosting drexel.edu, sso.drexel.edu, canvas.drexel.edu, vpn.drexel.edu, etc."
+  },
+  { "ip": "144.118.67.10",  "hostname": "drexel.edu / www.drexel.edu", "owner": "Drexel — University web" },
+  { "ip": "144.118.67.12",  "hostname": "library.drexel.edu",          "owner": "Drexel — Library" },
+  { "ip": "144.118.67.19",  "hostname": "one.drexel.edu",              "owner": "Drexel — DrexelOne portal" },
+  { "ip": "144.118.67.32",  "hostname": "connect.drexel.edu",          "owner": "Drexel — Connect" },
+  { "ip": "144.118.67.71",  "hostname": "canvas.drexel.edu",           "owner": "Drexel — Canvas LMS" },
+  { "ip": "144.118.25.80",  "hostname": "sso.drexel.edu",              "owner": "Drexel — SSO" },
+  { "ip": "144.118.1.193",  "hostname": "vpn.drexel.edu",              "owner": "Drexel — VPN gateway" },
+  { "ip": "129.25.203.190", "hostname": "cci.drexel.edu",              "owner": "Drexel — CCI" }
+]

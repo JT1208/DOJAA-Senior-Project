@@ -17,7 +17,7 @@ from .enrichment.banner_parser import parse_banner
 from .enrichment.service_intel import build_service_intel
 from .inventory import compare_with_inventory, load_inventory
 from .normalizer import normalize_data
-from .risk_engine import calculate_risk
+from .risk_engine import build_host_context, calculate_risk
 from .services.cache import read_freshness, read_json, write_json
 from .settings import load_settings
 from .ssl_tls_collector import collect_ssl_data
@@ -94,9 +94,15 @@ def _enrich_assets(assets: list[dict], inventory: list[dict]) -> list[dict]:
     normalized = normalize_data(assets)
     normalized = compare_with_inventory(normalized, inventory)
 
+    # Aggregate the host's full port set ONCE so the risk engine can score
+    # each row against the host's overall exposure (e.g., a port-22 row
+    # should not say "No HTTPS protection" if a sibling row exposes 443).
+    host_context = build_host_context(normalized)
+
     enriched: list[dict] = []
     for asset in normalized:
-        asset.update(calculate_risk(asset))
+        ctx = host_context.get(asset.get("ip"))
+        asset.update(calculate_risk(asset, host_context=ctx))
         asset.update(build_service_intel(asset))
         enriched.append(asset)
     return enriched
