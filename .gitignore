@@ -26,6 +26,11 @@ env/
 dashboard_cache.json
 dashboard_data.json
 censys_data.json
+cisa_kev_cache.json
+epss_cache.json
 *.json.meta
 .env
 .env.local
+
+# Local dev configs
+.claude/

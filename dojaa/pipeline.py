@@ -5,19 +5,24 @@ exhausted: each collector returns an empty list rather than raising, and the
 last good cache is used as a fallback. A list of human-readable notices is
 attached to the returned payload as ``_pipeline_notices`` so the UI can
 explain what happened.
+
+Scoring is delegated to :mod:`dojaa.scoring.engine`, which evaluates each
+host against the formal findings catalog (CWE / CVSS v3.1 / NIST 800-53 /
+MITRE ATT&CK / CISA KEV / EPSS) rather than ad-hoc point values.
 """
 
 from __future__ import annotations
 
 import logging
 import re
+from collections import defaultdict
 
 from .collectors import collect_censys, collect_cves, collect_shodan
 from .enrichment.banner_parser import parse_banner
 from .enrichment.service_intel import build_service_intel
 from .inventory import compare_with_inventory, load_inventory
 from .normalizer import normalize_data
-from .risk_engine import build_host_context, calculate_risk
+from .scoring.engine import attach_per_row, build_snapshots, score_snapshot
 from .services.cache import read_freshness, read_json, write_json
 from .settings import load_settings
 from .ssl_tls_collector import collect_ssl_data
@@ -82,30 +87,68 @@ def _ssl_probe_candidate_ips(assets: list[dict], limit: int) -> list[str]:
     return out[:limit]
 
 
-def _enrich_assets(assets: list[dict], inventory: list[dict]) -> list[dict]:
-    """Banner-parse, normalize, mark inventory state, score risk, build intel."""
-    for asset in assets:
+def _enrich_banner(rows: list[dict]) -> list[dict]:
+    """Run the banner parser on each row, populating ``banner_*`` + ``cpe``."""
+    for asset in rows:
         parsed = parse_banner(asset.get("banner", ""), asset.get("port"))
         asset["banner_service"] = parsed["service"]
+        asset["banner_vendor"] = parsed.get("vendor")
         asset["banner_product"] = parsed["product"]
         asset["banner_version"] = parsed["version"]
         asset["banner_summary"] = parsed["summary"]
+        asset["cpe"] = parsed.get("cpe")
+    return rows
 
-    normalized = normalize_data(assets)
-    normalized = compare_with_inventory(normalized, inventory)
 
-    # Aggregate the host's full port set ONCE so the risk engine can score
-    # each row against the host's overall exposure (e.g., a port-22 row
-    # should not say "No HTTPS protection" if a sibling row exposes 443).
-    host_context = build_host_context(normalized)
+_STOPWORDS = {
+    "unknown", "service", "server", "http", "https", "tcp", "udp", "ssl", "tls",
+}
 
-    enriched: list[dict] = []
-    for asset in normalized:
-        ctx = host_context.get(asset.get("ip"))
-        asset.update(calculate_risk(asset, host_context=ctx))
-        asset.update(build_service_intel(asset))
-        enriched.append(asset)
-    return enriched
+
+def _tokens(text: str) -> set[str]:
+    text = (text or "").strip().lower().replace("_", " ").replace("/", " ").replace("-", " ")
+    return {tok for tok in text.split() if tok and tok not in _STOPWORDS and len(tok) > 2}
+
+
+def _index_cves_by_host(cves: list[dict], hosts: list[dict]) -> dict[str, list[dict]]:
+    """Group CVE matches by host IP via product-token overlap.
+
+    A CVE is attributed to a host only if at least one distinctive token
+    in the CVE's service label appears in the host's banner_vendor /
+    banner_product set. This avoids the substring overcorrelation that
+    would otherwise attach every "openssh" CVE to every host that ever
+    served the string "ssh".
+    """
+    host_tokens: dict[str, set[str]] = {}
+    for h in hosts:
+        ip = h.get("ip")
+        if not ip:
+            continue
+        bag: set[str] = set()
+        for key in ("banner_vendor", "banner_product", "service"):
+            bag |= _tokens(h.get(key) or "")
+        if bag:
+            host_tokens[ip] = bag
+
+    by_ip: dict[str, list[dict]] = defaultdict(list)
+    for cve in cves or []:
+        cve_tokens = _tokens(cve.get("service") or "")
+        if not cve_tokens:
+            continue
+        for ip, htoks in host_tokens.items():
+            # Require at least one substantive shared token.
+            if cve_tokens & htoks:
+                by_ip[ip].append(cve)
+    return dict(by_ip)
+
+
+def _index_certs_by_host(certs: list[dict]) -> dict[str, list[dict]]:
+    out: dict[str, list[dict]] = defaultdict(list)
+    for c in certs or []:
+        ip = c.get("ip")
+        if ip:
+            out[ip].append(c)
+    return dict(out)
 
 
 def _normalize_ssl_rows(rows: list[dict]) -> list[dict]:
@@ -182,29 +225,41 @@ def run_pipeline(use_api: bool = False) -> dict:
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
         dashboard["cves"] = cached.get("cves", [])
 
-    # ---------------- HOST ENRICHMENT + RISK ----------------
+    # ---------------- BANNER + INVENTORY + NORMALIZATION ----------------
     inventory = load_inventory()
     for source in ("shodan", "censys"):
-        dashboard[source] = _enrich_assets(dashboard.get(source, []), inventory)
-        for asset in dashboard[source]:
+        rows = dashboard.get(source) or []
+        rows = _enrich_banner(rows)
+        rows = normalize_data(rows)
+        rows = compare_with_inventory(rows, inventory)
+        for asset in rows:
             asset["source"] = source
+            asset.update(build_service_intel(asset))
+        dashboard[source] = rows
 
-    # ---------------- CVE ----------------
+    # ---------------- CVE COLLECTION ----------------
+    all_hosts = dashboard["shodan"] + dashboard["censys"]
     need_cve_fetch = use_api or not cached.get("cves")
     if need_cve_fetch:
         try:
-            dashboard["cves"] = collect_cves(dashboard["shodan"] + dashboard["censys"])
-        except Exception as exc:  # noqa: BLE001 — collector swallows most, but be defensive
+            dashboard["cves"] = collect_cves(all_hosts)
+        except Exception as exc:  # noqa: BLE001
             log.error("CVE collection failed: %s", exc)
             dashboard["cves"] = cached.get("cves", []) if cached else []
             if cached.get("cves"):
                 notices.append("CVE collection failed — showing cached results.")
-    # otherwise cached value already assigned above
+
+    # Always re-enrich the CVE list with KEV + EPSS so stale caches get
+    # the latest exploitation telemetry without a full NVD re-fetch.
+    try:
+        from .collectors import _annotate_kev_and_epss
+        _annotate_kev_and_epss(dashboard.get("cves") or [])
+    except Exception as exc:  # noqa: BLE001 — KEV/EPSS are best-effort
+        log.warning("KEV/EPSS enrichment skipped (%s)", exc)
 
     # ---------------- SSL/TLS ----------------
     if use_api or "ssl_tls" not in cached:
-        combined = dashboard["shodan"] + dashboard["censys"]
-        hosts = _ssl_probe_candidate_ips(combined, settings.ssl_probe_limit)
+        hosts = _ssl_probe_candidate_ips(all_hosts, settings.ssl_probe_limit)
         fresh_ssl = collect_ssl_data(hosts) if hosts else []
         if use_api and cached and not fresh_ssl and cached.get("ssl_tls"):
             dashboard["ssl_tls"] = list(cached["ssl_tls"])
@@ -215,6 +270,17 @@ def run_pipeline(use_api: bool = False) -> dict:
         dashboard["ssl_tls"] = cached.get("ssl_tls", [])
 
     dashboard["ssl_tls"] = _normalize_ssl_rows(dashboard.get("ssl_tls", []))
+
+    # ---------------- RISK SCORING (per host, against the catalog) -------
+    cves_by_ip = _index_cves_by_host(dashboard["cves"], all_hosts)
+    certs_by_ip = _index_certs_by_host(dashboard["ssl_tls"])
+    snapshots = build_snapshots(all_hosts, cves_by_ip=cves_by_ip, certs_by_ip=certs_by_ip)
+    summaries = {ip: score_snapshot(snap) for ip, snap in snapshots.items()}
+
+    for source in ("shodan", "censys"):
+        dashboard[source] = attach_per_row(dashboard[source], snapshots, summaries)
+
+    dashboard["host_summaries"] = list(summaries.values())
 
     # ---------------- PERSIST ----------------
     try:

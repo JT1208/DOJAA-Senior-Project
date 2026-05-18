@@ -188,7 +188,8 @@ def collect_censys() -> tuple[list[dict], str | None]:
 _NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
 
-def _extract_cvss(metrics: dict) -> tuple[float | None, str]:
+def _extract_cvss(metrics: dict) -> tuple[float | None, str, str | None]:
+    """Return ``(base_score, severity, vector)`` preferring CVSS v3.1 → v3.0 → v2."""
     for key in ("cvssMetricV31", "cvssMetricV30", "cvssMetricV2"):
         lst = metrics.get(key) or []
         if not lst:
@@ -196,9 +197,10 @@ def _extract_cvss(metrics: dict) -> tuple[float | None, str]:
         cvss = lst[0].get("cvssData") or {}
         score = cvss.get("baseScore")
         severity = cvss.get("baseSeverity") or "UNKNOWN"
+        vector = cvss.get("vectorString") or None
         if score is not None:
-            return score, severity
-    return None, "UNKNOWN"
+            return score, severity, vector
+    return None, "UNKNOWN", None
 
 
 def _cwe_sort_key(entry: str) -> tuple:
@@ -273,41 +275,75 @@ def _annotate_url_reachability(rows: Iterable[dict]) -> None:
             ref["url_ok"] = not _is_unreachable_url(ref.get("url", ""))
 
 
+def _nvd_query(headers: dict, params: dict) -> list[dict]:
+    """Single NVD call; returns the vulnerabilities array or []."""
+    try:
+        resp = requests.get(_NVD_URL, headers=headers, params=params, timeout=25)
+        resp.raise_for_status()
+        return resp.json().get("vulnerabilities", []) or []
+    except (requests.RequestException, ValueError) as exc:
+        log.warning("nvd: lookup failed for %s: %s", params, exc)
+        return []
+
+
+def _row_query_key(row: dict) -> tuple[str, dict]:
+    """Decide the most precise NVD query for a row.
+
+    Preference order: CPE name (from banner_parser) → vendor+product+version
+    keyword → service name. Returns (key_for_dedup, http_params).
+    """
+    cpe = (row.get("cpe") or "").strip()
+    if cpe and cpe.startswith("cpe:2.3:"):
+        return cpe, {"cpeName": cpe}
+
+    vendor  = (row.get("banner_vendor") or "").strip()
+    product = (row.get("banner_product") or row.get("service") or "").strip()
+    version = (row.get("banner_version") or "").strip()
+    parts = [p for p in (vendor, product, version) if p and p.lower() != "unknown"]
+    if parts:
+        kw = " ".join(parts).replace("_", " ")
+        return f"kw:{kw}", {"keywordSearch": kw, "keywordExactMatch": ""}
+    return "", {}
+
+
 def collect_cves(service_records: list[dict]) -> list[dict]:
+    """Collect CVEs from NVD for each unique service signature.
+
+    Uses CPE-based queries (much more precise than keyword search) when
+    the banner parser produced a CPE. Falls back to a vendor+product+
+    version keyword. Each row is tagged with its CVSS v3.1 vector,
+    CISA-KEV membership (if any), and EPSS exploitation probability.
+    """
     settings = load_settings()
     api_key = settings.nvd_api_key
-    per_service = settings.cve_max_per_service
+    per_query = settings.cve_max_per_service
     max_total = settings.cve_max_total
 
     headers = {"Accept": "application/json"}
     if api_key:
         headers["apiKey"] = api_key
 
-    service_names: set[str] = set()
-    for record in service_records:
-        service = (record.get("service") or "").strip()
-        if service and service.lower() != "unknown":
-            service_names.add(service)
+    # Build a unique set of (cpe-or-keyword) queries.
+    queries: dict[str, dict] = {}
+    label_for_query: dict[str, str] = {}
+    for r in service_records:
+        key, params = _row_query_key(r)
+        if not key or key in queries:
+            continue
+        queries[key] = params
+        # Label used as the human-readable "service" field on each CVE.
+        if r.get("banner_product") and r.get("banner_version"):
+            label_for_query[key] = f"{r['banner_product']} {r['banner_version']}".replace("_", " ").title()
+        else:
+            label_for_query[key] = (r.get("service") or "Unknown")
 
-    log.info("nvd: querying for %d unique services", len(service_names))
+    log.info("nvd: built %d unique queries from %d service rows", len(queries), len(service_records))
+
     out: list[dict] = []
     seen: set[str] = set()
-
-    for service in sorted(service_names):
-        try:
-            resp = requests.get(
-                _NVD_URL,
-                headers=headers,
-                params={"keywordSearch": service, "resultsPerPage": per_service},
-                timeout=20,
-            )
-            resp.raise_for_status()
-            vulnerabilities = resp.json().get("vulnerabilities", []) or []
-        except (requests.RequestException, ValueError) as exc:
-            log.warning("nvd: lookup failed for %s: %s", service, exc)
-            continue
-
-        for item in vulnerabilities:
+    for query_key, params in queries.items():
+        params = {**params, "resultsPerPage": per_query}
+        for item in _nvd_query(headers, params):
             cve = item.get("cve") or {}
             cve_id = cve.get("id")
             if not cve_id or cve_id in seen:
@@ -319,13 +355,14 @@ def collect_cves(service_records: list[dict]) -> list[dict]:
                 (d.get("value", "") for d in descriptions if d.get("lang") == "en"),
                 descriptions[0].get("value", "") if descriptions else "",
             )
-            score, severity = _extract_cvss(cve.get("metrics") or {})
+            score, severity, vector = _extract_cvss(cve.get("metrics") or {})
             out.append(
                 {
                     "cve_id": cve_id,
-                    "service": service,
+                    "service": label_for_query.get(query_key, "Unknown"),
                     "severity": severity,
                     "cvss_score": score if score is not None else "-",
+                    "cvss_vector": vector,
                     "published": (cve.get("published") or "").split("T")[0],
                     "description": description,
                     "cwe_ids": _extract_cwe_ids(cve),
@@ -334,9 +371,46 @@ def collect_cves(service_records: list[dict]) -> list[dict]:
             )
             if len(out) >= max_total:
                 _annotate_url_reachability(out)
+                _annotate_kev_and_epss(out)
                 log.info("nvd: collected %d CVEs (cap reached)", len(out))
                 return out
 
     _annotate_url_reachability(out)
+    _annotate_kev_and_epss(out)
     log.info("nvd: collected %d CVEs", len(out))
     return out
+
+
+def _annotate_kev_and_epss(rows: list[dict]) -> None:
+    """Tag each CVE row with CISA KEV membership and EPSS probability."""
+    if not rows:
+        return
+    cve_ids = [r["cve_id"] for r in rows if r.get("cve_id")]
+
+    try:
+        from .scoring.cisa_kev import load_catalog as _kev_catalog
+        kev_catalog = _kev_catalog()
+    except Exception as exc:  # noqa: BLE001 — KEV is best-effort
+        log.warning("nvd: KEV enrichment skipped (%s)", exc)
+        kev_catalog = {}
+
+    try:
+        from .scoring.epss import lookup as _epss_lookup
+        epss = _epss_lookup(cve_ids)
+    except Exception as exc:  # noqa: BLE001 — EPSS is best-effort
+        log.warning("nvd: EPSS enrichment skipped (%s)", exc)
+        epss = {}
+
+    for r in rows:
+        cid = r.get("cve_id")
+        kev_entry = kev_catalog.get(cid) if cid else None
+        r["is_kev"] = bool(kev_entry)
+        if kev_entry:
+            r["kev_due_date"] = kev_entry.get("dueDate")
+            r["kev_required_action"] = kev_entry.get("requiredAction")
+            r["kev_ransomware_use"] = kev_entry.get("knownRansomwareCampaignUse")
+        epss_entry = epss.get(cid) if cid else None
+        if epss_entry:
+            r["epss_score"] = epss_entry.get("epss")
+            r["epss_percentile"] = epss_entry.get("percentile")
+            r["epss_date"] = epss_entry.get("date")

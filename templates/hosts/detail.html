@@ -46,25 +46,110 @@
   </div>
 
   <div class="card">
-    <div class="card__head">Risk drivers</div>
+    <div class="card__head">
+      Assessment summary
+      <a class="btn btn--sm btn--ghost" href="{{ url_for('static', filename='methodology.html') }}" target="_blank" rel="noopener">Methodology →</a>
+    </div>
     <div class="card__body">
-      {% if asset.issues %}
-        <ul style="margin: 0; padding-left: var(--space-5);">
-          {% for issue in asset.issues %}<li>{{ issue }}</li>{% endfor %}
-        </ul>
-      {% else %}
-        <p class="text-muted">No risk drivers fired for this asset.</p>
-      {% endif %}
-
-      {% if asset.recommendations %}
-        <h3 style="margin-top: var(--space-4)">Recommendations</h3>
-        <ul style="margin: 0; padding-left: var(--space-5);">
-          {% for r in asset.recommendations %}<li>{{ r }}</li>{% endfor %}
-        </ul>
-      {% endif %}
+      <dl class="detail-grid">
+        <dt>CVSS headline</dt>
+        <dd><strong>{{ '%.1f'|format(asset.cvss_headline or 0) }}</strong> / 10.0 ({{ asset.severity or 'Unknown' }})</dd>
+        <dt>Aggregated risk</dt>
+        <dd><strong>{{ asset.risk_score or 0 }}</strong> / 100</dd>
+        <dt>Findings</dt>
+        <dd>{{ asset.findings|length if asset.findings else 0 }} contributing</dd>
+        <dt>CISA KEV present</dt>
+        <dd>
+          {% if asset.kev_present %}
+            <span class="badge badge--critical">Yes — actively exploited</span>
+          {% else %}
+            <span class="text-muted">No</span>
+          {% endif %}
+        </dd>
+      </dl>
+      <p class="text-muted" style="margin-top: var(--space-3); font-size: var(--text-xs)">
+        Scoring follows CVSS v3.1 (FIRST.org), enriched with CISA KEV and FIRST EPSS.
+        Each finding is mapped to CWE, NIST SP 800-53, and MITRE ATT&amp;CK.
+      </p>
     </div>
   </div>
 </div>
+
+{% if asset.findings %}
+<div class="card" style="margin-top: var(--space-4);">
+  <div class="card__head">
+    Findings ({{ asset.findings|length }})
+    <span class="text-muted" style="font-weight: normal; font-size: var(--text-xs)">CWE · CVSS v3.1 · NIST 800-53 · MITRE ATT&amp;CK</span>
+  </div>
+  <div class="card__body">
+    {% for f in asset.findings %}
+    <article class="finding" style="border:1px solid var(--border); border-radius: var(--radius); padding: var(--space-4); margin-bottom: var(--space-3);">
+      <header style="display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; justify-content: space-between;">
+        <div>
+          <span class="text-muted text-mono" style="font-size: var(--text-xs)">{{ f.id }}</span>
+          <h3 style="margin: 0;">{{ f.title }}</h3>
+        </div>
+        <div style="display:flex; gap:var(--space-2); flex-wrap:wrap;">
+          {% set sev = f.cvss.severity|lower %}
+          <span class="badge badge--{{ sev if sev in ['critical','high','medium','low'] else 'unknown' }}">
+            CVSS {{ '%.1f'|format(f.cvss.score) }} · {{ f.cvss.severity }}
+          </span>
+          <a class="badge badge--info" href="{{ f.cwe.url }}" target="_blank" rel="noopener">{{ f.cwe.id }}</a>
+        </div>
+      </header>
+
+      <p style="margin: var(--space-3) 0;">{{ f.description }}</p>
+
+      <details>
+        <summary class="text-muted" style="cursor:pointer; font-size: var(--text-sm);">Standards mapping &amp; remediation</summary>
+        <dl class="detail-grid" style="margin-top: var(--space-3);">
+          <dt>CWE</dt>
+          <dd>
+            <a href="{{ f.cwe.url }}" target="_blank" rel="noopener">{{ f.cwe.id }}</a>
+            — {{ f.cwe.name }}
+          </dd>
+
+          <dt>CVSS vector</dt>
+          <dd class="text-mono" style="word-break: break-all;">{{ f.cvss.vector }}</dd>
+
+          {% if f.nist_controls %}
+          <dt>NIST SP 800-53</dt>
+          <dd>
+            {% for ctrl in f.nist_controls %}
+              <span class="badge badge--info" style="margin-right:4px">{{ ctrl }}</span>
+            {% endfor %}
+          </dd>
+          {% endif %}
+
+          {% if f.mitre_techniques %}
+          <dt>MITRE ATT&amp;CK</dt>
+          <dd>
+            {% for t in f.mitre_techniques %}
+              <a class="badge" href="https://attack.mitre.org/techniques/{{ t.replace('.', '/') }}/" target="_blank" rel="noopener" style="margin-right:4px">{{ t }}</a>
+            {% endfor %}
+          </dd>
+          {% endif %}
+
+          {% if f.references %}
+          <dt>References</dt>
+          <dd>
+            <ul style="margin: 0; padding-left: var(--space-5);">
+              {% for ref in f.references %}
+                <li><a href="{{ ref.url }}" target="_blank" rel="noopener">{{ ref.title }}</a></li>
+              {% endfor %}
+            </ul>
+          </dd>
+          {% endif %}
+
+          <dt>Remediation</dt>
+          <dd>{{ f.remediation }}</dd>
+        </dl>
+      </details>
+    </article>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
 <div class="card" style="margin-top: var(--space-4);">
   <div class="card__head">Raw banner</div>
@@ -105,13 +190,13 @@
 {% if related_cves %}
 <div class="card" style="margin-top: var(--space-4);">
   <div class="card__head">
-    Related CVEs (keyword match on service / product)
+    Related CVEs ({{ related_cves|length }}) — NVD + CISA KEV + FIRST.org EPSS
     <a class="btn btn--sm btn--ghost" href="{{ url_for('cves.index') }}">All CVEs →</a>
   </div>
   <div class="card__body card__body--tight">
     <table class="dt" style="width:100%">
       <thead>
-        <tr><th>CVE</th><th>Service</th><th>Severity</th><th>CVSS</th><th>Published</th></tr>
+        <tr><th>CVE</th><th>Service</th><th>Severity</th><th>CVSS</th><th>EPSS</th><th>KEV</th><th>Published</th></tr>
       </thead>
       <tbody>
         {% for v in related_cves %}
@@ -123,6 +208,17 @@
             <span class="badge badge--{% if s == 'CRITICAL' %}critical{% elif s == 'HIGH' %}high{% elif s == 'MEDIUM' %}medium{% elif s == 'LOW' %}low{% else %}unknown{% endif %}">{{ v.severity or '—' }}</span>
           </td>
           <td>{{ v.cvss_score if v.cvss_score not in ('', None, '-') else '—' }}</td>
+          <td>
+            {% if v.epss_score is not none %}
+              {{ '%.1f%%'|format((v.epss_score|float) * 100) }}
+              <span class="text-muted" style="font-size: var(--text-xs)">(p{{ '%.0f'|format((v.epss_percentile|float) * 100) }})</span>
+            {% else %}—{% endif %}
+          </td>
+          <td>
+            {% if v.is_kev %}
+              <span class="badge badge--critical" title="In CISA Known Exploited Vulnerabilities — BOD 22-01 due {{ v.kev_due_date or '—' }}">KEV</span>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
           <td>{{ v.published or '—' }}</td>
         </tr>
         {% endfor %}
