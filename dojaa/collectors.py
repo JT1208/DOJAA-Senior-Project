@@ -130,10 +130,15 @@ def collect_censys() -> tuple[list[dict], str | None]:
         return [], "CENSYS_API_TOKEN is not set in your environment."
 
     log.info("censys: collecting for %s", settings.org_domain)
+    # Censys v2 accepts either a Personal Access Token (alone) or an API ID
+    # plus API Secret as HTTP Basic auth. If CENSYS_API_SECRET is set we use
+    # the two-part form; otherwise we pass the token as username with empty
+    # password (works for PATs).
+    auth = (settings.censys_api_token, settings.censys_api_secret)
     try:
         resp = requests.post(
             _CENSYS_URL,
-            auth=(settings.censys_api_token, ""),
+            auth=auth,
             headers={"Accept": "application/json"},
             json={"q": f"domain:{settings.org_domain}", "per_page": 50},
             timeout=30,

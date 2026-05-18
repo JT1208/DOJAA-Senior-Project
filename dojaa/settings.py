@@ -46,6 +46,7 @@ class Settings:
     # --- Recon API credentials ---
     shodan_api_key: str
     censys_api_token: str
+    censys_api_secret: str  # optional — set only if your account uses ID + Secret
     nvd_api_key: str
 
     # --- Pipeline ---
@@ -95,6 +96,7 @@ def load_settings() -> Settings:
         org_domain=(os.environ.get("DOJAA_ORG_DOMAIN") or "drexel.edu").strip(),
         shodan_api_key=os.environ.get("SHODAN_API_KEY", "").strip(),
         censys_api_token=os.environ.get("CENSYS_API_TOKEN", "").strip(),
+        censys_api_secret=os.environ.get("CENSYS_API_SECRET", "").strip(),
         nvd_api_key=os.environ.get("NVD_API_KEY", "").strip(),
         cache_dir=cache_dir,
         ssl_probe_timeout=float(os.environ.get("DOJAA_SSL_PROBE_TIMEOUT") or 2.0),
