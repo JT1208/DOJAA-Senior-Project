@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Port {{ port }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <a href="{{ url_for('ports.index') }}">Ports</a>
+  <span> / </span>
+  <span aria-current="page" class="text-mono">{{ port }}</span>
+</nav>
+
+{% with title='Port ' + port|string,
+        subtitle=service_hint + ' · ' + matches|length|string + ' host(s) listening',
+        freshness=freshness,
+        rescan_url=url_for('ports.index') %}
+  {% include "partials/_page_header.html" %}
+{% endwith %}
+
+<div class="card">
+  <div class="card__head">Hosts on port {{ port }}</div>
+  <div class="card__body card__body--tight">
+    <table id="portHostsTable" class="dt" style="width:100%">
+      <thead>
+        <tr>
+          <th>IP</th><th>Source</th><th>Service</th><th>Risk</th><th>Severity</th><th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for h in matches %}
+        <tr>
+          <td class="text-mono">{{ h.ip }}</td>
+          <td><span class="badge badge--info">{{ (h.source or 'unknown')|capitalize }}</span></td>
+          <td>{{ h.banner_service or h.service or 'Unknown' }}</td>
+          <td data-order="{{ h.risk_score or 0 }}">{{ h.risk_score or 0 }}</td>
+          <td>
+            {% set sev = (h.severity or 'Low')|lower %}
+            <span class="badge badge--{{ sev }}">{{ h.severity or 'Low' }}</span>
+          </td>
+          <td><a class="btn btn--sm" href="{{ url_for('hosts.detail', ip=h.ip) }}">Open host</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    window.dojaaTable.init("#portHostsTable", { order: [[3, "desc"]] });
+  });
+</script>
+{% endblock %}

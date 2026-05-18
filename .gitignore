@@ -26,3 +26,6 @@ env/
 dashboard_cache.json
 dashboard_data.json
 censys_data.json
+*.json.meta
+.env
+.env.local

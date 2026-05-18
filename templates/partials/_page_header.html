@@ -1,0 +1,26 @@
+{# Shared page header: title + subtitle + freshness + rescan + actions slot.
+   Caller passes:
+     title       — string (required)
+     subtitle    — string or None
+     freshness   — pre-formatted "N min ago" string from blueprint
+     rescan_url  — url for the rescan form action (omit to hide rescan)
+     extra       — pre-rendered HTML markup for extra action buttons #}
+<header class="page-header">
+  <div class="page-header__title">
+    <h1>{{ title }}</h1>
+    {% if subtitle %}<p class="lead">{{ subtitle }}</p>{% endif %}
+    {% if freshness %}
+      <span class="text-muted" title="Pipeline cache last updated">
+        Data refreshed {{ freshness }}
+      </span>
+    {% endif %}
+  </div>
+  <div class="page-header__actions">
+    {% if extra %}{{ extra|safe }}{% endif %}
+    {% if rescan_url %}
+      <form method="GET" action="{{ rescan_url }}" style="display:inline">
+        <button type="submit" name="rescan" value="true" class="btn btn--primary">Rescan now</button>
+      </form>
+    {% endif %}
+  </div>
+</header>

@@ -2,19 +2,16 @@
 {% block title %}Hosts{% endblock %}
 
 {% block content %}
-<header class="page-header">
-  <div class="page-header__title">
-    <h1>Hosts</h1>
-    <p class="lead">
-      Combined inventory from Shodan and Censys. {{ host_count }} unique IPs.
-      Click any row for the full asset detail.
-    </p>
-  </div>
-  <div class="page-header__actions">
-    {% with action=url_for('hosts.index') %}{% include "partials/_rescan.html" %}{% endwith %}
-    <a class="btn" href="{{ url_for('hosts.export_csv') }}">Export CSV</a>
-  </div>
-</header>
+{% set extra %}
+<a class="btn" href="{{ url_for('hosts.export_csv') }}">Export CSV</a>
+{% endset %}
+{% with title='Hosts',
+        subtitle='Combined inventory from Shodan and Censys — ' + host_count|string + ' unique IPs. Click any row for the full asset detail.',
+        freshness=freshness,
+        rescan_url=url_for('hosts.index'),
+        extra=extra %}
+  {% include "partials/_page_header.html" %}
+{% endwith %}
 
 {% if not hosts %}
   {% with title='No hosts yet', sub='Run the pipeline to query Shodan and Censys for assets on your domain. Configure SHODAN_API_KEY and CENSYS_API_TOKEN in your environment first.', cta_label='Run pipeline', cta_href=url_for('hosts.index', rescan='true') %}
@@ -25,24 +22,26 @@
   <label for="source-filter">Source</label>
   <select id="source-filter">
     <option value="">All ({{ hosts|length }})</option>
-    <option value="shodan">Shodan ({{ source_counts.shodan or 0 }})</option>
-    <option value="censys">Censys ({{ source_counts.censys or 0 }})</option>
+    <option value="shodan" {% if preset_source == 'shodan' %}selected{% endif %}>Shodan ({{ source_counts.shodan or 0 }})</option>
+    <option value="censys" {% if preset_source == 'censys' %}selected{% endif %}>Censys ({{ source_counts.censys or 0 }})</option>
   </select>
   <label for="risk-filter">Risk</label>
   <select id="risk-filter">
     <option value="">Any</option>
-    <option value="high">High (≥50)</option>
-    <option value="medium">Medium (20–49)</option>
-    <option value="low">Low (&lt;20)</option>
+    <option value="high"   {% if preset_risk == 'high'   %}selected{% endif %}>High (≥50)</option>
+    <option value="medium" {% if preset_risk == 'medium' %}selected{% endif %}>Medium (20–49)</option>
+    <option value="low"    {% if preset_risk == 'low'    %}selected{% endif %}>Low (&lt;20)</option>
   </select>
   <label for="port-filter">Ports</label>
-  <input id="port-filter" type="text" placeholder="e.g. 22, 80, 443" inputmode="numeric" />
+  <input id="port-filter" type="text" placeholder="e.g. 22, 80, 443" inputmode="numeric"
+         value="{{ preset_port or '' }}" />
+  <button type="button" id="clear-filters" class="btn btn--sm btn--ghost">Clear filters</button>
 </div>
 
 <div class="card">
   <div class="card__head">
     <span>Inventory</span>
-    {% include "partials/_freshness.html" %}
+    <span class="text-muted" id="hostsTableCount">Showing {{ hosts|length }} rows</span>
   </div>
   <div class="card__body card__body--tight">
     <table id="hostsTable" class="dt" style="width:100%">
@@ -95,9 +94,15 @@
   </div>
 </div>
 {% endif %}
-
 {% endblock %}
 
 {% block scripts %}
+<script id="hosts-presets" type="application/json">
+{
+  "source": {{ preset_source|tojson }},
+  "risk":   {{ preset_risk|tojson }},
+  "port":   {{ preset_port|tojson }}
+}
+</script>
 <script src="{{ url_for('static', filename='js/pages/hosts.js') }}"></script>
 {% endblock %}

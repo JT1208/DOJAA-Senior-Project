@@ -1,10 +1,9 @@
 """External recon API collectors: Shodan, Censys v2, NVD.
 
-Every collector:
-- reads credentials from :class:`dojaa.settings.Settings` (env-backed),
-- returns an empty list when its key is missing (so the UI shows a notice
-  rather than a stack trace),
-- logs failures via the standard library logger.
+Every collector returns ``(rows, error_message)`` so the pipeline can surface
+the failure reason as a user-visible flash notice. ``error_message`` is None
+on success or when there was nothing to do; a non-empty string means "show
+this to the user."
 """
 
 from __future__ import annotations
@@ -19,6 +18,19 @@ from .settings import load_settings
 log = logging.getLogger(__name__)
 
 
+def _shodan_status_hint(code: int, body: str) -> str:
+    if code == 401:
+        return "invalid API key"
+    if code == 402:
+        return "Shodan account has no scan credits left"
+    if code == 403:
+        return "API key lacks the required permissions"
+    if code == 429:
+        return "rate limit exceeded — wait and retry"
+    snippet = (body or "").strip().replace("\n", " ")[:120]
+    return f"HTTP {code} — {snippet}" if snippet else f"HTTP {code}"
+
+
 # ---------------- SHODAN ----------------
 
 _SHODAN_PORTS = (22, 80, 443, 21, 25, 3306, 3389)
@@ -26,14 +38,15 @@ _SHODAN_SUBDOMAINS = ("", "www", "mail", "vpn", "api")
 _SHODAN_URL = "https://api.shodan.io/shodan/host/search"
 
 
-def collect_shodan() -> list[dict]:
+def collect_shodan() -> tuple[list[dict], str | None]:
     settings = load_settings()
     if not settings.has_shodan:
         log.info("shodan: SHODAN_API_KEY not set, skipping")
-        return []
+        return [], "SHODAN_API_KEY is not set in your environment."
 
     results: list[dict] = []
     log.info("shodan: collecting for %s", settings.org_domain)
+    first_error: str | None = None
 
     for sd in _SHODAN_SUBDOMAINS:
         domain = f"{sd}.{settings.org_domain}" if sd else settings.org_domain
@@ -48,13 +61,15 @@ def collect_shodan() -> list[dict]:
                     )
                 except requests.RequestException as exc:
                     log.warning("shodan: request failed for %s page %d: %s", query, page, exc)
+                    if first_error is None:
+                        first_error = f"Shodan request failed: {exc}"
                     break
 
                 if resp.status_code != 200:
-                    log.warning(
-                        "shodan: HTTP %d for %s page %d — likely missing credits or rate limit",
-                        resp.status_code, query, page,
-                    )
+                    hint = _shodan_status_hint(resp.status_code, resp.text)
+                    log.warning("shodan: %s for %s page %d", hint, query, page)
+                    if first_error is None:
+                        first_error = f"Shodan: {hint}"
                     break
 
                 try:
@@ -87,7 +102,9 @@ def collect_shodan() -> list[dict]:
                     )
 
     log.info("shodan: collected %d assets", len(results))
-    return results
+    # If we collected nothing AND saw an error, propagate it. If we collected
+    # at least some rows, treat the partial errors as non-blocking.
+    return results, (first_error if not results else None)
 
 
 # ---------------- CENSYS v2 ----------------
@@ -95,11 +112,22 @@ def collect_shodan() -> list[dict]:
 _CENSYS_URL = "https://search.censys.io/api/v2/hosts/search"
 
 
-def collect_censys() -> list[dict]:
+def _censys_status_hint(code: int, body: str) -> str:
+    if code == 401:
+        return "token rejected — check CENSYS_API_TOKEN"
+    if code == 403:
+        return "token lacks permission for the hosts API"
+    if code == 429:
+        return "rate limit exceeded — wait and retry"
+    snippet = (body or "").strip().replace("\n", " ")[:120]
+    return f"HTTP {code} — {snippet}" if snippet else f"HTTP {code}"
+
+
+def collect_censys() -> tuple[list[dict], str | None]:
     settings = load_settings()
     if not settings.has_censys:
         log.info("censys: CENSYS_API_TOKEN not set, skipping")
-        return []
+        return [], "CENSYS_API_TOKEN is not set in your environment."
 
     log.info("censys: collecting for %s", settings.org_domain)
     try:
@@ -112,17 +140,18 @@ def collect_censys() -> list[dict]:
         )
     except requests.RequestException as exc:
         log.warning("censys: request failed: %s", exc)
-        return []
+        return [], f"Censys request failed: {exc}"
 
     if resp.status_code != 200:
-        log.warning("censys: HTTP %d", resp.status_code)
-        return []
+        hint = _censys_status_hint(resp.status_code, resp.text)
+        log.warning("censys: %s", hint)
+        return [], f"Censys: {hint}"
 
     try:
         data = resp.json()
     except ValueError:
         log.warning("censys: non-JSON response")
-        return []
+        return [], "Censys returned a non-JSON response."
 
     hits = data.get("result", {}).get("hits", []) or []
     out: list[dict] = []
@@ -146,7 +175,7 @@ def collect_censys() -> list[dict]:
         )
 
     log.info("censys: collected %d assets", len(out))
-    return out
+    return out, None
 
 
 # ---------------- NVD CVE ----------------

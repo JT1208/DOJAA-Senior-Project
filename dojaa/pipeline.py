@@ -138,27 +138,30 @@ def run_pipeline(use_api: bool = False) -> dict:
 
     # ---------------- HOST COLLECTION ----------------
     if use_api or not cached:
-        if use_api and not settings.has_shodan:
-            notices.append("SHODAN_API_KEY is not set — Shodan was skipped.")
-            new_shodan: list[dict] = []
+        if use_api or not cached.get("shodan"):
+            new_shodan, shodan_err = collect_shodan()
         else:
-            new_shodan = collect_shodan() if (use_api or not cached.get("shodan")) else cached.get("shodan", [])
+            new_shodan, shodan_err = cached.get("shodan", []), None
 
-        if use_api and not settings.has_censys:
-            notices.append("CENSYS_API_TOKEN is not set — Censys was skipped.")
-            new_censys: list[dict] = []
+        if use_api or not censys_cached:
+            new_censys, censys_err = collect_censys()
         else:
-            new_censys = collect_censys() if (use_api or not censys_cached) else (
+            new_censys, censys_err = (
                 censys_cached if isinstance(censys_cached, list) else []
-            )
+            ), None
+
+        if shodan_err:
+            notices.append(shodan_err)
+        if censys_err:
+            notices.append(censys_err)
 
         if use_api and cached:
             if not new_shodan and cached.get("shodan"):
                 new_shodan = list(cached["shodan"])
-                notices.append("Shodan returned no data — showing cached results.")
+                notices.append("Showing cached Shodan results from the previous successful scan.")
             if not new_censys and isinstance(censys_cached, list) and censys_cached:
                 new_censys = list(censys_cached)
-                notices.append("Censys returned no data — showing cached results.")
+                notices.append("Showing cached Censys results from the previous successful scan.")
 
         dashboard["shodan"] = new_shodan
         dashboard["censys"] = new_censys

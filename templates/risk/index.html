@@ -2,15 +2,16 @@
 {% block title %}Risk{% endblock %}
 
 {% block content %}
-<header class="page-header">
-  <div class="page-header__title">
-    <h1>Risk</h1>
-    <p class="lead">
-      How risk is distributed across the surface, and which drivers fire most often.
-      Per-host detail lives on the <a href="{{ url_for('hosts.index') }}">Hosts</a> tab.
-    </p>
-  </div>
-</header>
+{% set extra %}
+<a class="btn" href="{{ url_for('risk.export_csv') }}">Export CSV</a>
+{% endset %}
+{% with title='Risk',
+        subtitle='How risk is distributed across the surface and which drivers fire most often. Per-host detail lives on the Hosts tab.',
+        freshness=freshness,
+        rescan_url=url_for('risk.index'),
+        extra=extra %}
+  {% include "partials/_page_header.html" %}
+{% endwith %}
 
 {% if total == 0 %}
   {% with title='No risk-tier data yet', sub='Run the pipeline to score discovered assets.' %}
@@ -22,21 +23,24 @@
   <div class="stat stat--low">
     <span class="stat__label">Low (&lt; 20)</span>
     <span class="stat__value">{{ risk_low }}</span>
+    <a class="stat__link" href="{{ url_for('hosts.index', risk='low') }}">Hosts at low risk</a>
   </div>
   <div class="stat stat--mid">
     <span class="stat__label">Medium (20–49)</span>
     <span class="stat__value">{{ risk_mid }}</span>
+    <a class="stat__link" href="{{ url_for('hosts.index', risk='medium') }}">Hosts at medium risk</a>
   </div>
   <div class="stat stat--high">
     <span class="stat__label">High (≥ 50)</span>
     <span class="stat__value">{{ risk_high }}</span>
+    <a class="stat__link" href="{{ url_for('hosts.index', risk='high') }}">Hosts at high risk</a>
   </div>
   <div class="stat">
     <span class="stat__label">Total scored</span>
     <span class="stat__value">{{ total }}</span>
     <span class="stat__sub">
-      Shodan: {{ tier_counts_by_source.shodan.high }}/{{ tier_counts_by_source.shodan.medium }}/{{ tier_counts_by_source.shodan.low }}
-      · Censys: {{ tier_counts_by_source.censys.high }}/{{ tier_counts_by_source.censys.medium }}/{{ tier_counts_by_source.censys.low }}
+      Shodan: {{ tier_counts_by_source.shodan.high }}H / {{ tier_counts_by_source.shodan.medium }}M / {{ tier_counts_by_source.shodan.low }}L
+      · Censys: {{ tier_counts_by_source.censys.high }}H / {{ tier_counts_by_source.censys.medium }}M / {{ tier_counts_by_source.censys.low }}L
     </span>
   </div>
 </section>
@@ -46,6 +50,48 @@
     <div class="card__head">Tier distribution</div>
     <div class="card__body"><div class="chart-wrap"><canvas id="riskChart"></canvas></div></div>
   </div>
+  <div class="card">
+    <div class="card__head">By source</div>
+    <div class="card__body"><div class="chart-wrap"><canvas id="sourceChart"></canvas></div></div>
+  </div>
+</div>
+
+<div class="grid grid--2" style="margin-top: var(--space-4);">
+  <div class="card">
+    <div class="card__head">
+      Top 25 risky assets
+      <select id="tier-filter" style="height:30px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:0 var(--space-2)">
+        <option value="">All tiers</option>
+        <option value="high">High only</option>
+        <option value="medium">Medium only</option>
+        <option value="low">Low only</option>
+      </select>
+    </div>
+    <div class="card__body card__body--tight">
+      <table id="topAssetsTable" class="dt" style="width:100%">
+        <thead>
+          <tr><th>IP</th><th>Source</th><th>Service</th><th>Risk</th><th>Severity</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for a in top_assets %}
+          {% set bucket = 'high' if (a.risk_score or 0) >= 50 else ('medium' if (a.risk_score or 0) >= 20 else 'low') %}
+          <tr data-bucket="{{ bucket }}">
+            <td class="text-mono">{{ a.ip }}</td>
+            <td>{{ (a.source or 'unknown')|capitalize }}</td>
+            <td>{{ a.banner_service or a.service or 'Unknown' }}</td>
+            <td data-order="{{ a.risk_score or 0 }}">{{ a.risk_score or 0 }}</td>
+            <td>
+              {% set sev = (a.severity or 'Low')|lower %}
+              <span class="badge badge--{{ sev }}">{{ a.severity or 'Low' }}</span>
+            </td>
+            <td><a class="btn btn--sm" href="{{ url_for('hosts.detail', ip=a.ip) }}">Open</a></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card__head">Top risk drivers</div>
     <div class="card__body card__body--tight">
@@ -65,34 +111,14 @@
   </div>
 </div>
 
-<div class="card" style="margin-top: var(--space-4);">
-  <div class="card__head">Top 10 risky assets</div>
-  <div class="card__body card__body--tight">
-    <table class="dt" style="width:100%">
-      <thead>
-        <tr><th>IP</th><th>Source</th><th>Service</th><th>Risk</th><th>Severity</th><th></th></tr>
-      </thead>
-      <tbody>
-        {% for a in top_assets %}
-        <tr>
-          <td class="text-mono">{{ a.ip }}</td>
-          <td>{{ (a.source or 'unknown')|capitalize }}</td>
-          <td>{{ a.banner_service or a.service or 'Unknown' }}</td>
-          <td data-order="{{ a.risk_score or 0 }}">{{ a.risk_score or 0 }}</td>
-          <td>
-            {% set sev = (a.severity or 'Low')|lower %}
-            <span class="badge badge--{{ sev }}">{{ a.severity or 'Low' }}</span>
-          </td>
-          <td><a class="btn btn--sm" href="{{ url_for('hosts.detail', ip=a.ip) }}">Open</a></td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-
 <script id="risk-data" type="application/json">
-{"counts": [{{ risk_low }}, {{ risk_mid }}, {{ risk_high }}]}
+{
+  "tiers":  [{{ risk_low }}, {{ risk_mid }}, {{ risk_high }}],
+  "source": {
+    "shodan": [{{ tier_counts_by_source.shodan.low }}, {{ tier_counts_by_source.shodan.medium }}, {{ tier_counts_by_source.shodan.high }}],
+    "censys": [{{ tier_counts_by_source.censys.low }}, {{ tier_counts_by_source.censys.medium }}, {{ tier_counts_by_source.censys.high }}]
+  }
+}
 </script>
 {% endif %}
 {% endblock %}

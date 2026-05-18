@@ -1,20 +1,20 @@
 """Hosts — the sole place host-related functionality lives.
 
-Owns: the combined Shodan+Censys inventory, search/filter UX, host actions
-(rescan, export CSV), and the per-asset drilldown page.
+Owns the combined Shodan + Censys inventory plus all host actions: search,
+source/risk/port filtering, CSV export, rescan, and the per-asset
+drilldown page.
 
 No other blueprint renders host tables or per-host actions.
 """
 
 from __future__ import annotations
 
-import csv
-import io
 from collections import Counter
 
-from flask import Blueprint, Response, abort, render_template
+from flask import Blueprint, abort, render_template, request
 
-from ._support import current_user, get_dashboard_data, require_login
+from ..services.exports import csv_response
+from ._support import current_user, format_freshness, get_dashboard_data, require_login
 
 bp = Blueprint("hosts", __name__)
 
@@ -40,7 +40,15 @@ def _related_cves(asset: dict, cves: list[dict]) -> list[dict]:
             continue
         if any(n in s or s in n for n in needles):
             out.append(cve)
-    out.sort(key=lambda c: (-(c.get("cvss_score") or 0) if isinstance(c.get("cvss_score"), (int, float)) else 0))
+
+    def key(c: dict) -> float:
+        v = c.get("cvss_score")
+        try:
+            return -float(v)
+        except (TypeError, ValueError):
+            return 0.0
+
+    out.sort(key=key)
     return out[:8]
 
 
@@ -66,7 +74,10 @@ def index():
         hosts=hosts,
         host_count=len({h.get("ip") for h in hosts if h.get("ip")}),
         source_counts=sources,
-        freshness=data.get("_cache_freshness"),
+        freshness=format_freshness(data.get("_cache_freshness")),
+        preset_risk=(request.args.get("risk") or "").strip().lower() or None,
+        preset_source=(request.args.get("source") or "").strip().lower() or None,
+        preset_port=(request.args.get("port") or "").strip() or None,
     )
 
 
@@ -92,39 +103,23 @@ def detail(ip: str):
 def export_csv():
     data = get_dashboard_data()
     hosts = _all_hosts(data)
-    buf = io.StringIO()
-    writer = csv.writer(buf)
-    writer.writerow(
-        [
-            "ip",
-            "source",
-            "port",
-            "service",
-            "service_intel",
-            "banner_summary",
-            "risk_score",
-            "severity",
-            "shadow_asset",
-            "provider",
-        ]
+    header = (
+        "ip", "source", "port", "service", "service_intel", "banner_summary",
+        "risk_score", "severity", "shadow_asset", "provider",
     )
-    for h in hosts:
-        writer.writerow(
-            [
-                h.get("ip", ""),
-                h.get("source", ""),
-                h.get("port", ""),
-                h.get("service", ""),
-                h.get("service_intel", ""),
-                h.get("banner_summary", ""),
-                h.get("risk_score", ""),
-                h.get("severity", ""),
-                "yes" if h.get("shadow_asset") else "no",
-                h.get("provider", ""),
-            ]
+    rows = (
+        (
+            h.get("ip", ""),
+            h.get("source", ""),
+            h.get("port", ""),
+            h.get("service", ""),
+            h.get("service_intel", ""),
+            h.get("banner_summary", ""),
+            h.get("risk_score", ""),
+            h.get("severity", ""),
+            "yes" if h.get("shadow_asset") else "no",
+            h.get("provider", ""),
         )
-    return Response(
-        buf.getvalue(),
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment; filename=dojaa_hosts.csv"},
+        for h in hosts
     )
+    return csv_response("dojaa_hosts.csv", header, rows)

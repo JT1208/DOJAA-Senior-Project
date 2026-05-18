@@ -1,7 +1,48 @@
 (function () {
   document.addEventListener("DOMContentLoaded", function () {
-    window.dojaaTable.init("#portsTable", { order: [[2, "desc"]] });
+    const tableEl = document.getElementById("portsTable");
+    if (!tableEl) return;
 
+    let portQuery = "";
+    let riskyOnly = false;
+
+    window.jQuery.fn.dataTable.ext.search.push(function (settings, data, idx) {
+      const tr = settings.aoData[idx].nTr;
+      if (!tr) return true;
+      if (riskyOnly && tr.dataset.risky !== "yes") return false;
+      if (portQuery) {
+        const port = (data[0] || "").toString().toLowerCase();
+        const hint = (data[1] || "").toString().toLowerCase();
+        if (!(port.includes(portQuery) || hint.includes(portQuery))) return false;
+      }
+      return true;
+    });
+
+    const table = window.dojaaTable.init("#portsTable", {
+      order: [[2, "desc"]],
+      columnDefs: [{ targets: [4], orderable: false }],
+    });
+
+    const countLabel = document.getElementById("portsCount");
+    function updateCount() {
+      const info = table.page.info();
+      countLabel.textContent =
+        info.recordsDisplay === info.recordsTotal
+          ? info.recordsTotal + " rows"
+          : info.recordsDisplay + " of " + info.recordsTotal + " rows";
+    }
+    table.on("draw.dt", updateCount);
+
+    document.getElementById("port-search").addEventListener("input", function (e) {
+      portQuery = (e.target.value || "").trim().toLowerCase();
+      table.draw();
+    });
+    document.getElementById("risky-only").addEventListener("change", function (e) {
+      riskyOnly = !!e.target.checked;
+      table.draw();
+    });
+
+    // Service chart.
     const node = document.getElementById("ports-data");
     if (!node) return;
     let payload;
@@ -9,7 +50,6 @@
     const canvas = document.getElementById("serviceChart");
     if (canvas && payload.labels && payload.labels.length) {
       const c = window.dojaaCharts;
-      // Horizontal bar — Chart.js v4 idiom: type bar + indexAxis 'y'.
       new Chart(canvas.getContext("2d"), {
         type: "bar",
         data: {
@@ -28,5 +68,7 @@
         },
       });
     }
+
+    updateCount();
   });
 })();
