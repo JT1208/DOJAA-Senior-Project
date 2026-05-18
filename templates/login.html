@@ -1,50 +1,247 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sign in · DOJAA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}" />
   <style>
-    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .login-card { width: 100%; max-width: 420px; padding: var(--space-6); }
-    .login-card__logo { display: flex; align-items: center; justify-content: center; margin-bottom: var(--space-4); }
-    .login-card__logo img { max-height: 56px; }
-    .login-card__title { text-align: center; font-size: var(--text-lg); margin-bottom: var(--space-5); }
+    body {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      overflow: hidden;
+    }
+    .login-hero {
+      position: relative;
+      padding: var(--space-7) var(--space-6);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background:
+        radial-gradient(700px 320px at 10% 10%, rgba(0, 224, 255, 0.18), transparent 60%),
+        radial-gradient(800px 380px at 100% 100%, rgba(168, 85, 247, 0.18), transparent 60%),
+        linear-gradient(160deg, #0a0f22 0%, #050811 100%);
+      color: var(--ink);
+    }
+    .login-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(120, 140, 190, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(120, 140, 190, 0.07) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: radial-gradient(circle at 30% 30%, black 0%, transparent 75%);
+      -webkit-mask-image: radial-gradient(circle at 30% 30%, black 0%, transparent 75%);
+      pointer-events: none;
+    }
+    .login-hero__brand {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .login-hero__brand-mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--brand-grad);
+      display: grid; place-items: center;
+      color: #050811; font-weight: 900; font-size: 18px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.1) inset, 0 12px 32px rgba(0,224,255,0.35);
+    }
+    .login-hero__brand-name {
+      background: var(--brand-grad);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      font-size: 22px;
+    }
+    .login-hero__copy {
+      position: relative;
+      max-width: 540px;
+      margin: var(--space-7) 0;
+    }
+    .login-hero__eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      font-size: 11px; font-weight: 600; color: var(--brand);
+      margin-bottom: var(--space-3);
+    }
+    .login-hero__eyebrow::before {
+      content: ""; width: 18px; height: 1px; background: currentColor; opacity: 0.6;
+    }
+    .login-hero h1 {
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin: 0 0 var(--space-4);
+    }
+    .login-hero p { font-size: 16px; color: var(--ink-2); max-width: 460px; line-height: 1.6; }
+
+    .login-hero__features {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-3);
+      margin-top: var(--space-5);
+      max-width: 520px;
+    }
+    .login-hero__feature {
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius);
+      background: rgba(20, 27, 48, 0.55);
+      border: 1px solid var(--border);
+      backdrop-filter: var(--blur-bg);
+      -webkit-backdrop-filter: var(--blur-bg);
+    }
+    .login-hero__feature strong {
+      display: block; color: var(--ink); font-size: 14px; margin-bottom: 4px;
+    }
+    .login-hero__feature span { color: var(--ink-muted); font-size: 13px; }
+
+    .login-hero__foot {
+      position: relative;
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      color: var(--ink-muted);
+      font-size: 13px;
+    }
+    .login-hero__foot-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 3px var(--success-tint);
+      display: inline-block; margin-right: 8px;
+      animation: pulse 2.4s var(--ease-in-out) infinite;
+    }
+
+    .login-side {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6);
+      background: var(--bg);
+      background-image: var(--bg-grad);
+    }
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      padding: var(--space-6);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: var(--blur-bg);
+      -webkit-backdrop-filter: var(--blur-bg);
+    }
+    .login-card__title {
+      font-size: var(--text-xl);
+      font-weight: 700;
+      margin: 0 0 4px;
+      letter-spacing: -0.01em;
+    }
+    .login-card__sub { color: var(--ink-muted); margin: 0 0 var(--space-5); font-size: var(--text-md); }
     .login-card .form-stack input { width: 100%; }
-    .login-card .btn { width: 100%; justify-content: center; }
-    .login-footnote { color: var(--ink-muted); font-size: var(--text-xs); text-align: center; margin-top: var(--space-4); }
+    .login-card .btn { width: 100%; justify-content: center; height: 44px; }
+    .login-footnote {
+      color: var(--ink-muted); font-size: var(--text-xs);
+      text-align: center; margin-top: var(--space-4);
+    }
+    .login-footnote kbd {
+      font-family: var(--font-mono);
+      background: var(--surface-3); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 5px; font-size: 11px; color: var(--ink-2);
+    }
+
+    @media (max-width: 900px) {
+      body { grid-template-columns: 1fr; }
+      .login-hero { display: none; }
+    }
   </style>
 </head>
 <body>
-  <div class="card login-card">
-    <div class="login-card__logo">
-      <img src="{{ url_for('static', filename='dojaa-logo.png') }}" alt="DOJAA" />
+  <aside class="login-hero" aria-hidden="true">
+    <a class="login-hero__brand" href="#">
+      <span class="login-hero__brand-mark">D</span>
+      <span class="login-hero__brand-name">DOJAA</span>
+    </a>
+
+    <div class="login-hero__copy">
+      <div class="login-hero__eyebrow">Digital observatory · joint asset analysis</div>
+      <h1>See what the <span class="text-grad">internet sees</span> about your org.</h1>
+      <p>
+        DOJAA pulls real-time external-recon intelligence from Shodan, Censys
+        and the NVD — then enriches every asset with TLS probing, banner
+        analysis and a 0–100 risk score. Built for security teams that
+        prefer signal over noise.
+      </p>
+
+      <div class="login-hero__features">
+        <div class="login-hero__feature">
+          <strong>External recon</strong>
+          <span>Shodan + Censys, deduped &amp; merged</span>
+        </div>
+        <div class="login-hero__feature">
+          <strong>CVE correlation</strong>
+          <span>Live NVD lookups per service</span>
+        </div>
+        <div class="login-hero__feature">
+          <strong>TLS posture</strong>
+          <span>Real handshake, expiry, trust chain</span>
+        </div>
+        <div class="login-hero__feature">
+          <strong>Attack-graph view</strong>
+          <span>Visualise your edge in one canvas</span>
+        </div>
+      </div>
     </div>
-    <div class="login-card__title">Digital Observatory for Joint Asset Analysis</div>
 
-    {% if error %}
-      <div class="alert alert--danger" role="alert" style="margin-bottom: var(--space-4);">
-        <span>{{ error }}</span>
-      </div>
-    {% endif %}
+    <div class="login-hero__foot">
+      <span><span class="login-hero__foot-dot"></span>All collectors online</span>
+      <span>· Drexel CCI · Senior Design 2026</span>
+    </div>
+  </aside>
 
-    <form method="POST" action="{{ url_for('auth.login') }}" class="form-stack" novalidate>
-      <div>
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required autocomplete="username"
-               placeholder="you@{{ email_domain }}" />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required autocomplete="current-password" />
-      </div>
-      <button type="submit" class="btn btn--primary">Sign in</button>
-    </form>
+  <section class="login-side">
+    <div class="login-card">
+      <h1 class="login-card__title">Welcome back</h1>
+      <p class="login-card__sub">Sign in to access the operations console.</p>
 
-    <p class="login-footnote">Authorised {{ email_domain }} accounts only.</p>
-  </div>
+      {% if error %}
+        <div class="alert alert--danger" role="alert" style="margin-bottom: var(--space-4);">
+          <span>{{ error }}</span>
+        </div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('auth.login') }}" class="form-stack" novalidate>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required autocomplete="username"
+                 placeholder="you@{{ email_domain }}" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password"
+                 placeholder="••••••••" />
+        </div>
+        <button type="submit" class="btn btn--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          Sign in
+        </button>
+      </form>
+
+      <p class="login-footnote">
+        Authorised <strong style="color:var(--ink-2)">{{ email_domain }}</strong> accounts only.
+        Press <kbd>⌘K</kbd> anywhere inside the app for quick navigation.
+      </p>
+    </div>
+  </section>
 </body>
 </html>

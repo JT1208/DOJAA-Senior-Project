@@ -1,18 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
   <title>{% block title %}DOJAA{% endblock %} · DOJAA</title>
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://cdn.datatables.net" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tokens.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}" />
   {% block head_extra %}{% endblock %}
+
+  {# Apply theme before paint to avoid flash #}
+  <script>
+    (function(){ try {
+      var t = localStorage.getItem('dojaa-theme');
+      if (t === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    } catch(e){} })();
+  </script>
 </head>
 <body>
 
@@ -31,6 +43,9 @@
 <script src="{{ url_for('static', filename='js/common/api.js') }}"></script>
 <script src="{{ url_for('static', filename='js/common/datatable.js') }}"></script>
 <script src="{{ url_for('static', filename='js/common/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/common/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='js/common/theme.js') }}"></script>
+<script src="{{ url_for('static', filename='js/common/cmdk.js') }}"></script>
 <script src="{{ url_for('static', filename='js/common/nav.js') }}"></script>
 {% block scripts %}{% endblock %}
 

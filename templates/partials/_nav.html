@@ -1,5 +1,9 @@
 <nav class="app-nav" aria-label="Primary">
-  <a class="app-nav__brand" href="{{ url_for('dashboard.index') }}">DOJAA</a>
+  <a class="app-nav__brand" href="{{ url_for('dashboard.index') }}">
+    <span class="app-nav__brand-mark" aria-hidden="true">D</span>
+    <span class="app-nav__brand-name">DOJAA</span>
+  </a>
+
   <ul class="app-nav__links">
     <li><a data-path="/dashboard" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
     <li><a data-path="/hosts"     href="{{ url_for('hosts.index') }}">Hosts</a></li>
@@ -14,16 +18,56 @@
         Tools <span class="app-nav__dropdown-caret">▾</span>
       </button>
       <div class="app-nav__dropdown-menu" role="menu">
-        <a role="menuitem" href="{{ url_for('tools.dns') }}">DNS lookup</a>
-        <a role="menuitem" href="{{ url_for('tools.headers') }}">Security headers</a>
-        <a role="menuitem" href="{{ url_for('tools.robots') }}">Robots.txt</a>
+        <a role="menuitem" href="{{ url_for('tools.dns') }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          DNS lookup
+        </a>
+        <a role="menuitem" href="{{ url_for('tools.headers') }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Security headers
+        </a>
+        <a role="menuitem" href="{{ url_for('tools.robots') }}">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4M8 16h.01M16 16h.01"/></svg>
+          Robots.txt
+        </a>
       </div>
     </li>
   </ul>
+
   <div class="app-nav__right">
+    <button type="button" class="app-nav__kbd-hint" data-cmdk-open title="Search & jump (⌘K)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      Search
+      <kbd>⌘K</kbd>
+    </button>
+
+    <button type="button" class="app-nav__icon-btn" data-theme-toggle aria-label="Toggle theme" title="Toggle theme">
+      <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+    </button>
+
     {% if user %}
       <span class="app-nav__user" title="Signed in">{{ user }}</span>
       <a class="btn btn--sm btn--ghost" href="{{ url_for('auth.logout') }}">Log out</a>
     {% endif %}
   </div>
 </nav>
+
+{# Command palette mounts here #}
+<div class="cmdk-backdrop" data-cmdk-backdrop role="dialog" aria-label="Command palette" aria-hidden="true">
+  <div class="cmdk" role="combobox" aria-expanded="true">
+    <input class="cmdk__input" data-cmdk-input
+           type="text" autocomplete="off" spellcheck="false"
+           placeholder="Type to search pages, hosts, tools…" />
+    <div class="cmdk__list" data-cmdk-list></div>
+    <div class="cmdk__foot">
+      <span><kbd>↑↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
+      <span style="margin-left:auto">DOJAA quick nav</span>
+    </div>
+  </div>
+</div>
+
+{# Toast stack #}
+<div class="toast-stack" data-toast-stack aria-live="polite" aria-atomic="true"></div>

@@ -2,163 +2,232 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-{% set extra %}
-<a class="btn" href="{{ url_for('reports.dashboard_pdf') }}">Download PDF report</a>
-{% endset %}
-{% with title='Overview',
-        subtitle='Where to look first. Each tile and widget links to its detail tab.',
-        freshness=freshness,
-        rescan_url=url_for('dashboard.index'),
-        extra=extra %}
-  {% include "partials/_page_header.html" %}
-{% endwith %}
+<section class="hero">
+  <div class="hero__row">
+    <div>
+      <div class="page-eyebrow">Operations console</div>
+      <h1>Your attack surface, <span class="text-grad">at a glance</span>.</h1>
+      <p class="hero__sub">
+        Live external-recon intelligence stitched together from Shodan, Censys and
+        the NVD — enriched with TLS probing, banner analysis and risk scoring.
+        Every tile below links straight into its detail tab.
+      </p>
+    </div>
+    <div class="hero__meta">
+      <span class="hero__chip">
+        <span class="hero__chip-dot"></span>
+        Live pipeline
+      </span>
+      {% if freshness %}
+        <span class="hero__chip" title="Pipeline cache last updated">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Refreshed {{ freshness }}
+        </span>
+      {% endif %}
+      <a class="btn btn--ghost btn--sm" href="{{ url_for('reports.dashboard_pdf') }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download PDF
+      </a>
+      <form method="GET" action="{{ url_for('dashboard.index') }}" style="display:inline">
+        <button type="submit" name="rescan" value="true" class="btn btn--primary btn--sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Rescan now
+        </button>
+      </form>
+    </div>
+  </div>
+</section>
 
 <section class="grid grid--kpi" aria-label="Key metrics">
   <div class="stat">
-    <span class="stat__label">Hosts discovered</span>
+    <div class="stat__head">
+      <span class="stat__label">Hosts discovered</span>
+      <span class="stat__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </span>
+    </div>
     <span class="stat__value">{{ host_count }}</span>
     <span class="stat__sub">{{ shodan_count }} via Shodan · {{ censys_count }} via Censys</span>
     <a class="stat__link" href="{{ url_for('hosts.index') }}">Open Hosts</a>
   </div>
 
   <div class="stat {% if risk_high > 0 %}stat--high{% endif %}">
-    <span class="stat__label">High-risk assets</span>
+    <div class="stat__head">
+      <span class="stat__label">High-risk assets</span>
+      <span class="stat__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </span>
+    </div>
     <span class="stat__value">{{ risk_high }}</span>
     <span class="stat__sub">{{ risk_mid }} medium · {{ risk_low }} low</span>
     <a class="stat__link" href="{{ url_for('hosts.index', risk='high') }}">Open in Hosts</a>
   </div>
 
   <div class="stat {% if cves_critical > 0 %}stat--high{% endif %}">
-    <span class="stat__label">CVE findings</span>
+    <div class="stat__head">
+      <span class="stat__label">CVE findings</span>
+      <span class="stat__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      </span>
+    </div>
     <span class="stat__value">{{ cves_total }}</span>
     <span class="stat__sub">{{ cves_critical }} critical / high severity</span>
     <a class="stat__link" href="{{ url_for('cves.index') }}">Open CVEs</a>
   </div>
 
   <div class="stat {% if certs_expiring_30d > 0 %}stat--mid{% endif %}">
-    <span class="stat__label">Certificates</span>
+    <div class="stat__head">
+      <span class="stat__label">Certificates</span>
+      <span class="stat__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </span>
+    </div>
     <span class="stat__value">{{ cert_count }}</span>
     <span class="stat__sub">{{ certs_expiring_30d }} expiring within 30 days</span>
     <a class="stat__link" href="{{ url_for('ssl_tls.index', expiring='30') }}">Open SSL/TLS</a>
   </div>
 </section>
 
-<section class="grid grid--2" style="margin-top: var(--space-5);">
-  <div class="card">
-    <div class="card__head">Exposure by protocol</div>
-    <div class="card__body">
-      {% if (ssh_exposed + http_exposed + https_exposed) > 0 %}
-        <div class="chart-wrap"><canvas id="exposureChart" aria-label="Exposure by protocol"></canvas></div>
-      {% else %}
-        {% with title='No exposure data yet', sub='Run the pipeline to discover services on your domain.' %}
-          {% include "partials/_empty.html" %}
-        {% endwith %}
-      {% endif %}
-    </div>
+<section class="section">
+  <div class="section__head">
+    <h2>Exposure overview</h2>
+    <span class="text-muted">Updated each pipeline run</span>
   </div>
+  <div class="grid grid--2">
+    <div class="card">
+      <div class="card__head card__head--accent">
+        Exposure by protocol
+        <span class="badge badge--brand"><span class="badge__dot"></span> ports</span>
+      </div>
+      <div class="card__body">
+        {% if (ssh_exposed + http_exposed + https_exposed) > 0 %}
+          <div class="chart-wrap chart-wrap--lg"><canvas id="exposureChart" aria-label="Exposure by protocol"></canvas></div>
+        {% else %}
+          {% with title='No exposure data yet', sub='Run the pipeline to discover services on your domain.' %}
+            {% include "partials/_empty.html" %}
+          {% endwith %}
+        {% endif %}
+      </div>
+    </div>
 
-  <div class="card">
-    <div class="card__head">Risk distribution</div>
-    <div class="card__body">
-      {% if (risk_low + risk_mid + risk_high) > 0 %}
-        <div class="chart-wrap"><canvas id="riskChart" aria-label="Risk distribution"></canvas></div>
-      {% else %}
-        {% with title='No risk-tier data yet', sub='Scored assets will appear here once the pipeline runs.' %}
-          {% include "partials/_empty.html" %}
-        {% endwith %}
-      {% endif %}
+    <div class="card">
+      <div class="card__head card__head--accent">
+        Risk distribution
+        <span class="badge badge--brand"><span class="badge__dot"></span> tiers</span>
+      </div>
+      <div class="card__body">
+        {% if (risk_low + risk_mid + risk_high) > 0 %}
+          <div class="chart-wrap chart-wrap--lg"><canvas id="riskChart" aria-label="Risk distribution"></canvas></div>
+        {% else %}
+          {% with title='No risk-tier data yet', sub='Scored assets will appear here once the pipeline runs.' %}
+            {% include "partials/_empty.html" %}
+          {% endwith %}
+        {% endif %}
+      </div>
     </div>
   </div>
 </section>
 
-<section class="grid grid--3" style="margin-top: var(--space-5);">
-  <div class="card">
-    <div class="card__head">
-      <span>Top risky hosts</span>
-      <a class="btn btn--sm btn--ghost" href="{{ url_for('hosts.index') }}">All hosts →</a>
-    </div>
-    <div class="card__body card__body--tight">
-      {% if top_risky %}
-        <table class="dt" style="width:100%">
-          <thead><tr><th>IP</th><th>Service</th><th>Risk</th></tr></thead>
-          <tbody>
-            {% for a in top_risky %}
-            <tr>
-              <td class="text-mono"><a href="{{ url_for('hosts.detail', ip=a.ip) }}">{{ a.ip }}</a></td>
-              <td>{{ a.banner_service or a.service or 'Unknown' }}</td>
-              <td>
-                {% set sev = (a.severity or 'Low')|lower %}
-                <span class="badge badge--{{ sev }}">{{ a.risk_score or 0 }}</span>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="text-muted" style="margin:0">No assets scored yet.</p>
-      {% endif %}
-    </div>
+<section class="section">
+  <div class="section__head">
+    <h2>Hotspots</h2>
+    <span class="text-muted">Drill into a row for full asset context</span>
   </div>
+  <div class="grid grid--3">
+    <div class="card">
+      <div class="card__head">
+        <span>Top risky hosts</span>
+        <a class="btn btn--sm btn--ghost" href="{{ url_for('hosts.index') }}">All hosts →</a>
+      </div>
+      <div class="card__body card__body--tight">
+        {% if top_risky %}
+          <table class="dt" style="width:100%">
+            <thead><tr><th>IP</th><th>Service</th><th>Risk</th></tr></thead>
+            <tbody>
+              {% for a in top_risky %}
+              <tr>
+                <td class="text-mono"><a href="{{ url_for('hosts.detail', ip=a.ip) }}">{{ a.ip }}</a></td>
+                <td>{{ a.banner_service or a.service or 'Unknown' }}</td>
+                <td>
+                  {% set sev = (a.severity or 'Low')|lower %}
+                  <span class="badge badge--{{ sev }}"><span class="badge__dot"></span>{{ a.risk_score or 0 }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          {% with title='No risky hosts', sub='Once the pipeline scores assets, the riskiest will surface here.' %}
+            {% include "partials/_empty.html" %}
+          {% endwith %}
+        {% endif %}
+      </div>
+    </div>
 
-  <div class="card">
-    <div class="card__head">
-      <span>Expiring certificates</span>
-      <a class="btn btn--sm btn--ghost" href="{{ url_for('ssl_tls.index', expiring='30') }}">All certs →</a>
+    <div class="card">
+      <div class="card__head">
+        <span>Expiring certificates</span>
+        <a class="btn btn--sm btn--ghost" href="{{ url_for('ssl_tls.index', expiring='30') }}">All certs →</a>
+      </div>
+      <div class="card__body card__body--tight">
+        {% if expiring_soon %}
+          <table class="dt" style="width:100%">
+            <thead><tr><th>IP</th><th>Subject</th><th>Days left</th></tr></thead>
+            <tbody>
+              {% for c in expiring_soon %}
+              <tr>
+                <td class="text-mono"><a href="{{ url_for('hosts.detail', ip=c.ip) }}">{{ c.ip }}</a></td>
+                <td class="text-muted" style="font-size: var(--text-xs)">
+                  {{ c.subject_cn or c.subject_name or '—' }}
+                </td>
+                <td>
+                  {% set d = c.days_left %}
+                  {% if d is none %}—
+                  {% elif d < 0 %}<span class="badge badge--expired">Expired</span>
+                  {% elif d < 30 %}<span class="badge badge--high">{{ d }}d</span>
+                  {% else %}{{ d }}d
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          {% with title='Nothing expiring soon', sub='No certificates expiring within 30 days. Nice.' %}
+            {% include "partials/_empty.html" %}
+          {% endwith %}
+        {% endif %}
+      </div>
     </div>
-    <div class="card__body card__body--tight">
-      {% if expiring_soon %}
-        <table class="dt" style="width:100%">
-          <thead><tr><th>IP</th><th>Subject</th><th>Days left</th></tr></thead>
-          <tbody>
-            {% for c in expiring_soon %}
-            <tr>
-              <td class="text-mono"><a href="{{ url_for('hosts.detail', ip=c.ip) }}">{{ c.ip }}</a></td>
-              <td class="text-muted" style="font-size: var(--text-xs)">
-                {{ c.subject_cn or c.subject_name or '—' }}
-              </td>
-              <td>
-                {% set d = c.days_left %}
-                {% if d is none %}—
-                {% elif d < 0 %}<span class="badge badge--expired">Expired</span>
-                {% elif d < 30 %}<span class="badge badge--high">{{ d }}d</span>
-                {% else %}{{ d }}d
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="text-muted" style="margin:0">No certificates expiring within 30 days.</p>
-      {% endif %}
-    </div>
-  </div>
 
-  <div class="card">
-    <div class="card__head">
-      <span>Latest CVEs</span>
-      <a class="btn btn--sm btn--ghost" href="{{ url_for('cves.index') }}">All CVEs →</a>
-    </div>
-    <div class="card__body card__body--tight">
-      {% if latest_cves %}
-        <table class="dt" style="width:100%">
-          <thead><tr><th>CVE</th><th>Service</th><th>Severity</th></tr></thead>
-          <tbody>
-            {% for v in latest_cves %}
-            <tr>
-              <td><a href="https://nvd.nist.gov/vuln/detail/{{ v.cve_id }}" target="_blank" rel="noopener">{{ v.cve_id }}</a></td>
-              <td>{{ v.service or '—' }}</td>
-              <td>
-                {% set s = (v.severity or 'UNKNOWN')|upper %}
-                <span class="badge badge--{% if s == 'CRITICAL' %}critical{% elif s == 'HIGH' %}high{% elif s == 'MEDIUM' %}medium{% elif s == 'LOW' %}low{% else %}unknown{% endif %}">{{ v.severity or '—' }}</span>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="text-muted" style="margin:0">No CVE findings yet.</p>
-      {% endif %}
+    <div class="card">
+      <div class="card__head">
+        <span>Latest CVEs</span>
+        <a class="btn btn--sm btn--ghost" href="{{ url_for('cves.index') }}">All CVEs →</a>
+      </div>
+      <div class="card__body card__body--tight">
+        {% if latest_cves %}
+          <table class="dt" style="width:100%">
+            <thead><tr><th>CVE</th><th>Service</th><th>Severity</th></tr></thead>
+            <tbody>
+              {% for v in latest_cves %}
+              <tr>
+                <td><a href="https://nvd.nist.gov/vuln/detail/{{ v.cve_id }}" target="_blank" rel="noopener">{{ v.cve_id }}</a></td>
+                <td>{{ v.service or '—' }}</td>
+                <td>
+                  {% set s = (v.severity or 'UNKNOWN')|upper %}
+                  <span class="badge badge--{% if s == 'CRITICAL' %}critical{% elif s == 'HIGH' %}high{% elif s == 'MEDIUM' %}medium{% elif s == 'LOW' %}low{% else %}unknown{% endif %}">{{ v.severity or '—' }}</span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          {% with title='No CVE findings yet', sub='Vulnerability data appears once the pipeline correlates services to NVD.' %}
+            {% include "partials/_empty.html" %}
+          {% endwith %}
+        {% endif %}
+      </div>
     </div>
   </div>
 </section>

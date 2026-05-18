@@ -1,43 +1,67 @@
-/* Design tokens — colour, spacing, type. Anything reused twice goes here. */
+/* DOJAA design tokens
+ * --------------------
+ * The look is "operations console": deep navy surface, electric cyan accent,
+ * crisp risk colours. Two themes share the same variable names so every
+ * component automatically reflows when `data-theme` flips.
+ */
 
-:root {
-  /* --- Surfaces & ink --- */
-  --bg:            #f6f7fb;
-  --surface:       #ffffff;
-  --surface-2:     #f1f3f8;
-  --border:        #e3e6ee;
-  --border-strong: #c8cdda;
+:root,
+[data-theme="dark"] {
+  color-scheme: dark;
 
-  --ink:           #1f2536;
-  --ink-2:         #4a5168;
-  --ink-muted:     #6c7488;
+  /* --- Surfaces & ink ----------------------------------------------------- */
+  --bg:               #070b18;
+  --bg-grad:          radial-gradient(1200px 600px at 10% -10%, rgba(0, 224, 255, 0.08) 0%, transparent 60%),
+                      radial-gradient(900px 500px at 100% 0%, rgba(99, 102, 241, 0.10) 0%, transparent 55%),
+                      linear-gradient(180deg, #070b18 0%, #050811 100%);
+  --surface:          rgba(17, 23, 41, 0.78);
+  --surface-solid:    #111729;
+  --surface-2:        rgba(28, 35, 56, 0.65);
+  --surface-3:        rgba(40, 50, 78, 0.55);
+  --surface-elev:     rgba(20, 27, 48, 0.92);
+  --border:           rgba(120, 140, 190, 0.16);
+  --border-strong:    rgba(140, 165, 220, 0.28);
+  --border-glow:      rgba(0, 224, 255, 0.35);
 
-  /* --- Brand --- */
-  --brand:         #1f3a93;
-  --brand-strong:  #15296a;
-  --brand-tint:    #e9eef9;
-  --accent:        #00a6a6;
+  --ink:              #e8ecf7;
+  --ink-2:            #b6bdd4;
+  --ink-muted:        #7a83a0;
+  --ink-faint:        #525a75;
 
-  /* --- Risk palette (also used by SSL & CVE pages) --- */
-  --risk-low:        #1f8a4c;
-  --risk-low-tint:   #e6f5ec;
-  --risk-mid:        #c47a00;
-  --risk-mid-tint:   #fdf2dd;
-  --risk-high:       #b3261e;
-  --risk-high-tint:  #fbe3e1;
-  --risk-unknown:    #6c7488;
-  --risk-unknown-tint:#eef0f4;
+  /* --- Brand -------------------------------------------------------------- */
+  --brand:            #00e0ff;          /* electric cyan */
+  --brand-2:          #6366f1;          /* indigo */
+  --brand-3:          #a855f7;          /* violet */
+  --brand-strong:     #00b4d8;
+  --brand-tint:       rgba(0, 224, 255, 0.12);
+  --brand-tint-2:     rgba(99, 102, 241, 0.14);
+  --brand-grad:       linear-gradient(135deg, #00e0ff 0%, #6366f1 55%, #a855f7 100%);
+  --brand-grad-soft:  linear-gradient(135deg, rgba(0, 224, 255, 0.18) 0%, rgba(168, 85, 247, 0.18) 100%);
+  --accent:           #00e0ff;
+
+  /* --- Risk palette (also used by SSL & CVE pages) ------------------------ */
+  --risk-low:         #22c55e;
+  --risk-low-tint:    rgba(34, 197, 94, 0.14);
+  --risk-mid:         #f59e0b;
+  --risk-mid-tint:    rgba(245, 158, 11, 0.14);
+  --risk-high:        #ef4444;
+  --risk-high-tint:   rgba(239, 68, 68, 0.16);
+  --risk-unknown:     #94a3b8;
+  --risk-unknown-tint:rgba(148, 163, 184, 0.14);
 
   /* Status helpers */
-  --info:          #0b7285;
-  --info-tint:     #e3f3f7;
+  --info:             #38bdf8;
+  --info-tint:        rgba(56, 189, 248, 0.14);
+  --success:          #22c55e;
+  --success-tint:     rgba(34, 197, 94, 0.14);
 
-  /* --- Shape --- */
-  --radius-sm: 4px;
-  --radius:    8px;
-  --radius-lg: 14px;
+  /* --- Shape -------------------------------------------------------------- */
+  --radius-sm:  6px;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --radius-xl:  22px;
 
-  /* --- Spacing scale (4-pt) --- */
+  /* --- Spacing scale (4pt) ----------------------------------------------- */
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -45,21 +69,81 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
+  --space-8: 64px;
 
-  /* --- Typography --- */
+  /* --- Typography -------------------------------------------------------- */
   --font-sans: "Inter", "DM Sans", system-ui, -apple-system, "Segoe UI",
                Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --font-mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 
-  --text-xs: 12px;
-  --text-sm: 13px;
-  --text-md: 14px;
-  --text-lg: 17px;
-  --text-xl: 22px;
-  --text-2xl: 28px;
+  --text-xs:  12px;
+  --text-sm:  13px;
+  --text-md:  14px;
+  --text-lg:  17px;
+  --text-xl:  22px;
+  --text-2xl: 30px;
+  --text-3xl: 40px;
 
-  /* --- Effects --- */
-  --shadow-sm: 0 1px 2px rgba(20, 30, 60, 0.06);
-  --shadow:    0 2px 8px rgba(20, 30, 60, 0.08);
-  --focus:     0 0 0 3px rgba(31, 58, 147, 0.25);
+  /* --- Effects ----------------------------------------------------------- */
+  --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow:     0 8px 24px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  --shadow-lg:  0 24px 64px rgba(0, 0, 0, 0.55), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  --shadow-glow:0 0 0 1px rgba(0, 224, 255, 0.25), 0 8px 32px rgba(0, 224, 255, 0.15);
+  --focus:      0 0 0 3px rgba(0, 224, 255, 0.35);
+
+  --blur-bg:    saturate(160%) blur(14px);
+
+  /* --- Motion ------------------------------------------------------------ */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast:   140ms;
+  --t-base:   220ms;
+  --t-slow:   420ms;
+}
+
+/* --- Light theme override (opt-in via data-theme="light") ----------------- */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg:               #f4f6fb;
+  --bg-grad:          radial-gradient(1200px 600px at 10% -10%, rgba(0, 180, 216, 0.10) 0%, transparent 60%),
+                      radial-gradient(900px 500px at 100% 0%, rgba(99, 102, 241, 0.10) 0%, transparent 55%),
+                      linear-gradient(180deg, #f4f6fb 0%, #eef1f8 100%);
+  --surface:          rgba(255, 255, 255, 0.85);
+  --surface-solid:    #ffffff;
+  --surface-2:        rgba(240, 243, 250, 0.75);
+  --surface-3:        rgba(225, 230, 242, 0.60);
+  --surface-elev:     #ffffff;
+  --border:           rgba(20, 30, 60, 0.10);
+  --border-strong:    rgba(20, 30, 60, 0.18);
+  --border-glow:      rgba(0, 180, 216, 0.45);
+
+  --ink:              #0e1428;
+  --ink-2:            #3a4365;
+  --ink-muted:        #6c7488;
+  --ink-faint:        #98a1b6;
+
+  --brand:            #1f3a93;
+  --brand-2:          #6366f1;
+  --brand-3:          #a855f7;
+  --brand-strong:     #15296a;
+  --brand-tint:       rgba(31, 58, 147, 0.10);
+  --brand-tint-2:     rgba(99, 102, 241, 0.10);
+
+  --risk-low-tint:    rgba(34, 197, 94, 0.12);
+  --risk-mid-tint:    rgba(245, 158, 11, 0.14);
+  --risk-high-tint:   rgba(239, 68, 68, 0.12);
+  --risk-unknown-tint:rgba(108, 116, 136, 0.12);
+  --info-tint:        rgba(11, 114, 133, 0.10);
+  --success-tint:     rgba(34, 197, 94, 0.12);
+
+  --shadow-sm:  0 1px 2px rgba(20, 30, 60, 0.06);
+  --shadow:     0 8px 24px rgba(20, 30, 60, 0.08);
+  --shadow-lg:  0 24px 64px rgba(20, 30, 60, 0.12);
+  --shadow-glow:0 0 0 1px rgba(31, 58, 147, 0.20), 0 8px 32px rgba(31, 58, 147, 0.10);
+  --focus:      0 0 0 3px rgba(31, 58, 147, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 0ms; --t-base: 0ms; --t-slow: 0ms; }
 }

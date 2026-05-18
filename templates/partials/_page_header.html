@@ -10,8 +10,9 @@
     <h1>{{ title }}</h1>
     {% if subtitle %}<p class="lead">{{ subtitle }}</p>{% endif %}
     {% if freshness %}
-      <span class="text-muted" title="Pipeline cache last updated">
-        Data refreshed {{ freshness }}
+      <span class="hero__chip" style="margin-top: var(--space-2);" title="Pipeline cache last updated">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Refreshed {{ freshness }}
       </span>
     {% endif %}
   </div>
@@ -19,7 +20,10 @@
     {% if extra %}{{ extra|safe }}{% endif %}
     {% if rescan_url %}
       <form method="GET" action="{{ rescan_url }}" style="display:inline">
-        <button type="submit" name="rescan" value="true" class="btn btn--primary">Rescan now</button>
+        <button type="submit" name="rescan" value="true" class="btn btn--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Rescan now
+        </button>
       </form>
     {% endif %}
   </div>
