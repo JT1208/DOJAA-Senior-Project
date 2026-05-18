@@ -8,6 +8,15 @@ from flask import Flask
 
 from .settings import Settings, load_settings
 
+# Load .env from the project root if python-dotenv is installed. Silent no-op
+# if the package isn't present or the file doesn't exist.
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:  # pragma: no cover — optional dep
+    pass
+
 
 def create_app(settings: Settings | None = None) -> Flask:
     """Build and configure the Flask app."""
