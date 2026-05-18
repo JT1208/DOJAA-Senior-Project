@@ -80,7 +80,25 @@ class HostSnapshot:
 
 @dataclass(frozen=True)
 class FindingSpec:
-    """Authoritative description of one possible finding."""
+    """Authoritative description of one possible finding.
+
+    The ``category`` decides whether a finding contributes to the host's
+    headline CVSS:
+
+    * ``vulnerability`` — confirmed exploitable weakness (EOL software,
+      expired cert). Contributes to the headline.
+    * ``cve``           — direct NVD match. Contributes; its CVSS comes
+      from the worst matched CVE at scoring time, not from the static
+      vector below.
+    * ``exposure``      — service is reachable. Listed but does NOT
+      drive headline CVSS, because reachability ≠ exploitability.
+    * ``hardening``     — best-practice gap (banner disclosure, shadow
+      asset). Listed; does not drive headline CVSS.
+
+    The category split prevents two unrelated "posture" observations
+    from compounding into a CVSS-band promotion. Industry tools
+    (Tenable, Qualys, Rapid7) follow the same convention.
+    """
 
     id: str
     title: str
@@ -93,6 +111,7 @@ class FindingSpec:
     references: tuple[tuple[str, str], ...]  # (title, url)
     remediation: str
     matches: Callable[[HostSnapshot], bool] = field(repr=False)
+    category: str = "vulnerability"
 
     # -- computed --------------------------------------------------------
 
@@ -117,6 +136,7 @@ class FindingSpec:
             "id": self.id,
             "title": self.title,
             "description": self.description,
+            "category": self.category,
             "cwe": {"id": self.cwe_id, "name": self.cwe_name, "url": self.cwe_url()},
             "cvss": {
                 "vector": self.cvss_vector,
@@ -199,9 +219,12 @@ CATALOG: tuple[FindingSpec, ...] = (
             "page contents travel in the clear and can be intercepted on "
             "any path between the client and the server."
         ),
+        category="vulnerability",
         cwe_id="CWE-319",
         cwe_name="Cleartext Transmission of Sensitive Information",
-        cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+        # AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:N — interception requires being
+        # on-path (AC:H) and a user actually transmitting sensitive data (UI:R).
+        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:L/A:N",
         nist_controls=("SC-8", "SC-8(1)", "SC-23"),
         mitre_techniques=("T1040",),  # Network Sniffing
         references=(
@@ -224,14 +247,19 @@ CATALOG: tuple[FindingSpec, ...] = (
         id="DOJAA-FNDG-002",
         title="SSH service exposed to the public internet",
         description=(
-            "Port 22 is reachable from the public internet. Even with "
-            "key-only authentication, exposing SSH externally creates a "
-            "constant brute-force / credential-stuffing surface and "
-            "broadens the attacker footprint."
+            "Port 22 is reachable from the public internet. SSH itself is "
+            "designed to be safe to expose when hardened, so this finding "
+            "is informational — it widens the attacker's footprint and "
+            "creates a constant brute-force / credential-stuffing surface, "
+            "but is not by itself an exploitable weakness."
         ),
+        category="exposure",   # ← does not drive headline CVSS
         cwe_id="CWE-284",
         cwe_name="Improper Access Control",
-        cvss_vector="CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+        # AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N — exposure alone has only
+        # confidentiality-low risk (recon / username enumeration in poor
+        # configs). Real impact only materialises if auth is weak.
+        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
         nist_controls=("AC-3", "AC-17", "SC-7", "SC-7(3)"),
         mitre_techniques=("T1110", "T1078"),  # Brute Force; Valid Accounts
         references=(
@@ -257,9 +285,13 @@ CATALOG: tuple[FindingSpec, ...] = (
             "frameworks (Metasploit) consume those strings directly, "
             "lowering the effort an attacker needs for reconnaissance."
         ),
+        category="hardening",   # ← does not drive headline CVSS
         cwe_id="CWE-200",
         cwe_name="Exposure of Sensitive Information to an Unauthorized Actor",
-        cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        # AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N = 5.3, but reality is
+        # closer to "informational" — NVD only scores banner leaks when
+        # they enable concrete enumeration. We use AC:H to reflect that.
+        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
         nist_controls=("SI-11", "AC-23"),
         mitre_techniques=("T1592", "T1595.002"),  # Gather host info; Active scanning
         references=(
@@ -282,6 +314,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "CVEs against 7.x (and earlier) are unlikely to be patched in "
             "place; only an upgrade closes them."
         ),
+        category="vulnerability",
         cwe_id="CWE-1104",
         cwe_name="Use of Unmaintained Third Party Components",
         cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
@@ -309,6 +342,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "internet is presumed vulnerable to multiple high-severity "
             "issues."
         ),
+        category="vulnerability",
         cwe_id="CWE-1104",
         cwe_name="Use of Unmaintained Third Party Components",
         cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
@@ -335,6 +369,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "this branch. Any service linked against it is presumed "
             "vulnerable."
         ),
+        category="vulnerability",
         cwe_id="CWE-1104",
         cwe_name="Use of Unmaintained Third Party Components",
         cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
@@ -359,11 +394,16 @@ CATALOG: tuple[FindingSpec, ...] = (
             "A port that hosts an administrative service, a database "
             "engine, or a legacy cleartext protocol is reachable from the "
             "public internet. These services are designed to be consumed "
-            "from inside a trust boundary."
+            "from inside a trust boundary; full impact materialises only "
+            "when authentication is also weak/absent."
         ),
+        category="exposure",   # ← reachability ≠ exploitability
         cwe_id="CWE-1390",
         cwe_name="Weak Authentication",
-        cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        # AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N = 3.7 Low — a sensible
+        # default for "service reachable, configuration unknown". The
+        # finding rises naturally if NVD CVEs match the actual product.
+        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
         nist_controls=("AC-3", "AC-4", "SC-7", "SC-7(3)", "CM-7"),
         mitre_techniques=("T1190", "T1078"),
         references=(
@@ -387,11 +427,14 @@ CATALOG: tuple[FindingSpec, ...] = (
             "in the organisation's authoritative asset inventory. Shadow "
             "assets typically arise from forgotten cloud instances, "
             "vendor handoffs, or domain hijacking, and are over-represented "
-            "in breach forensics."
+            "in breach forensics. This is an asset-management gap, not a "
+            "vulnerability on its own."
         ),
+        category="hardening",   # ← asset-management gap, not a vuln
         cwe_id="CWE-1059",
         cwe_name="Insufficient Technical Documentation",
-        cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        # Low (3.7) — inventory gap helps an attacker pick targets.
+        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
         nist_controls=("CM-8", "CM-8(1)", "CM-8(3)", "PM-5"),
         mitre_techniques=("T1190",),
         references=(
@@ -417,6 +460,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "configured to override the warning are exposed to active "
             "interception."
         ),
+        category="vulnerability",
         cwe_id="CWE-298",
         cwe_name="Improper Validation of Certificate Expiration",
         cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N",
@@ -446,6 +490,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "automated renewal is a recurring cause of unplanned outages "
             "and ad-hoc certificate replacement under pressure."
         ),
+        category="hardening",
         cwe_id="CWE-672",
         cwe_name="Operation on a Resource after Expiration or Release",
         cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -473,6 +518,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "an attacker-supplied one, which encourages users to dismiss "
             "browser warnings as routine."
         ),
+        category="vulnerability",
         cwe_id="CWE-295",
         cwe_name="Improper Certificate Validation",
         cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:N",
@@ -498,11 +544,14 @@ CATALOG: tuple[FindingSpec, ...] = (
             "NVD reports public CVE records whose CPE or keyword matches "
             "a service banner on this host. Each match is a candidate "
             "vulnerability — patch level needs to be verified against the "
-            "vendor's advisory."
+            "vendor's advisory. The headline CVSS for this finding is "
+            "taken from the worst matched CVE's own NVD score, not from "
+            "the static vector below."
         ),
+        category="cve",        # ← scoring engine overrides cvss with worst-matched
         cwe_id="CWE-1395",
         cwe_name="Dependency on Vulnerable Third-Party Component",
-        cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        cvss_vector="CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
         nist_controls=("RA-5", "SI-2", "SI-2(5)"),
         mitre_techniques=("T1190", "T1203"),
         references=(
@@ -525,6 +574,7 @@ CATALOG: tuple[FindingSpec, ...] = (
             "CISA has observed active exploitation in the wild. Under BOD "
             "22-01, U.S. federal civilian agencies are required to remediate."
         ),
+        category="vulnerability",
         cwe_id="CWE-1395",
         cwe_name="Dependency on Vulnerable Third-Party Component",
         cvss_vector="CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",

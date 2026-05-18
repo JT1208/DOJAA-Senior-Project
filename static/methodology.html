@@ -38,6 +38,7 @@
       <ol>
         <li>Sources of truth (CVSS, CWE, NIST, MITRE, CISA, FIRST)</li>
         <li>Per-finding scoring</li>
+        <li>Finding categories</li>
         <li>Per-host aggregation</li>
         <li>Severity bands</li>
         <li>Finding catalog</li>
@@ -111,19 +112,47 @@
       DOJAA does not re-score CVEs.
     </p>
 
-    <h2>3. Per-host aggregation</h2>
+    <h2>3. Finding categories</h2>
     <p>
-      Per NIST SP 800-30 §3.2, risk is a function of likelihood and impact.
-      Severity already captures impact; for likelihood DOJAA uses:
+      Every finding is one of four categories. The category decides whether
+      the finding's CVSS contributes to the host's headline severity. This
+      mirrors how Tenable, Qualys and Rapid7 treat posture observations
+      versus actual vulnerabilities — reachability is not the same thing as
+      exploitability.
+    </p>
+    <table>
+      <thead><tr><th>Category</th><th>Drives headline?</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><strong>vulnerability</strong></td><td>Yes</td><td>EOL OpenSSH, expired cert, self-signed cert, cleartext HTTP</td></tr>
+        <tr><td><strong>cve</strong></td><td>Yes — uses the worst matched CVE's NVD CVSS</td><td>NVD CVE keyword/CPE match</td></tr>
+        <tr><td><strong>exposure</strong></td><td>No — listed for posture</td><td>SSH reachable on the public internet, sensitive port reachable</td></tr>
+        <tr><td><strong>hardening</strong></td><td>No — listed for posture</td><td>Banner version disclosure, shadow asset (inventory gap)</td></tr>
+      </tbody>
+    </table>
+
+    <h2>4. Per-host aggregation</h2>
+    <p>
+      Headline severity is the <em>maximum</em> CVSS among findings whose
+      category is <code>vulnerability</code> or <code>cve</code>. CVSS is
+      explicitly not aggregated by addition — adding two unrelated Mediums
+      should not produce a High, because CVSS bands are anchored to specific
+      real-world impacts (FIRST.org spec §5).
+    </p>
+    <p>
+      Two adjustments apply on top of the raw max:
     </p>
     <ul>
-      <li><strong>Headline CVSS</strong> — the worst single finding contributes the base.</li>
-      <li><strong>Volume bonus</strong> — additional findings add a logarithmic premium (<code>min(log10(n)·4, +1.5)</code>) so a host with five Highs scores higher than one with a single High.</li>
-      <li><strong>KEV override</strong> — any matched CVE in CISA KEV promotes the host's aggregate CVSS to at least 9.0 (Critical), reflecting CISA's BOD 22-01 prioritisation.</li>
+      <li><strong>CVE-match override</strong> — the <code>cve</code> finding's
+          CVSS is replaced with the worst matched CVE's own NVD score, so a
+          host that only matches historical low-severity CVEs no longer reports
+          as High.</li>
+      <li><strong>KEV override</strong> — any matched CVE in CISA KEV promotes
+          the headline to at least 9.0 (Critical), reflecting CISA's BOD 22-01
+          remediation priority.</li>
     </ul>
     <p>
-      The 0–10 aggregate is reported alongside a 0–100 score (the aggregate ×
-      10) for analyst convenience.
+      The 0–10 headline is also reported as a 0–100 score (headline × 10) for
+      analyst convenience.
     </p>
 
     <h2>4. Severity bands</h2>

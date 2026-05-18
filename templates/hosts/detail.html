@@ -12,11 +12,15 @@
   <div class="page-header__title">
     <h1 class="text-mono">{{ asset.ip }}</h1>
     <p class="lead">
-      {{ asset.service_intel or asset.service or 'Service intelligence unavailable.' }}
+      Port {{ asset.port if asset.port is not none else '—' }} ·
+      {{ asset.banner_summary or asset.service or 'Unclassified service' }}
     </p>
     <div style="display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
-      {% set sev = (asset.severity or 'Low')|lower %}
-      <span class="badge badge--{{ sev }}">Risk {{ asset.risk_score or 0 }} — {{ asset.severity or 'Low' }}</span>
+      {% set sev = (asset.severity or 'None')|lower %}
+      <span class="badge badge--{{ sev if sev in ['critical','high','medium','low'] else 'unknown' }}">
+        CVSS {{ '%.1f'|format(asset.cvss_headline or 0) }} — {{ asset.severity or 'None' }}
+      </span>
+      {% if asset.kev_present %}<span class="badge badge--critical" title="CISA Known Exploited Vulnerability">KEV present</span>{% endif %}
       {% if asset.shadow_asset %}<span class="badge badge--shadow">Shadow asset</span>{% endif %}
       {% if asset.source %}<span class="badge badge--info">{{ asset.source|capitalize }}</span>{% endif %}
     </div>
@@ -70,6 +74,9 @@
       <p class="text-muted" style="margin-top: var(--space-3); font-size: var(--text-xs)">
         Scoring follows CVSS v3.1 (FIRST.org), enriched with CISA KEV and FIRST EPSS.
         Each finding is mapped to CWE, NIST SP 800-53, and MITRE ATT&amp;CK.
+        Headline severity is the worst CVSS across <strong>vulnerability</strong> and
+        <strong>CVE-match</strong> findings only — <strong>exposure</strong> and
+        <strong>hardening</strong> items are listed but do not drive the band.
       </p>
     </div>
   </div>
@@ -94,6 +101,11 @@
           <span class="badge badge--{{ sev if sev in ['critical','high','medium','low'] else 'unknown' }}">
             CVSS {{ '%.1f'|format(f.cvss.score) }} · {{ f.cvss.severity }}
           </span>
+          {% if f.category == 'vulnerability' %}<span class="badge" style="background:var(--risk-high-tint); color:var(--risk-high); border-color:transparent">Vulnerability</span>
+          {% elif f.category == 'cve' %}<span class="badge" style="background:var(--risk-high-tint); color:var(--risk-high); border-color:transparent">CVE match</span>
+          {% elif f.category == 'exposure' %}<span class="badge" style="background:var(--info-tint); color:var(--info); border-color:transparent">Exposure</span>
+          {% elif f.category == 'hardening' %}<span class="badge" style="background:var(--risk-mid-tint); color:var(--risk-mid); border-color:transparent">Hardening</span>
+          {% endif %}
           <a class="badge badge--info" href="{{ f.cwe.url }}" target="_blank" rel="noopener">{{ f.cwe.id }}</a>
         </div>
       </header>
