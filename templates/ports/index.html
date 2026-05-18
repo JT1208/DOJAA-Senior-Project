@@ -2,15 +2,16 @@
 {% block title %}Ports{% endblock %}
 
 {% block content %}
-<header class="page-header">
-  <div class="page-header__title">
-    <h1>Open ports</h1>
-    <p class="lead">
-      Distribution of exposed ports and services across the attack surface.
-      For per-host detail, open the <a href="{{ url_for('hosts.index') }}">Hosts</a> tab.
-    </p>
-  </div>
-</header>
+{% set extra %}
+<a class="btn" href="{{ url_for('ports.export_csv') }}">Export CSV</a>
+{% endset %}
+{% with title='Open ports',
+        subtitle='Port and service distribution across the attack surface. Click a port to see the hosts behind it.',
+        freshness=freshness,
+        rescan_url=url_for('ports.index'),
+        extra=extra %}
+  {% include "partials/_page_header.html" %}
+{% endwith %}
 
 {% if not port_rows %}
   {% with title='No port data yet', sub='Run the pipeline from the Hosts tab to populate this view.' %}
@@ -28,27 +29,39 @@
     <span class="stat__label">Most common port</span>
     <span class="stat__value text-mono">{{ port_rows[0].port }}</span>
     <span class="stat__sub">{{ port_rows[0].service_hint }} · {{ port_rows[0].count }} hits</span>
+    <a class="stat__link" href="{{ url_for('ports.detail', port=port_rows[0].port) }}">Open port</a>
   </div>
-  <div class="stat {% if port_rows|selectattr('risky_count', '>', 0)|list %}stat--high{% endif %}">
-    <span class="stat__label">Ports with risky assets</span>
-    <span class="stat__value">{{ port_rows|selectattr('risky_count', '>', 0)|list|length }}</span>
+  <div class="stat {% if risky_ports > 0 %}stat--high{% endif %}">
+    <span class="stat__label">Ports with risky hosts</span>
+    <span class="stat__value">{{ risky_ports }}</span>
     <span class="stat__sub">at least one host scoring ≥50</span>
   </div>
 </section>
 
-<div class="grid grid--2" style="margin-top: var(--space-5);">
+<div class="filter-bar" role="search" style="margin-top: var(--space-5);">
+  <label for="port-search">Filter</label>
+  <input id="port-search" type="text" placeholder="port number or service hint" />
+  <label for="risky-only">
+    <input type="checkbox" id="risky-only" /> Risky only
+  </label>
+</div>
+
+<div class="grid grid--2">
   <div class="card">
-    <div class="card__head">Ports — most exposed first</div>
+    <div class="card__head">
+      <span>Ports — most exposed first</span>
+      <span class="text-muted" id="portsCount">{{ port_rows|length }} rows</span>
+    </div>
     <div class="card__body card__body--tight">
       <table id="portsTable" class="dt" style="width:100%">
         <thead>
           <tr>
-            <th>Port</th><th>Service hint</th><th>Hosts</th><th>Risky hosts</th>
+            <th>Port</th><th>Service hint</th><th>Hosts</th><th>Risky hosts</th><th></th>
           </tr>
         </thead>
         <tbody>
           {% for row in port_rows %}
-          <tr>
+          <tr data-risky="{{ 'yes' if row.risky_count > 0 else 'no' }}">
             <td class="text-mono">{{ row.port }}</td>
             <td>{{ row.service_hint }}</td>
             <td data-order="{{ row.count }}">{{ row.count }}</td>
@@ -59,6 +72,7 @@
                 0
               {% endif %}
             </td>
+            <td><a class="btn btn--sm" href="{{ url_for('ports.detail', port=row.port) }}">Hosts</a></td>
           </tr>
           {% endfor %}
         </tbody>

@@ -8,14 +8,37 @@ from flask import Flask
 
 from .settings import Settings, load_settings
 
-# Load .env from the project root if python-dotenv is installed. Silent no-op
-# if the package isn't present or the file doesn't exist.
-try:
-    from dotenv import load_dotenv
+# Load .env at import time. Walks up from CWD so it works even when flask is
+# invoked from a subdirectory. Prints a one-line diagnostic so missing
+# credentials are obvious from the terminal rather than silently skipped.
+import sys as _sys
 
-    load_dotenv()
-except ImportError:  # pragma: no cover — optional dep
-    pass
+
+def _bootstrap_dotenv() -> None:
+    try:
+        from dotenv import find_dotenv, load_dotenv
+    except ImportError:
+        print(
+            "[dojaa] WARNING: python-dotenv is not installed; .env files will "
+            "NOT be auto-loaded. Run `poetry install` or `pip install python-dotenv`.",
+            file=_sys.stderr,
+        )
+        return
+
+    path = find_dotenv(usecwd=True)
+    if not path:
+        print(
+            "[dojaa] WARNING: no .env file found in CWD or any parent. "
+            "API keys must already be exported in your shell.",
+            file=_sys.stderr,
+        )
+        return
+
+    load_dotenv(path, override=False)
+    print(f"[dojaa] loaded environment from {path}", file=_sys.stderr)
+
+
+_bootstrap_dotenv()
 
 
 def create_app(settings: Settings | None = None) -> Flask:

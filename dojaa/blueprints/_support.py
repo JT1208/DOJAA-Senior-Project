@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from functools import wraps
 from typing import Any, Callable
 
@@ -42,3 +43,23 @@ def get_dashboard_data(rescan: bool | None = None) -> dict:
     for msg in data.get("_pipeline_notices") or []:
         flash(msg, "warning")
     return data
+
+
+def format_freshness(iso: str | None) -> str | None:
+    """Render an ISO timestamp as a relative-time string for the page header."""
+    if not iso:
+        return None
+    try:
+        dt = datetime.fromisoformat(iso)
+    except ValueError:
+        return None
+    delta = datetime.now(timezone.utc) - dt
+    seconds = int(delta.total_seconds())
+    if seconds < 60:
+        return "just now"
+    if seconds < 3600:
+        return f"{seconds // 60} min ago"
+    if seconds < 86400:
+        return f"{seconds // 3600} h ago"
+    return dt.strftime("%Y-%m-%d %H:%M UTC")
+
