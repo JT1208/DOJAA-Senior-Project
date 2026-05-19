@@ -34,3 +34,7 @@ epss_cache.json
 
 # Local dev configs
 .claude/
+
+# Auto-generated at-rest encryption key (dev fallback when FLASK_SECRET_KEY
+# and DOJAA_DATA_KEY are both unset). Never commit.
+.dojaa.key

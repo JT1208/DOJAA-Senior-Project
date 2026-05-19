@@ -86,6 +86,20 @@ class Settings:
         return self.cache_dir / "internal_inventory.json"
 
 
+def _resolve_demo_password_hash() -> str:
+    """Prefer a pre-hashed password from env; fall back to hashing a
+    plaintext value at startup so existing .env files keep working."""
+    pre = (os.environ.get("DOJAA_DEMO_PASSWORD_HASH") or "").strip()
+    if pre:
+        return pre
+    plain = (os.environ.get("DOJAA_DEMO_PASSWORD") or "").strip()
+    if not plain:
+        return ""
+    # Local import to avoid a hard dependency at module load time.
+    from .security import hash_password
+    return hash_password(plain)
+
+
 def load_settings() -> Settings:
     cache_dir = Path(os.environ.get("DOJAA_CACHE_DIR") or Path.cwd()).resolve()
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -94,10 +108,8 @@ def load_settings() -> Settings:
         debug=_bool(os.environ.get("FLASK_DEBUG"), default=False),
         auth_disabled=_bool(os.environ.get("DOJAA_AUTH_DISABLED"), default=False),
         demo_email_domain=(os.environ.get("DOJAA_DEMO_EMAIL_DOMAIN") or "drexel.edu").strip(),
-        # Demo password default — overrideable via DOJAA_DEMO_PASSWORD env var.
-        # This branch ships with a non-empty default so the login screen is
-        # usable out of the box. Replace before any non-demo deployment.
-        demo_password=os.environ.get("DOJAA_DEMO_PASSWORD", "dojaa-demo"),
+        demo_password_hash=_resolve_demo_password_hash(),
+        data_key=(os.environ.get("DOJAA_DATA_KEY") or "").strip(),
         org_domain=(os.environ.get("DOJAA_ORG_DOMAIN") or "drexel.edu").strip(),
         shodan_api_key=os.environ.get("SHODAN_API_KEY", "").strip(),
         censys_api_token=os.environ.get("CENSYS_API_TOKEN", "").strip(),
