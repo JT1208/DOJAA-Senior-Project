@@ -38,7 +38,12 @@ class Settings:
     # --- Demo login (only used if AUTH_DISABLED is false). Leave both blank
     #     to disable form auth entirely. ---
     demo_email_domain: str
-    demo_password: str
+    demo_password_hash: str  # werkzeug PBKDF2 hash. Plaintext never stored.
+
+    # --- At-rest encryption key (Fernet, url-safe base64, 44 chars). When
+    #     empty, derived from FLASK_SECRET_KEY via HKDF, with on-disk
+    #     fallback for dev. See dojaa.security.resolve_at_rest_key. ---
+    data_key: str
 
     # --- Organisation under investigation ---
     org_domain: str
